@@ -1,0 +1,209 @@
+<style type="text/css">
+
+    .price > div {
+        width: 32%;
+    }
+
+    table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    table td {
+        font-size: 12px;
+        overflow: hidden;
+        word-break: normal;
+        text-align: center;
+        border: 1px solid #333333;
+        border-right: 0px;
+        border-bottom: 0px;
+        padding: 5px;
+    }
+    table tr:last-child td {
+        border-bottom: 1px solid #333333;
+    }
+    table td:last-child {
+        border-right: 1px solid #333333;
+    }
+
+</style>
+
+{#<pre>#}
+{#    {{ dump(data) }}#}
+{#</pre>#}
+<div class="contrat__content">
+
+    <div class="flex space-between bold">
+        <h2>ANLAGE 2</h2>
+        <p class="bold mb-20">Kunden-Nr : R{{ quoteRequest.postalCode.zone }} - {{ quoteRequest.customerId }}</p>
+    </div>
+    <p class="mb-20">zum Vertrag vom {{ quoteRequest.dateUpdate|date('d/m/Y') }} zwischen der</p>
+    <p>{{ quoteRequest.businessName }}</p>
+    <p>und</p>
+    <p class="bold mb-30">REISSWOLF Aktenvernichtungs-AG</p>
+
+    <h3 style="margin-top: 60px;">KONDITIONEN</h3>
+
+    <p class="mb-20">
+        Vertrauliche Original- und Endlospapiere, Kopien, Ausdrucke aller Art, Altakten und anderes vertrauliches Schriftgut
+    </p>
+    <p class="mb-30">
+        Gestellung von abschließbaren Transportbehältern. Abholung der Behälter oder Umleerver-fahren mit unserem Spezialpressfahrzeug
+        und datenschutzgerecht Vernichtung des vertraulichen Schriftguts, zuzüglich MwSt. :
+    </p>
+
+    <p class="mb-10">Pauschalpreis für Transport und Vernichtung, je Behälterleerung :</p>
+    <table>
+        <tbody>
+        {% for product in products %}
+        <tr>
+            <td>
+                {{product|productLabelTranslation('fr')}}
+            </td>
+            <td>
+                Pro Behälter
+            </td>
+            <td>
+
+                CHF {{((product.transportUnitPrice / 100 * quoteRequest.postalCode.transportRate)|formatAmount(null, app.request.locale, 'FORMAT15'))|formatAmount(null, app.request.locale, 'DEC2')|round|number_format(2, '.', ',')}}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <p class="mt-20 mb-10">Preise für Verlad ab Stockwerk :</p>
+    <table>
+        <tbody>
+        <tr>
+            <td rowspan="2" style="border-bottom: 1px solid #333333;">
+                Pro Behälter
+            </td>
+            <td>
+                Aufzug :
+            </td>
+            <td>
+                CHF 10.00
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Treppe :
+            </td>
+            <td>
+                CHF 20.00
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p class="mt-20 mb-10">Miete für Behälter pro Monat :</p>
+    <table>
+        <tbody>
+        {% for product in products %}
+
+        <tr>
+            <td>
+                {{product|productLabelTranslation('fr')}}
+            </td>
+            <td>
+                Pro Behälter
+            </td>
+            <td>
+                CHF {{((product.rentalUnitPrice / 100 * quoteRequest.postalCode.rentalRate)|formatAmount(null, app.request.locale, 'FORMAT15'))|formatAmount(null, app.request.locale, 'DEC2')|round|number_format(2, '.', ',')}}
+            </td>
+        </tr>
+        </tbody>
+        {% endfor %}
+
+    </table>
+
+    <p>* Einmalige Programmierung e.l.sy-Schloss : CHF 20.00</p>
+
+
+    {#<div style="width: 500px; margin: auto;">
+        <div class="flex space-between mt-20 price">
+            <div>
+                <p>RW 70 e.l.sy </p>
+                <p>RW 130 e.l.sy</p>
+                <p>RW 240 e.l.sy</p>
+                <p>RW 350 e.l.sy</p>
+                <p>RW 500 e.l.sy</p>
+            </div>
+            <div>
+                <p>par collecteur</p>
+                <p>par collecteur</p>
+                <p>par collecteur</p>
+                <p>par collecteur</p>
+                <p>par collecteur</p>
+            </div>
+            <div>
+                <p>CHF 30,00</p>
+                <p>CHF 37,00</p>
+                <p>CHF 44,00</p>
+                <p>CHF 63,00</p>
+                <p>CHF 84,00</p>
+            </div>
+        </div>
+
+        <p class="mt-20" style="text-decoration: underline;">Prix de chargement en étage</p>
+        <div class="flex space-between price">
+            <div>
+                <p>Par collecteur</p>
+            </div>
+            <div>
+                <p>Ascenseur :</p>
+                <p>Escalier :</p>
+            </div>
+            <div>
+                <p>CHF 10,00</p>
+                <p>CHF 20,00</p>
+            </div>
+        </div>
+
+
+        <p class="mt-20" style="text-decoration: underline">Location des collecteurs au mois :</p>
+        <div class="flex space-between price">
+            <div>
+                <p>RW 70 e.l.sy </p>
+                <p>RW 130 e.l.sy</p>
+                <p>RW 240 e.l.sy</p>
+                <p>RW 350 e.l.sy</p>
+                <p>RW 500 e.l.sy</p>
+            </div>
+            <div>
+                <p>par collecteur</p>
+                <p>par collecteur</p>
+                <p>par collecteur</p>
+                <p>par collecteur</p>
+                <p>par collecteur</p>
+            </div>
+            <div>
+                <p>CHF 15,00 *</p>
+                <p>CHF 15,00 *</p>
+                <p>CHF 15,00 *</p>
+                <p>CHF 15,00 *</p>
+                <p>CHF 10,00 *</p>
+            </div>
+        </div>
+        <p>* Programmation unique de la serrure e.l.sy : CHF 20,00</p>
+    </div>#}
+
+    <p class="mt-30">
+        Abgabe Badgekarte für Reisswolf-Behälter :
+    </p>
+    <ul>
+        <li>
+            bei der Abgabe von einer Badgekarte für Notöffnungen des Sicherheitsbehälters sind keine Depot-Gebühren zu bezahlen.
+        </li>
+        <li>
+            bei Verlust der Karte wird jedoch eine Gebühr für diverse Umtriebe von CHF 100.00 in Rechnung gestellt.
+        </li>
+    </ul>
+
+    <p>
+        Alle Preise verstehen sich zuzgl. Mehrwertsteuer und sind bis am {% if quoteRequest.dateUpdate|date('m') < 7 %} {{ quoteRequest.dateUpdate|date('Y') }} {% else %} {{ quoteRequest.dateUpdate|date('Y') + 1 }}{% endif %}gültig. Danach können sie nach Bedarf angepasst werden.
+    </p>
+</div>
