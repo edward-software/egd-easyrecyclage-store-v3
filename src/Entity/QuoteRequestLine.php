@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -10,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * QuoteRequestLine
  *
  * @ORM\Table(name="quoteRequestLines")
- * @ORM\Entity(repositoryClass="QuoteRequestLineRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\QuoteRequestLineRepository")
  */
 class QuoteRequestLine
 {
@@ -24,21 +25,21 @@ class QuoteRequestLine
     private $id;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateCreation", type="datetime")
      */
     private $dateCreation;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="deleted", type="datetime", nullable=true)
      */
@@ -167,7 +168,7 @@ class QuoteRequestLine
      */
     public function __construct()
     {
-        $this->dateCreation = new \DateTime();
+        $this->dateCreation = new DateTime();
     }
 
 
@@ -184,7 +185,7 @@ class QuoteRequestLine
     /**
      * Set dateCreation.
      *
-     * @param \DateTime $dateCreation
+     * @param DateTime $dateCreation
      *
      * @return QuoteRequestLine
      */
@@ -198,9 +199,9 @@ class QuoteRequestLine
     /**
      * Get dateCreation.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateCreation() : \DateTime
+    public function getDateCreation() : DateTime
     {
         return $this->dateCreation;
     }
@@ -208,7 +209,7 @@ class QuoteRequestLine
     /**
      * Set dateUpdate.
      *
-     * @param \DateTime|null $dateUpdate
+     * @param DateTime|null $dateUpdate
      *
      * @return QuoteRequestLine
      */
@@ -222,9 +223,9 @@ class QuoteRequestLine
     /**
      * Get dateUpdate.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDateUpdate() : ?\DateTime
+    public function getDateUpdate() : ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -232,7 +233,7 @@ class QuoteRequestLine
     /**
      * Set deleted.
      *
-     * @param \DateTime|null $deleted
+     * @param DateTime|null $deleted
      *
      * @return QuoteRequestLine
      */
@@ -246,9 +247,9 @@ class QuoteRequestLine
     /**
      * Get deleted.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDeleted() : ?\DateTime
+    public function getDeleted() : ?DateTime
     {
         return $this->deleted;
     }
@@ -275,30 +276,6 @@ class QuoteRequestLine
     public function getProductName() : string
     {
         return $this->productName;
-    }
-
-    /**
-     * Set unitPrice.
-     *
-     * @param int $unitPrice
-     *
-     * @return QuoteRequestLine
-     */
-    public function setUnitPrice($unitPrice) : self
-    {
-        $this->unitPrice = $unitPrice;
-
-        return $this;
-    }
-
-    /**
-     * Get unitPrice.
-     *
-     * @return int
-     */
-    public function getUnitPrice() : int
-    {
-        return $this->unitPrice;
     }
 
     /**

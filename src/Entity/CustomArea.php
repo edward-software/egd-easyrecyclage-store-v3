@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * CustomArea
  *
  * @ORM\Table(name="custom_area")
- * @ORM\Entity(repositoryClass="CustomAreaRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\CustomAreaRepository")
  */
 class CustomArea
 {
@@ -26,21 +27,21 @@ class CustomArea
     private $id;
     
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateCreation", type="datetime")
      */
     private $dateCreation;
     
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
      */
     private $dateUpdate;
     
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="deleted", type="datetime", nullable=true)
      */
@@ -115,7 +116,7 @@ class CustomArea
      */
     public function __construct()
     {
-        $this->dateCreation = new \DateTime();
+        $this->dateCreation = new DateTime();
         $this->pictures = new ArrayCollection();
     }
     
@@ -133,7 +134,7 @@ class CustomArea
     /**
      * Set dateCreation.
      *
-     * @param \DateTime $dateCreation
+     * @param DateTime $dateCreation
      *
      * @return CustomArea
      */
@@ -147,9 +148,9 @@ class CustomArea
     /**
      * Get dateCreation.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateCreation() : \DateTime
+    public function getDateCreation() : DateTime
     {
         return $this->dateCreation;
     }
@@ -157,7 +158,7 @@ class CustomArea
     /**
      * Set dateUpdate.
      *
-     * @param \DateTime|null $dateUpdate
+     * @param DateTime|null $dateUpdate
      *
      * @return CustomArea
      */
@@ -171,9 +172,9 @@ class CustomArea
     /**
      * Get dateUpdate.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDateUpdate() : ?\DateTime
+    public function getDateUpdate() : ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -367,7 +368,7 @@ class CustomArea
     /**
      * Set deleted.
      *
-     * @param \DateTime|null $deleted
+     * @param DateTime|null $deleted
      *
      * @return CustomArea
      */

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Product
  *
  * @ORM\Table(name="products")
- * @ORM\Entity(repositoryClass="ProductRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  */
 class Product
 {
@@ -26,21 +27,21 @@ class Product
     private $id;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateCreation", type="datetime")
      */
     private $dateCreation;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="deleted", type="datetime", nullable=true)
      */
@@ -189,7 +190,7 @@ class Product
      */
     public function __construct()
     {
-        $this->dateCreation = new \DateTime();
+        $this->dateCreation = new DateTime();
         $this->pictures = new ArrayCollection();
         $this->productLabels = new ArrayCollection();
     }
@@ -256,7 +257,7 @@ class Product
     /**
      * Set dateCreation.
      *
-     * @param \DateTime $dateCreation
+     * @param DateTime $dateCreation
      *
      * @return Product
      */
@@ -270,9 +271,9 @@ class Product
     /**
      * Get dateCreation.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateCreation() : \DateTime
+    public function getDateCreation() : DateTime
     {
         return $this->dateCreation;
     }
@@ -280,7 +281,7 @@ class Product
     /**
      * Set dateUpdate.
      *
-     * @param \DateTime|null $dateUpdate
+     * @param DateTime|null $dateUpdate
      *
      * @return Product
      */
@@ -294,9 +295,9 @@ class Product
     /**
      * Get dateUpdate.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDateUpdate() : ?\DateTime
+    public function getDateUpdate() : ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -304,7 +305,7 @@ class Product
     /**
      * Set deleted.
      *
-     * @param \DateTime|null $deleted
+     * @param DateTime|null $deleted
      *
      * @return Product
      */
@@ -318,9 +319,9 @@ class Product
     /**
      * Get deleted.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDeleted() : ?\DateTime
+    public function getDeleted() : ?DateTime
     {
         return $this->deleted;
     }

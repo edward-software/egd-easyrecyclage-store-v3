@@ -3,17 +3,17 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
-
 /**
  * Product
  *
  * @ORM\Table(name="productLabels")
- * @ORM\Entity(repositoryClass="ProductRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\ProductLabelRepository")
  * @UniqueEntity(
  *     fields={"language", "product"},
  *     message="This language is already defined pour this product."
@@ -32,21 +32,21 @@ class ProductLabel
     private $id;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateCreation", type="datetime")
      */
     private $dateCreation;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="deleted", type="datetime", nullable=true)
      */
@@ -115,7 +115,7 @@ class ProductLabel
      */
     public function __construct()
     {
-        $this->dateCreation = new \DateTime();
+        $this->dateCreation = new DateTime();
     }
     
 
@@ -204,7 +204,7 @@ class ProductLabel
     /**
      * Set dateCreation.
      *
-     * @param \DateTime $dateCreation
+     * @param DateTime $dateCreation
      *
      * @return ProductLabel
      */
@@ -218,9 +218,9 @@ class ProductLabel
     /**
      * Get dateCreation.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateCreation() : \DateTime
+    public function getDateCreation() : DateTime
     {
         return $this->dateCreation;
     }
@@ -228,7 +228,7 @@ class ProductLabel
     /**
      * Set dateUpdate.
      *
-     * @param \DateTime|null $dateUpdate
+     * @param DateTime|null $dateUpdate
      *
      * @return ProductLabel
      */
@@ -242,9 +242,9 @@ class ProductLabel
     /**
      * Get dateUpdate.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDateUpdate() : ?\DateTime
+    public function getDateUpdate() : ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -252,7 +252,7 @@ class ProductLabel
     /**
      * Set deleted.
      *
-     * @param \DateTime|null $deleted
+     * @param DateTime|null $deleted
      *
      * @return ProductLabel
      */
@@ -266,9 +266,9 @@ class ProductLabel
     /**
      * Get deleted.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDeleted() : ?\DateTime
+    public function getDeleted() : ?DateTime
     {
         return $this->deleted;
     }

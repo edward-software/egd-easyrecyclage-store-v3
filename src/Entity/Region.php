@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Region
  *
  * @ORM\Table(name="region")
- * @ORM\Entity(repositoryClass="RegionRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\RegionRepository")
  */
 class Region
 {
@@ -26,21 +27,21 @@ class Region
     private $id;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateCreation", type="datetime")
      */
     private $dateCreation;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="deleted", type="datetime", nullable=true)
      */
@@ -88,7 +89,7 @@ class Region
      */
     public function __construct()
     {
-        $this->dateCreation = new \DateTime();
+        $this->dateCreation = new DateTime();
         $this->postalCodes = new ArrayCollection();
     }
     
@@ -138,7 +139,7 @@ class Region
     /**
      * Set dateCreation.
      *
-     * @param \DateTime $dateCreation
+     * @param DateTime $dateCreation
      *
      * @return Region
      */
@@ -152,9 +153,9 @@ class Region
     /**
      * Get dateCreation.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateCreation() : \DateTime
+    public function getDateCreation() : DateTime
     {
         return $this->dateCreation;
     }
@@ -162,7 +163,7 @@ class Region
     /**
      * Set dateUpdate.
      *
-     * @param \DateTime|null $dateUpdate
+     * @param DateTime|null $dateUpdate
      *
      * @return Region
      */
@@ -176,9 +177,9 @@ class Region
     /**
      * Get dateUpdate.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDateUpdate() : ?\DateTime
+    public function getDateUpdate() : ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -270,7 +271,7 @@ class Region
     /**
      * Set deleted.
      *
-     * @param \DateTime|null $deleted
+     * @param DateTime|null $deleted
      *
      * @return Region
      */
@@ -284,7 +285,7 @@ class Region
     /**
      * Get deleted.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
     public function getDeleted() : ?\DateTime
     {

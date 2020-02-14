@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use FOS\UserBundle\Model\User as BaseUser;
@@ -14,7 +15,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * User
  *
  * @ORM\Table(name="users")
- * @ORM\Entity(repositoryClass="UserRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"}, repositoryMethod="isMailUnique")
  * @UniqueEntity(fields={"username"}, repositoryMethod="isUsernameUnique")
  * @UniqueEntity(fields={"usernameCanonical"}, repositoryMethod="isUsernameCanonicalUnique")
@@ -54,21 +55,21 @@ class User extends BaseUser
     protected $email;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateCreation", type="datetime")
      */
     private $dateCreation;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="deleted", type="datetime", nullable=true)
      */
@@ -117,8 +118,9 @@ class User extends BaseUser
     {
         parent::__construct();
 
-        $this->dateCreation = new \DateTime();
-        $this->products = new ArrayCollection();
+        $this->dateCreation = new DateTime();
+        $this->quoteRequests = new ArrayCollection();
+        $this->postalCodes = new ArrayCollection();
     }
 
 
@@ -207,7 +209,7 @@ class User extends BaseUser
     /**
      * Set dateCreation.
      *
-     * @param \DateTime $dateCreation
+     * @param DateTime $dateCreation
      *
      * @return User
      */
@@ -221,9 +223,9 @@ class User extends BaseUser
     /**
      * Get dateCreation.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateCreation() : \DateTime
+    public function getDateCreation() : DateTime
     {
         return $this->dateCreation;
     }
@@ -231,7 +233,7 @@ class User extends BaseUser
     /**
      * Set dateUpdate.
      *
-     * @param \DateTime|null $dateUpdate
+     * @param DateTime|null $dateUpdate
      *
      * @return User
      */
@@ -245,9 +247,9 @@ class User extends BaseUser
     /**
      * Get dateUpdate.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDateUpdate() : ?\DateTime
+    public function getDateUpdate() : ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -255,7 +257,7 @@ class User extends BaseUser
     /**
      * Set deleted.
      *
-     * @param \DateTime|null $deleted
+     * @param DateTime|null $deleted
      *
      * @return User
      */
@@ -269,47 +271,11 @@ class User extends BaseUser
     /**
      * Get deleted.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
     public function getDeleted() : ?\DateTime
     {
         return $this->deleted;
-    }
-
-    /**
-     * Add product.
-     *
-     * @param Product $product
-     *
-     * @return User
-     */
-    public function addProduct(Product $product) : User
-    {
-        $this->products[] = $product;
-
-        return $this;
-    }
-
-    /**
-     * Remove product.
-     *
-     * @param Product $product
-     *
-     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
-     */
-    public function removeProduct(Product $product) : bool
-    {
-        return $this->products->removeElement($product);
-    }
-
-    /**
-     * Get products.
-     *
-     * @return Collection
-     */
-    public function getProducts() : Collection
-    {
-        return $this->products;
     }
 
     /**

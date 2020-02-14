@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -12,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * PostalCode
  *
  * @ORM\Table(name="postalCodes")
- * @ORM\Entity(repositoryClass="PostalCodeRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\PostalCodeRepository")
  * @UniqueEntity(fields={"code"}, repositoryMethod="isCodeUnique")
  */
 class PostalCode
@@ -27,14 +29,14 @@ class PostalCode
     private $id;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateCreation", type="datetime")
      */
     private $dateCreation;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
      */
@@ -57,7 +59,7 @@ class PostalCode
     private $userUpdate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="deleted", type="datetime", nullable=true)
      */
@@ -107,8 +109,7 @@ class PostalCode
      * @Assert\NotBlank()
      */
     private $treatmentRate;
-
-
+    
     /**
      * @var int
      *
@@ -116,8 +117,7 @@ class PostalCode
      * @Assert\NotBlank()
      */
     private $traceabilityRate;
-
-
+    
     /**
      * @var string
      *
@@ -157,7 +157,8 @@ class PostalCode
      */
     public function __construct()
     {
-        $this->dateCreation = new \DateTime();
+        $this->dateCreation = new DateTime();
+        $this->quoteRequests = new ArrayCollection();
     }
 
     
@@ -174,7 +175,7 @@ class PostalCode
     /**
      * Set dateCreation.
      *
-     * @param \DateTime $dateCreation
+     * @param DateTime $dateCreation
      *
      * @return PostalCode
      */
@@ -188,9 +189,9 @@ class PostalCode
     /**
      * Get dateCreation.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateCreation() : \DateTime
+    public function getDateCreation() : DateTime
     {
         return $this->dateCreation;
     }
@@ -198,7 +199,7 @@ class PostalCode
     /**
      * Set dateUpdate.
      *
-     * @param \DateTime|null $dateUpdate
+     * @param DateTime|null $dateUpdate
      *
      * @return PostalCode
      */
@@ -212,9 +213,9 @@ class PostalCode
     /**
      * Get dateUpdate.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDateUpdate() : ?\DateTime
+    public function getDateUpdate() : ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -222,7 +223,7 @@ class PostalCode
     /**
      * Set deleted.
      *
-     * @param \DateTime|null $deleted
+     * @param DateTime|null $deleted
      *
      * @return PostalCode
      */
@@ -236,9 +237,9 @@ class PostalCode
     /**
      * Get deleted.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDeleted() : ?\DateTime
+    public function getDeleted() : ?DateTime
     {
         return $this->deleted;
     }
@@ -414,11 +415,11 @@ class PostalCode
     /**
      * Set region.
      *
-     * @param \Paprec\CatalogBundle\Entity\Region|null $region
+     * @param Region|null $region
      *
      * @return PostalCode
      */
-    public function setRegion(\Paprec\CatalogBundle\Entity\Region $region = null) : self
+    public function setRegion(Region $region = null) : self
     {
         $this->region = $region;
 

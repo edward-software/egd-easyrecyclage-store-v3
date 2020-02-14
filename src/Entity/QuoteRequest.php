@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -12,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * QuoteRequest
  *
  * @ORM\Table(name="quoteRequests")
- * @ORM\Entity(repositoryClass="QuoteRequestRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\QuoteRequestRepository")
  * @UniqueEntity("number")
  */
 class QuoteRequest
@@ -27,21 +28,21 @@ class QuoteRequest
     private $id;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateCreation", type="datetime")
      */
     private $dateCreation;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="deleted", type="datetime", nullable=true)
      */
@@ -282,7 +283,7 @@ class QuoteRequest
      */
     public function __construct()
     {
-        $this->dateCreation = new \DateTime();
+        $this->dateCreation = new DateTime();
         $this->quoteRequestLines = new \Doctrine\Common\Collections\ArrayCollection();
         $this->overallDiscount = 0;
     }
@@ -301,7 +302,7 @@ class QuoteRequest
     /**
      * Set dateCreation.
      *
-     * @param \DateTime $dateCreation
+     * @param DateTime $dateCreation
      *
      * @return QuoteRequest
      */

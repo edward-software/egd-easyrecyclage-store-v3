@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
@@ -10,7 +11,7 @@ use Ramsey\Uuid\UuidInterface;
  * Cart
  *
  * @ORM\Table(name="carts")
- * @ORM\Entity(repositoryClass="CartRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\CartRepository")
  */
 class Cart
 {
@@ -25,21 +26,21 @@ class Cart
     private $id;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="dateCreation", type="datetime")
      */
     private $dateCreation;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      *
      * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="disabled", type="datetime", nullable=true)
      */
@@ -88,7 +89,7 @@ class Cart
      */
     public function __construct()
     {
-        $this->dateCreation = new \DateTime();
+        $this->dateCreation = new DateTime();
         $this->content = [];
     }
     
@@ -106,7 +107,7 @@ class Cart
     /**
      * Set dateCreation.
      *
-     * @param \DateTime $dateCreation
+     * @param DateTime $dateCreation
      *
      * @return Cart
      */
@@ -120,9 +121,9 @@ class Cart
     /**
      * Get dateCreation.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateCreation() : \DateTime
+    public function getDateCreation() : DateTime
     {
         return $this->dateCreation;
     }
@@ -130,7 +131,7 @@ class Cart
     /**
      * Set dateUpdate.
      *
-     * @param \DateTime|null $dateUpdate
+     * @param DateTime|null $dateUpdate
      *
      * @return Cart
      */
@@ -144,9 +145,9 @@ class Cart
     /**
      * Get dateUpdate.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDateUpdate() : ?\DateTime
+    public function getDateUpdate() : ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -154,7 +155,7 @@ class Cart
     /**
      * Set disabled.
      *
-     * @param \DateTime|null $disabled
+     * @param DateTime|null $disabled
      *
      * @return Cart
      */
@@ -168,9 +169,9 @@ class Cart
     /**
      * Get disabled.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDisabled() : ?\DateTime
+    public function getDisabled() : ?DateTime
     {
         return $this->disabled;
     }
