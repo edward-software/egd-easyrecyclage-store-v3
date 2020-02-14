@@ -745,7 +745,7 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/product/editPicture/{id}/{pictureID}", name="paprec_catalog_product_editPicture", methods={"POST})
+     * @Route("/product/editPicture/{id}/{pictureID}", name="paprec_catalog_product_editPicture", methods={"POST"})
      * @Security("has_role('ROLE_COMMERCIAL')")
      */
     public function editPictureAction(Request $request, Product $product)
