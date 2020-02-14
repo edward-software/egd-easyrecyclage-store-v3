@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 
-namespace Paprec\CommercialBundle\Repository;
+namespace App\Repository;
 
 use Doctrine\ORM\EntityRepository;
 
