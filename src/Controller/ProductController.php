@@ -1,0 +1,875 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Controller;
+
+
+use App\Entity\Picture;
+use App\Entity\Product;
+use App\Entity\ProductLabel;
+use App\Entity\User;
+use DateTime;
+use Doctrine\ORM\QueryBuilder;
+use Exception;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
+
+class ProductController extends AbstractController
+{
+    /**
+     * @Route("/product", name="paprec_catalog_product_index")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function indexAction()
+    {
+        return $this->render('PaprecCatalogBundle:Product:index.html.twig');
+    }
+
+    /**
+     * @Route("/product/loadList", name="paprec_catalog_product_loadList")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function loadListAction(Request $request)
+    {
+        $productManager = $this->get('paprec_catalog.product_manager');
+
+        $return = array();
+        $locale = $request->getLocale();
+
+        $filters = $request->get('filters');
+        $pageSize = $request->get('length');
+        $start = $request->get('start');
+        $orders = $request->get('order');
+        $search = $request->get('search');
+        $columns = $request->get('columns');
+
+        $cols['id'] = array('label' => 'id', 'id' => 'p.id', 'method' => array('getId'));
+        $cols['name'] = array('label' => 'name', 'id' => 'pL.name', 'method' => array(array('getProductLabels', 0), 'getName'));
+        $cols['dimensions'] = array('label' => 'dimensions', 'id' => 'p.dimensions', 'method' => array('getDimensions'));
+        $cols['isEnabled'] = array('label' => 'isEnabled', 'id' => 'p.isEnabled', 'method' => array('getIsEnabled'));
+
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $this->getDoctrine()->getManager()->getRepository(Product::class)->createQueryBuilder('p');
+
+        $queryBuilder->select(array('p', 'pL'))
+            ->leftJoin('p.productLabels', 'pL')
+            ->where('p.deleted IS NULL')
+            ->andWhere('pL.language = :language')
+            ->setParameter('language', 'EN');
+
+        if (is_array($search) && isset($search['value']) && $search['value'] != '') {
+            if (substr($search['value'], 0, 1) == '#') {
+                $queryBuilder->andWhere($queryBuilder->expr()->orx(
+                    $queryBuilder->expr()->eq('p.id', '?1')
+                ))->setParameter(1, substr($search['value'], 1));
+            } else {
+                $queryBuilder->andWhere($queryBuilder->expr()->orx(
+                    $queryBuilder->expr()->like('pL.name', '?1'),
+                    $queryBuilder->expr()->like('p.dimensions', '?1'),
+                    $queryBuilder->expr()->like('pL.isEnabled', '?1')
+                ))->setParameter(1, '%' . $search['value'] . '%');
+            }
+        }
+
+        $datatable = $this->get('goondi_tools.datatable')->generateTable($cols, $queryBuilder, $pageSize, $start,
+            $orders, $columns, $filters);
+
+        // Reformatage de certaines données
+        $tmp = array();
+        foreach ($datatable['data'] as $data) {
+            $line = $data;
+            $line['isEnabled'] = $data['isEnabled'] ? $this->get('translator')->trans('General.1') : $this->get('translator')->trans('General.0');
+            $tmp[] = $line;
+        }
+
+        $datatable['data'] = $tmp;
+
+        $return['recordsTotal'] = $datatable['recordsTotal'];
+        $return['recordsFiltered'] = $datatable['recordsTotal'];
+        $return['data'] = $datatable['data'];
+        $return['resultCode'] = 1;
+        $return['resultDescription'] = "success";
+
+        return new JsonResponse($return);
+
+    }
+
+    /**
+     * @Route("/product/export",  name="paprec_catalog_product_export")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function exportAction(Request $request)
+    {
+        $language = $request->getLocale();
+
+        $translator = $this->container->get('translator');
+        $productManager = $this->container->get('paprec_catalog.product_manager');
+        $numberManager = $this->container->get('paprec_catalog.number_manager');
+
+        /** @var Spreadsheet $phpExcelObject */
+        $phpExcelObject = $this->container->get('phpexcel')->createPHPExcelObject();
+
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
+
+        $queryBuilder->select(array('p'))
+            ->from('PaprecCatalogBundle:Product', 'p')
+            ->where('p.deleted IS NULL');
+
+        $products = $queryBuilder->getQuery()->getResult();
+
+        $phpExcelObject->getProperties()->setCreator("Reisswolf Shop")
+            ->setLastModifiedBy("Reisswolf Shop")
+            ->setTitle("Reisswolf Shop - Products")
+            ->setSubject("Extract");
+
+        $sheet = $phpExcelObject->setActiveSheetIndex();
+        $sheet->setTitle('Products');
+        
+        // Labels
+        $sheetLabels = [
+            'P. ID',
+            'Creation date',
+            'Update date',
+            'Deleted',
+            'Capacity',
+            'Capacity unit',
+            'Dimensions',
+            'is Enabled',
+            'Rental unit price',
+            'Transport UP',
+            'Treatment UP',
+            'Traceability UP',
+            'Position',
+            'User creation ID',
+            'User update ID',
+            'Folder number',
+            'Setup UP',
+            'PL. ID',
+            'Name',
+            'Short desc.',
+            'Language',
+            'Product version',
+            'Lock type',
+        ];
+        
+        $xAxe = 'A';
+        foreach ($sheetLabels as $label) {
+            $sheet->setCellValue($xAxe . 1, $label);
+            $xAxe++;
+        }
+        
+        $yAxe = 2;
+        
+        /** @var Product $product */
+        foreach ($products as $product) {
+
+            /** @var ProductLabel $productLabel */
+            $productLabel = $productManager->getProductLabelByProductAndLocale($product, strtoupper($language));
+            
+            // Getters
+            $getters = [
+                $product->getId(),
+                $product->getDateCreation()->format('Y-m-d'),
+                $product->getDateUpdate()->format('Y-m-d'),
+                $product->getDeleted() ? 'true' : 'false',
+                $product->getCapacity(),
+                $product->getCapacityUnit(),
+                $product->getDimensions(),
+                $product->getIsEnabled(),
+                $numberManager->denormalize($product->getRentalUnitPrice()),
+                $numberManager->denormalize($product->getTransportUnitPrice()),
+                $numberManager->denormalize($product->getTreatmentUnitPrice()),
+                $numberManager->denormalize($product->getTraceabilityUnitPrice()),
+                $product->getPosition(),
+                $product->getUserCreation(),
+                $product->getUserUpdate(),
+                $product->getFolderNumber(),
+                $numberManager->denormalize($product->getSetUpPrice()),
+                $productLabel->getId(),
+                $productLabel->getName(),
+                $productLabel->getShortDescription(),
+                $productLabel->getLanguage(),
+                $productLabel->getVersion(),
+                $productLabel->getLockType(),
+            ];
+            
+            $xAxe = 'A';
+            foreach ($getters as $getter) {
+                $sheet->setCellValue($xAxe . $yAxe, (string) $getter);
+                $xAxe++;
+            }
+            $yAxe++;
+        }
+    
+        // Format
+        $sheet->getStyle("A1:" . $sheet->getHighestDataColumn() . 1)->getAlignment()->setHorizontal('center');
+        $sheet->getStyle("A2:" . $sheet->getHighestDataColumn() . $sheet->getHighestDataRow())->getAlignment()->setHorizontal('left');
+    
+        // Resize columns
+        for ($i = 'A'; $i <= $sheet->getHighestDataColumn(); $i++) {
+            $sheet->getColumnDimension($i)->setAutoSize(true);
+        }
+    
+        $writer = $this->container->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+
+        $fileName = 'ReisswolfShop-Extraction-Products-' . date('Y-m-d') . '.xlsx';
+
+        // create the response
+        $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
+
+        // adding headers
+        $dispositionHeader = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $fileName
+        );
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response;
+    }
+
+    /**
+     * @Route("/product/view/{id}",  name="paprec_catalog_product_view")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function viewAction(Request $request, Product $product)
+    {
+
+        $productManager = $this->get('paprec_catalog.product_manager');
+        $productManager->isDeleted($product, true);
+
+        $language = $request->getLocale();
+        
+        /** @var ProductLabel $productLabel */
+        $productLabel = $productManager->getProductLabelByProductAndLocale($product, strtoupper($language));
+
+        /** @var ProductLabel[] $otherProductLabels */
+        $otherProductLabels = $productManager->getProductLabels($product);
+
+        $tmp = array();
+        foreach ($otherProductLabels as $pL) {
+            if ($pL->getId() != $productLabel->getId()) {
+                $tmp[] = $pL;
+            }
+        }
+        $otherProductLabels = $tmp;
+
+
+        foreach ($this->getParameter('paprec_types_picture') as $type) {
+            $types[$type] = $type;
+        }
+
+        $picture = new Picture();
+
+        $formAddPicture = $this->createForm(PictureProductType::class, $picture, array(
+            'types' => $types
+        ));
+
+        $formEditPicture = $this->createForm(PictureProductType::class, $picture, array(
+            'types' => $types
+        ));
+
+
+        return $this->render('PaprecCatalogBundle:Product:view.html.twig', array(
+            'product' => $product,
+            'productLabel' => $productLabel,
+            'formAddPicture' => $formAddPicture->createView(),
+            'formEditPicture' => $formEditPicture->createView(),
+            'otherProductLabels' => $otherProductLabels
+        ));
+    }
+
+    /**
+     * @Route("/product/add",  name="paprec_catalog_product_add")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function addAction(Request $request)
+    {
+        $user = $this->getUser();
+
+        $numberManager = $this->get('paprec_catalog.number_manager');
+
+        $languages = array();
+        foreach ($this->getParameter('paprec_languages') as $language) {
+            $languages[$language] = $language;
+        }
+
+        $product = new Product();
+        $productLabel = new ProductLabel();
+
+        $form1 = $this->createForm(ProductType::class, $product);
+        $form2 = $this->createForm(ProductLabelType::class, $productLabel, array(
+            'languages' => $languages,
+            'language' => 'EN'
+        ));
+
+        $form1->handleRequest($request);
+        $form2->handleRequest($request);
+
+        if ($form1->isSubmitted() && $form1->isValid() && $form2->isSubmitted() && $form2->isValid()) {
+
+            $em = $this->getDoctrine()->getManager();
+
+            $product = $form1->getData();
+
+
+            $product->setRentalUnitPrice($numberManager->normalize($product->getRentalUnitPrice()));
+            $product->setSetUpPrice($numberManager->normalize($product->getSetUpPrice()));
+            $product->setTransportUnitPrice($numberManager->normalize($product->getTransportUnitPrice()));
+            $product->setTreatmentUnitPrice($numberManager->normalize($product->getTreatmentUnitPrice()));
+            $product->setTraceabilityUnitPrice($numberManager->normalize($product->getTraceabilityUnitPrice()));
+
+            $product->setDateCreation(new DateTime);
+            $product->setUserCreation($user);
+
+            $em->persist($product);
+            $em->flush();
+
+            $productLabel = $form2->getData();
+            $productLabel->setDateCreation(new DateTime);
+            $productLabel->setUserCreation($user);
+            $productLabel->setProduct($product);
+
+            $em->persist($productLabel);
+            $em->flush();
+
+            return $this->redirectToRoute('paprec_catalog_product_view', array(
+                'id' => $product->getId()
+            ));
+
+        }
+
+        return $this->render('PaprecCatalogBundle:Product:add.html.twig', array(
+            'form1' => $form1->createView(),
+            'form2' => $form2->createView()
+        ));
+    }
+
+    /**
+     * @Route("/product/edit/{id}",  name="paprec_catalog_product_edit")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws \Exception
+     */
+    public function editAction(Request $request, Product $product)
+    {
+        $productManager = $this->get('paprec_catalog.product_manager');
+        $numberManager = $this->get('paprec_catalog.number_manager');
+        $productManager->isDeleted($product, true);
+
+        $user = $this->getUser();
+
+        $languages = array();
+        foreach ($this->getParameter('paprec_languages') as $language) {
+            $languages[$language] = $language;
+        }
+
+        $language = $request->getLocale();
+        $productLabel = $productManager->getProductLabelByProductAndLocale($product, strtoupper($language));
+
+        $product->setSetUpPrice($numberManager->denormalize($product->getSetUpPrice()));
+        $product->setRentalUnitPrice($numberManager->denormalize($product->getRentalUnitPrice()));
+        $product->setTransportUnitPrice($numberManager->denormalize($product->getTransportUnitPrice()));
+        $product->setTreatmentUnitPrice($numberManager->denormalize($product->getTreatmentUnitPrice()));
+        $product->setTraceabilityUnitPrice($numberManager->denormalize($product->getTraceabilityUnitPrice()));
+
+        $form1 = $this->createForm(ProductType::class, $product);
+        $form2 = $this->createForm(ProductLabelType::class, $productLabel, array(
+            'languages' => $languages,
+            'language' => $productLabel->getLanguage()
+        ));
+
+        $form1->handleRequest($request);
+        $form2->handleRequest($request);
+
+        if ($form1->isSubmitted() && $form1->isValid() && $form2->isSubmitted() && $form2->isValid()) {
+
+
+            $em = $this->getDoctrine()->getManager();
+
+            $product = $form1->getData();
+
+            $product->setSetUpPrice($numberManager->normalize($product->getSetUpPrice()));
+            $product->setRentalUnitPrice($numberManager->normalize($product->getRentalUnitPrice()));
+            $product->setTransportUnitPrice($numberManager->normalize($product->getTransportUnitPrice()));
+            $product->setTreatmentUnitPrice($numberManager->normalize($product->getTreatmentUnitPrice()));
+            $product->setTraceabilityUnitPrice($numberManager->normalize($product->getTraceabilityUnitPrice()));
+
+
+            $product->setDateUpdate(new DateTime);
+            $product->setUserUpdate($user);
+            $em->flush();
+
+            $productLabel = $form2->getData();
+            $productLabel->setDateUpdate(new DateTime);
+            $productLabel->setUserUpdate($user);
+            $productLabel->setProduct($product);
+
+            $em->flush();
+
+            return $this->redirectToRoute('paprec_catalog_product_view', array(
+                'id' => $product->getId()
+            ));
+        }
+        return $this->render('PaprecCatalogBundle:Product:edit.html.twig', array(
+            'form1' => $form1->createView(),
+            'form2' => $form2->createView(),
+            'product' => $product,
+            'productLabel' => $productLabel
+        ));
+    }
+
+    /**
+     * @Route("/product/remove/{id}", name="paprec_catalog_product_remove")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function removeAction(Request $request, Product $product)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        /*
+         * Suppression des images
+         */
+        foreach ($product->getPictures() as $picture) {
+            $this->removeFile($this->getParameter('paprec_catalog.product.di.picto_path') . '/' . $picture->getPath());
+            $product->removePicture($picture);
+        }
+
+        $product->setDeleted(new DateTime);
+        $product->setIsEnabled(false);
+        $em->flush();
+
+        return $this->redirectToRoute('paprec_catalog_product_index');
+    }
+
+    /**
+     * @Route("/product/removeMany/{ids}", name="paprec_catalog_product_removeMany")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function removeManyAction(Request $request)
+    {
+        $ids = $request->get('ids');
+
+        if (!$ids) {
+            throw new NotFoundHttpException();
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        $ids = explode(',', $ids);
+
+        if (is_array($ids) && count($ids)) {
+            
+            /** @var Product[] $products */
+            $products = $em->getRepository('PaprecCatalogBundle:Product')->findById($ids);
+            
+            foreach ($products as $product) {
+                foreach ($product->getPictures() as $picture) {
+                    $this->removeFile($this->getParameter('paprec_catalog.product.picto_path') . '/' . $picture->getPath());
+                    $product->removePicture($picture);
+                }
+
+                $product->setDeleted(new DateTime());
+                $product->setIsEnabled(false);
+            }
+            
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('paprec_catalog_product_index');
+    }
+
+    /**
+     * @Route("/product/enableMany/{ids}", name="paprec_catalog_product_enableMany")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function enableManyAction(Request $request)
+    {
+        $ids = $request->get('ids');
+
+        if (!$ids) {
+            throw new NotFoundHttpException();
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        $ids = explode(',', $ids);
+
+        if (is_array($ids) && count($ids)) {
+            
+            /** @var Product[] $products */
+            $products = $em->getRepository('PaprecCatalogBundle:Product')->findById($ids);
+            
+            foreach ($products as $product) {
+                $product->setIsEnabled(true);
+            }
+            
+            $em->flush();
+        }
+        
+        return $this->redirectToRoute('paprec_catalog_product_index');
+    }
+
+    /**
+     * @Route("/product/disableMany/{ids}", name="paprec_catalog_product_disableMany")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function disableManyAction(Request $request)
+    {
+        $ids = $request->get('ids');
+
+        if (!$ids) {
+            throw new NotFoundHttpException();
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        $ids = explode(',', $ids);
+
+        if (is_array($ids) && count($ids)) {
+            
+            /** @var Product[] $products */
+            $products = $em->getRepository('PaprecCatalogBundle:Product')->findById($ids);
+            
+            foreach ($products as $product) {
+                $product->setIsEnabled(false);
+            }
+            
+            $em->flush();
+        }
+        
+        return $this->redirectToRoute('paprec_catalog_product_index');
+    }
+
+    /**
+     * @Route("/product/{id}/addProductLabel",  name="paprec_catalog_product_addProductLabel")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function addProductLabelAction(Request $request, Product $product)
+    {
+        $user = $this->getUser();
+
+        $productManager = $this->get('paprec_catalog.product_manager');
+        $productManager->isDeleted($product, true);
+
+        $languages = array();
+        foreach ($this->getParameter('paprec_languages') as $language) {
+            $languages[$language] = $language;
+        }
+        $productLabel = new ProductLabel();
+
+        $form = $this->createForm(ProductLabelType::class, $productLabel, array(
+            'languages' => $languages,
+            'language' => strtoupper($request->getLocale())
+        ));
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $em = $this->getDoctrine()->getManager();
+
+            $productLabel = $form->getData();
+            $productLabel->setDateCreation(new DateTime);
+            $productLabel->setUserCreation($user);
+            $productLabel->setProduct($product);
+
+            $em->persist($productLabel);
+            $em->flush();
+
+            return $this->redirectToRoute('paprec_catalog_product_view', array(
+                'id' => $product->getId()
+            ));
+
+        }
+
+        return $this->render('@PaprecCatalog/Product/ProductLabel/add.html.twig', array(
+            'form' => $form->createView(),
+            'product' => $product,
+        ));
+    }
+
+    /**
+     * @Route("/product/{id}/editProductLabel/{productLabelId}",  name="paprec_catalog_product_editProductLabel")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     * @param Request $request
+     * @param Product $product
+     * @param $productLabelId
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\ORM\EntityNotFoundException
+     */
+    public function editProductLabelAction(Request $request, Product $product, $productLabelId)
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $productManager = $this->get('paprec_catalog.product_manager');
+        $productLabelManager = $this->get('paprec_catalog.product_label_manager');
+
+        $productManager->isDeleted($product, true);
+
+        /** @var ProductLabel $productLabel */
+        $productLabel = $productLabelManager->get($productLabelId);
+
+        $languages = array();
+        foreach ($this->getParameter('paprec_languages') as $language) {
+            $languages[$language] = $language;
+        }
+
+        $form = $this->createForm(ProductLabelType::class, $productLabel, array(
+            'languages' => $languages,
+            'language' => $productLabel->getLanguage()
+        ));
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $em = $this->getDoctrine()->getManager();
+
+            $productLabel = $form->getData();
+            $productLabel->setDateUpdate(new DateTime);
+            $productLabel->setUserUpdate($user);
+
+//            $em->merge($productLabel);
+            $em->flush();
+
+            return $this->redirectToRoute('paprec_catalog_product_view', array(
+                'id' => $product->getId()
+            ));
+
+        }
+
+        return $this->render('@PaprecCatalog/Product/ProductLabel/edit.html.twig', array(
+            'form' => $form->createView(),
+            'product' => $product
+        ));
+    }
+
+    /**
+     * @Route("/product/{id}/removeProductLabel/{productLabelId}",  name="paprec_catalog_product_removeProductLabel")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     * @param Request $request
+     * @param Product $product
+     * @param $productLabelId
+     */
+    public function removeProductLabelAction(Request $request, Product $product, $productLabelId)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $productManager = $this->get('paprec_catalog.product_manager');
+        $productLabelManager = $this->get('paprec_catalog.product_label_manager');
+
+        $productManager->isDeleted($product, true);
+
+        $productLabel = $productLabelManager->get($productLabelId);
+        $em->remove($productLabel);
+
+        $em->flush();
+
+        return $this->redirectToRoute('paprec_catalog_product_view', array(
+            'id' => $product->getId()
+        ));
+    }
+
+    /**
+     * Supprimme un fichier du sytème de fichiers
+     *
+     * @param $path
+     */
+    public function removeFile($path)
+    {
+        $fs = new Filesystem();
+        try {
+            $fs->remove($path);
+        } catch (IOException $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * @Route("/product/addPicture/{id}/{type}", name="paprec_catalog_product_addPicture", methods={"POST"})
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function addPictureAction(Request $request, Product $product)
+    {
+        $picture = new Picture();
+        foreach ($this->getParameter('paprec_types_picture') as $type) {
+            $types[$type] = $type;
+        }
+
+        $form = $this->createForm(PictureProductType::class, $picture, array(
+            'types' => $types
+        ));
+
+        $em = $this->getDoctrine()->getManager();
+
+        $form->handleRequest($request);
+        if ($form->isValid()) {
+            $product->setDateUpdate(new DateTime());
+            $picture = $form->getData();
+
+            if ($picture->getPath() instanceof UploadedFile) {
+                $pic = $picture->getPath();
+                $pictoFileName = md5(uniqid()) . '.' . $pic->guessExtension();
+
+                $pic->move($this->getParameter('paprec_catalog.product.picto_path'), $pictoFileName);
+
+                $picture->setPath($pictoFileName);
+                $picture->setType($request->get('type'));
+                $picture->setProduct($product);
+                $product->addPicture($picture);
+                $em->persist($picture);
+                $em->flush();
+            }
+
+            return $this->redirectToRoute('paprec_catalog_product_view', array(
+                'id' => $product->getId()
+            ));
+        }
+        return $this->render('PaprecCatalogBundle:Product:view.html.twig', array(
+            'product' => $product,
+            'formAddPicture' => $form->createView()
+        ));
+    }
+
+    /**
+     * @Route("/product/editPicture/{id}/{pictureID}", name="paprec_catalog_product_editPicture", methods={"POST})
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function editPictureAction(Request $request, Product $product)
+    {
+        $productManager = $this->get('paprec_catalog.product_manager');
+        $pictureManager = $this->get('paprec_catalog.picture_manager');
+
+        $em = $this->getDoctrine()->getManager();
+        $pictureID = $request->get('pictureID');
+        $picture = $pictureManager->get($pictureID);
+        $oldPath = $picture->getPath();
+
+        $em = $this->getDoctrine()->getEntityManager();
+
+        foreach ($this->getParameter('paprec_types_picture') as $type) {
+            $types[$type] = $type;
+        }
+
+        $form = $this->createForm(PictureProductType::class, $picture, array(
+            'types' => $types
+        ));
+
+
+        $form->handleRequest($request);
+        if ($form->isValid()) {
+            $product->setDateUpdate(new DateTime());
+            $picture = $form->getData();
+
+            if ($picture->getPath() instanceof UploadedFile) {
+                $pic = $picture->getPath();
+                $pictoFileName = md5(uniqid()) . '.' . $pic->guessExtension();
+
+                $pic->move($this->getParameter('paprec_catalog.product.picto_path'), $pictoFileName);
+
+                $picture->setPath($pictoFileName);
+                $this->removeFile($this->getParameter('paprec_catalog.product.picto_path') . '/' . $oldPath);
+                $em->flush();
+            }
+
+            return $this->redirectToRoute('paprec_catalog_product_view', array(
+                'id' => $product->getId()
+            ));
+        }
+        return $this->render('PaprecCatalogBundle:Product:view.html.twig', array(
+            'product' => $product,
+            'formEditPicture' => $form->createView()
+        ));
+    }
+
+
+    /**
+     * @Route("/product/removePicture/{id}/{pictureID}", name="paprec_catalog_product_removePicture")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function removePictureAction(Request $request, Product $product)
+    {
+
+        $em = $this->getDoctrine()->getManager();
+
+        $pictureID = $request->get('pictureID');
+
+        $pictures = $product->getPictures();
+        foreach ($pictures as $picture) {
+            if ($picture->getId() == $pictureID) {
+                $product->setDateUpdate(new DateTime());
+                $this->removeFile($this->getParameter('paprec_catalog.product.picto_path') . '/' . $picture->getPath());
+                $em->remove($picture);
+                continue;
+            }
+        }
+        $em->flush();
+
+        return $this->redirectToRoute('paprec_catalog_product_view', array(
+            'id' => $product->getId()
+        ));
+    }
+
+    /**
+     * @Route("/product/setPilotPicture/{id}/{pictureID}", name="paprec_catalog_product_setPilotPicture")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function setPilotPictureAction(Request $request, Product $product)
+    {
+
+        $em = $this->getDoctrine()->getManager();
+
+        $pictureID = $request->get('pictureID');
+        $pictures = $product->getPictures();
+        foreach ($pictures as $picture) {
+            if ($picture->getId() == $pictureID) {
+                $product->setDateUpdate(new DateTime());
+                $picture->setType('PILOTPICTURE');
+                continue;
+            }
+        }
+        $em->flush();
+
+        return $this->redirectToRoute('paprec_catalog_product_view', array(
+            'id' => $product->getId()
+        ));
+    }
+
+    /**
+     * @Route("/product/setPicture/{id}/{pictureID}", name="paprec_catalog_product_setPicture")
+     * @Security("has_role('ROLE_COMMERCIAL')")
+     */
+    public function setPictureAction(Request $request, Product $product)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $pictureID = $request->get('pictureID');
+        $pictures = $product->getPictures();
+        foreach ($pictures as $picture) {
+            if ($picture->getId() == $pictureID) {
+                $product->setDateUpdate(new DateTime());
+                $picture->setType('PICTURE');
+                continue;
+            }
+        }
+        $em->flush();
+
+        return $this->redirectToRoute('paprec_catalog_product_view', array(
+            'id' => $product->getId()
+        ));
+    }
+
+}
