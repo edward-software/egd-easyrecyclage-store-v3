@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Service;
 
 use App\Entity\Cart;
 use App\Entity\Product;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use \Exception;
@@ -39,7 +41,7 @@ class CartManager
         try {
             
             /** @var Cart $cart */
-            $cart = $this->em->getRepository('PaprecPublicBundle:Cart')->find($id);
+            $cart = $this->em->getRepository(Cart::class)->find($id);
 
             if ($cart === null || $this->isDisabled($cart)) {
                 throw new EntityNotFoundException('cartNotFound', 404);
@@ -64,8 +66,9 @@ class CartManager
     public function isDisabled(Cart $cart, $throwException = false)
     {
         $now = new \DateTime();
+        $disabled = $cart->getDisabled();
 
-        if ($cart->getDisabled() !== null && $cart->getDisabled() instanceof \DateTime && $cart->getDisabled() < $now) {
+        if ($cart->getDisabled() !== null && $disabled instanceof DateTime && $disabled < $now) {
 
             if ($throwException) {
                 throw new EntityNotFoundException('cartNotFound');
@@ -96,8 +99,7 @@ class CartManager
             $now = new \DateTime();
             $disabledDate = $now->modify('+' . $deltaJours . 'day');
             $cart->setDisabled($disabledDate);
-
-
+            
             $this->em->persist($cart);
             $this->em->flush();
 
@@ -120,11 +122,12 @@ class CartManager
      */
     public function addContent($id, Product $product, $quantity)
     {
-
+        /** @var Cart $cart */
         $cart = $this->get($id);
 
         $content = $cart->getContent();
         $newContent = ['pId' => $product->getId(), 'qtty' => $quantity];
+        
         if ($content && count($content)) {
             foreach ($content as $key => $value) {
                 if ($value['pId'] == $product->getId()) {
@@ -136,6 +139,7 @@ class CartManager
         $content[] = $newContent;
         $cart->setContent($content);
         $this->em->flush();
+        
         return $cart;
     }
 
@@ -149,8 +153,11 @@ class CartManager
      */
     public function removeContent($id, $productId)
     {
+        /** @var Cart $cart */
         $cart = $this->get($id);
+        
         $products = $cart->getContent();
+        
         if ($products && count($products)) {
             foreach ($products as $key => $product) {
                 if ($product['pId'] == $productId) {
@@ -158,8 +165,10 @@ class CartManager
                 }
             }
         }
+        
         $cart->setContent($products);
         $this->em->flush();
+        
         return $cart;
     }
 
@@ -174,6 +183,7 @@ class CartManager
      */
     public function addFrequency($id, $frequency, $frequencyTimes, $frequencyInterval)
     {
+        /** @var Cart $cart */
         $cart = $this->get($id);
 
         if ($frequency === 'regular' || $frequency === 'ponctual') {
@@ -197,23 +207,28 @@ class CartManager
      */
     public function addOneProduct($id, $productId)
     {
+        /** @var Cart $cart */
         $cart = $this->get($id);
+        
         $qtty = '1';
         $content = $cart->getContent();
+        
         if ($content && count($content)) {
             foreach ($content as $key => $product) {
                 if ($product['pId'] == $productId) {
-                    $qtty = strval(intval($product['qtty']) + 1);
+                    $qtty = (string)((int)$product['qtty'] + 1);
                     unset($content[$key]);
                 }
             }
         }
+        
         $product = ['pId' => $productId, 'qtty' => $qtty];
         $content[] = $product;
 
         $cart->setContent($content);
         $this->em->persist($cart);
         $this->em->flush();
+        
         return $qtty;
     }
 
@@ -223,18 +238,21 @@ class CartManager
      * @param $id
      * @param $productId
      * @param $quantity
-     * @return object|Cart|null
+     * @return string
      * @throws Exception
      */
     public function removeOneProduct($id, $productId)
     {
+        /** @var Cart $cart */
         $cart = $this->get($id);
+        
         $qtty = '0';
         $content = $cart->getContent();
+        
         if ($content && count($content)) {
             foreach ($content as $key => $product) {
                 if ($product['pId'] == $productId) {
-                    $qtty = strval(intval($product['qtty']) - 1);
+                    $qtty = (string)((int)$product['qtty'] - 1);
                     unset($content[$key]);
                 }
             }
@@ -251,5 +269,4 @@ class CartManager
         
         return $qtty;
     }
-
 }

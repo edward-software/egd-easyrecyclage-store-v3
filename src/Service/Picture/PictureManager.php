@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Service;
 
@@ -37,7 +38,7 @@ class PictureManager
         try {
 
             /** @var Picture $picture */
-            $picture = $this->em->getRepository('PaprecCatalogBundle:Picture')->find($id);
+            $picture = $this->em->getRepository(Picture::class)->find($id);
 
             /**
              * Vérification que le produit existe ou ne soit pas supprimé
@@ -52,6 +53,4 @@ class PictureManager
             throw new Exception($e->getMessage(), $e->getCode());
         }
     }
-
-
 }

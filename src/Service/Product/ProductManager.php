@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Service;
 
@@ -7,9 +8,11 @@ use App\Entity\Product;
 use App\Entity\ProductLabel;
 use App\Entity\QuoteRequest;
 use App\Entity\QuoteRequestLine;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -43,7 +46,7 @@ class ProductManager
         try {
 
             /** @var Product $product */
-            $product = $this->em->getRepository('PaprecCatalogBundle:Product')->find($id);
+            $product = $this->em->getRepository(Product::class)->find($id);
 
             /**
              * Vérification que le produit existe ou ne soit pas supprimé
@@ -71,9 +74,10 @@ class ProductManager
      */
     public function isDeleted(Product $product, $throwException = false)
     {
-        $now = new \DateTime();
+        $now = new DateTime();
+        $deleted = $product->getDeleted();
 
-        if ($product->getDeleted() !== null && $product->getDeleted() instanceof \DateTime && $product->getDeleted() < $now) {
+        if ($product->getDeleted() !== null && $deleted instanceof DateTime && $deleted < $now) {
 
             if ($throwException) {
                 throw new EntityNotFoundException('productNotFound');
@@ -97,12 +101,13 @@ class ProductManager
         $categoryId = $options['category'];
         $postalCode = $options['postalCode'];
 
+        // TODO class ProductCategory doesn't exists (maybe delete this part ?)
         try {
             /** @var QueryBuilder $query */
             $query = $this->em
                 ->getRepository(Product::class)
                 ->createQueryBuilder('p')
-                ->innerJoin('PaprecCatalogBundle:ProductCategory', 'pc', \Doctrine\ORM\Query\Expr\Join::WITH, 'p.id = pc.product')
+                ->innerJoin('PaprecCatalogBundle:ProductCategory', 'pc', Join::WITH, 'p.id = pc.product')
                 ->where('pc.category = :category')
                 ->orderBy('pc.position', 'ASC')
                 ->setParameter("category", $categoryId);
@@ -110,7 +115,7 @@ class ProductManager
             $products = $query->getQuery()->getResult();
 
 
-            $productsPostalCodeMatch = array();
+            $productsPostalCodeMatch = [];
 
 
             // On parcourt tous les produits DI pour récupérer ceux  qui possèdent le postalCode
@@ -170,7 +175,7 @@ class ProductManager
     public function getAccesPrice(QuoteRequest $quoteRequest)
     {
         if ($quoteRequest && $quoteRequest->getAccess()) {
-            $prices = array();
+            $prices = [];
             foreach ($this->container->getParameter('paprec_quote_access_price') as $p => $value) {
                 $prices[$p] = $value;
             }
@@ -202,11 +207,10 @@ class ProductManager
         try {
 
             /** @var ProductLabel[] $productLabels */
-            $productLabels = $this->em->getRepository('PaprecCatalogBundle:ProductLabel')->findBy(array(
-                    'product' => $product,
-                    'deleted' => null
-                )
-            );
+            $productLabels = $this->em->getRepository(ProductLabel::class)->findBy([
+                'product' => $product,
+                'deleted' => null
+            ]);
 
             /**
              * Vérification que le produit existe ou ne soit pas supprimé
@@ -241,7 +245,7 @@ class ProductManager
         try {
 
             /** @var Product $product */
-            $product = $this->em->getRepository('PaprecCatalogBundle:Product')->find($id);
+            $product = $this->em->getRepository(Product::class)->find($id);
 
             /**
              * Vérification que le produit existe ou ne soit pas supprimé
@@ -251,18 +255,18 @@ class ProductManager
             }
 
             /** @var ProductLabel $productLabel */
-            $productLabel = $this->em->getRepository('PaprecCatalogBundle:ProductLabel')->findOneBy(array(
+            $productLabel = $this->em->getRepository(ProductLabel::class)->findOneBy([
                 'product' => $product,
                 'language' => $language
-            ));
+            ]);
 
             /**
              * Si il y'en a pas dans la langue de la locale, on en prend un au hasard
              */
             if ($productLabel === null || $this->IsDeletedProductLabel($productLabel)) {
-                $productLabel = $this->em->getRepository('PaprecCatalogBundle:ProductLabel')->findOneBy(array(
+                $productLabel = $this->em->getRepository(ProductLabel::class)->findOneBy([
                     'product' => $product
-                ));
+                ]);
 
                 if ($productLabel === null || $this->IsDeletedProductLabel($productLabel)) {
                     throw new EntityNotFoundException('productLabelNotFound');
@@ -287,9 +291,10 @@ class ProductManager
      */
     public function isDeletedProductLabel(ProductLabel $productLabel, $throwException = false)
     {
-        $now = new \DateTime();
+        $now = new DateTime();
+        $deleted = $productLabel->getDeleted();
 
-        if ($productLabel->getDeleted() !== null && $productLabel->getDeleted() instanceof \DateTime && $productLabel->getDeleted() < $now) {
+        if ($productLabel->getDeleted() !== null && $deleted instanceof DateTime && $deleted < $now) {
 
             if ($throwException) {
                 throw new EntityNotFoundException('productLabelNotFound');
@@ -306,13 +311,11 @@ class ProductManager
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->em->getRepository(Product::class)->createQueryBuilder('p');
 
-        $queryBuilder->select(array('p'))
+        $queryBuilder->select(['p'])
             ->where('p.deleted IS NULL')
             ->andWhere('p.isEnabled = 1')
             ->orderBy('p.position');
 
         return $queryBuilder->getQuery()->getResult();
     }
-
-
 }

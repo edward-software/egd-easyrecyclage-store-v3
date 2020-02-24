@@ -1,14 +1,15 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Service;
 
 use App\Entity\QuoteRequest;
 use App\Entity\QuoteRequestLine;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
-use DoctrineExtensions\Query\Mysql\Date;
 use Exception;
 use iio\libmergepdf\Merger;
 use Knp\Snappy\Pdf;
@@ -19,7 +20,13 @@ class QuoteRequestManager
 
     private $em;
     private $container;
-
+    
+    /**
+     * QuoteRequestManager constructor.
+     *
+     * @param EntityManagerInterface $em
+     * @param ContainerInterface $container
+     */
     public function __construct(EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->em = $em;
@@ -44,7 +51,7 @@ class QuoteRequestManager
         try {
             
             /** @var QuoteRequest $quoteRequest */
-            $quoteRequest = $this->em->getRepository('PaprecCommercialBundle:QuoteRequest')->find($id);
+            $quoteRequest = $this->em->getRepository(QuoteRequest::class)->find($id);
 
             /**
              * Vérification que le quoteRequest existe ou ne soit pas supprimé
@@ -58,9 +65,9 @@ class QuoteRequestManager
         } catch (Exception $e) {
             if ($throwException) {
                 throw new Exception($e->getMessage(), $e->getCode());
-            } else {
-                return null;
             }
+    
+            return null;
         }
     }
     
@@ -72,7 +79,7 @@ class QuoteRequestManager
     public function getCountByReference($reference)
     {
         /** @var QueryBuilder $qb */
-        $qb = $this->em->getRepository('PaprecCommercialBundle:QuoteRequest')->createQueryBuilder('qr')
+        $qb = $this->em->getRepository(QuoteRequest::class)->createQueryBuilder('qr')
             ->select('count(qr)')
             ->where('qr.reference LIKE :ref')
             ->andWhere('qr.deleted IS NULL')
@@ -81,10 +88,10 @@ class QuoteRequestManager
         $count = $qb->getQuery()->getSingleScalarResult();
 
         if ($count != null) {
-            return intval($count) + 1;
-        } else {
-            return 1;
+            return (int)$count + 1;
         }
+    
+        return 1;
     }
 
     /**
@@ -98,9 +105,10 @@ class QuoteRequestManager
      */
     public function isDeleted(QuoteRequest $quoteRequest, $throwException = false)
     {
-        $now = new \DateTime();
+        $now = new DateTime();
+        $deleted = $quoteRequest->getDeleted();
 
-        if ($quoteRequest->getDeleted() !== null && $quoteRequest->getDeleted() instanceof \DateTime && $quoteRequest->getDeleted() < $now) {
+        if ($quoteRequest->getDeleted() !== null && $deleted instanceof DateTime && $deleted < $now) {
 
             if ($throwException) {
                 throw new EntityNotFoundException('quoteRequestNotFound');
@@ -123,16 +131,16 @@ class QuoteRequestManager
     public function addLine(QuoteRequest $quoteRequest, QuoteRequestLine $quoteRequestLine, $user = null, $doFlush = true)
     {
         $numberManager = $this->container->get('paprec_catalog.number_manager');
+        
+        /** @var ProductManager $productManager */
         $productManager = $this->container->get('paprec_catalog.product_manager');
 
         // On check s'il existe déjà une ligne pour ce produit, pour l'incrémenter
         /** @var QuoteRequestLine $currentQuoteLine */
-        $currentQuoteLine = $this->em->getRepository('PaprecCommercialBundle:QuoteRequestLine')->findOneBy(
-            array(
-                'quoteRequest' => $quoteRequest,
-                'product' => $quoteRequestLine->getProduct()
-            )
-        );
+        $currentQuoteLine = $this->em->getRepository(QuoteRequestLine::class)->findOneBy([
+            'quoteRequest' => $quoteRequest,
+            'product' => $quoteRequestLine->getProduct()
+        ]);
 
         if ($currentQuoteLine) {
             $quantity = $quoteRequestLine->getQuantity() + $currentQuoteLine->getQuantity();
@@ -199,7 +207,7 @@ class QuoteRequestManager
 
         $total = $this->calculateTotal($quoteRequest);
         $quoteRequest->setTotalAmount($total);
-        $quoteRequest->setDateUpdate(new \DateTime());
+        $quoteRequest->setDateUpdate(new DateTime());
         $quoteRequest->setUserUpdate($user);
         if ($doFlush) {
             $this->em->flush();
@@ -215,6 +223,7 @@ class QuoteRequestManager
      */
     public function addLineFromCart(QuoteRequest $quoteRequest, $productId, $qtty, $doFlush = true)
     {
+        /** @var ProductManager $productManager */
         $productManager = $this->container->get('paprec_catalog.product_manager');
 
         try {
@@ -242,9 +251,11 @@ class QuoteRequestManager
     public function editLine(QuoteRequest $quoteRequest, QuoteRequestLine $quoteRequestLine, $user, $doFlush = true, $editQuoteRequest = true)
     {
         $numberManager = $this->container->get('paprec_catalog.number_manager');
+        
+        /** @var ProductManager $productManager */
         $productManager = $this->container->get('paprec_catalog.product_manager');
 
-        $now = new \DateTime();
+        $now = new DateTime();
 
         $totalLine = 0 + $this->calculateTotalLine($quoteRequestLine);
         $quoteRequestLine->setTotalAmount($totalLine);
@@ -306,6 +317,7 @@ class QuoteRequestManager
                 $totalAmount += $quoteRequestLine->getTotalAmount();
             }
         }
+        
         return $totalAmount;
     }
 
@@ -334,17 +346,17 @@ class QuoteRequestManager
                 ->setTo($rcptTo)
                 ->setBody(
                     $this->container->get('templating')->render(
-                        '@PaprecCommercial/QuoteRequest/emails/confirmQuoteEmail.html.twig',
-                        array(
+                        '@PaprecCommercial/QuoteRequest/emails/confirmQuoteEmail.html.twig', [
                             'quoteRequest' => $quoteRequest,
                             'locale' => $locale
-                        )
+                        ]
                     ),
                     'text/html'
                 );
             if ($this->container->get('mailer')->send($message)) {
                 return true;
             }
+            
             return false;
 
         } catch (ORMException $e) {
@@ -372,7 +384,7 @@ class QuoteRequestManager
              *      si la demande est multisite alors on envoie au mail générique des demandes multisites
              *          sinon on envoie au mail générique de la région associée au code postal de la demande
              */
-            $rcptTo = !is_null($quoteRequest->getUserInCharge()) ? $quoteRequest->getUserInCharge()->getEmail() :
+            $rcptTo = $quoteRequest->getUserInCharge() !== null ? $quoteRequest->getUserInCharge()->getEmail() :
                 (($quoteRequest->getIsMultisite()) ? $this->container->getParameter('reisswolf_salesman_multisite_email') : $quoteRequest->getPostalCode()->getRegion()->getEmail());
 
 
@@ -396,11 +408,10 @@ class QuoteRequestManager
                 ->setTo($rcptTo)
                 ->setBody(
                     $this->container->get('templating')->render(
-                        '@PaprecCommercial/QuoteRequest/emails/newQuoteEmail.html.twig',
-                        array(
+                        '@PaprecCommercial/QuoteRequest/emails/newQuoteEmail.html.twig', [
                             'quoteRequest' => $quoteRequest,
                             'locale' => $locale
-                        )
+                        ]
                     ),
                     'text/html'
                 )
@@ -469,11 +480,10 @@ class QuoteRequestManager
                 ->setTo($rcptTo)
                 ->setBody(
                     $this->container->get('templating')->render(
-                        '@PaprecCommercial/QuoteRequest/emails/generatedQuoteEmail.html.twig',
-                        array(
+                        '@PaprecCommercial/QuoteRequest/emails/generatedQuoteEmail.html.twig', [
                             'quoteRequest' => $quoteRequest,
                             'locale' => $locale
-                        )
+                        ]
                     ),
                     'text/html'
                 )
@@ -517,7 +527,7 @@ class QuoteRequestManager
             $filenameOffer = $pdfTmpFolder . '/' . md5(uniqid()) . '.pdf';
             $filename = $pdfTmpFolder . '/' . md5(uniqid()) . '.pdf';
 
-            $today = new \DateTime();
+            $today = new DateTime();
 
             $snappy = new Pdf($this->container->getParameter('wkhtmltopdf_path'));
             $snappy->setOption('javascript-delay', 3000);
@@ -543,56 +553,48 @@ class QuoteRequestManager
                 }
             }
 
-            if (!isset($templateDir) || !$templateDir || is_null($templateDir)) {
+            if (!isset($templateDir) || !$templateDir || $templateDir === null) {
                 return false;
             }
 
             /**
              * On génère la page d'offre
              */
-            $snappy->generateFromHtml(
-                array(
-                    $this->container->get('templating')->render(
-                        $templateDir . '/printQuoteOffer.html.twig',
-                        array(
-                            'quoteRequest' => $quoteRequest,
-                            'date' => $today,
-                            'locale' => $locale
-                        )
-                    )
-                ),
-                $filenameOffer
-            );
+            $snappy->generateFromHtml([
+                $this->container->get('templating')->render(
+                    $templateDir . '/printQuoteOffer.html.twig', [
+                        'quoteRequest' => $quoteRequest,
+                        'date' => $today,
+                        'locale' => $locale
+                    ]
+                )
+            ], $filenameOffer);
 
+            /** @var ProductManager $productManager */
             $productManager = $this->container->get('paprec_catalog.product_manager');
             $products = $productManager->getAvailableProducts();
 
             /**
              * On génère la page d'offre
              */
-            $snappy->generateFromHtml(
-                array(
-                    $this->container->get('templating')->render(
-                        $templateDir . '/printQuoteContract.html.twig',
-                        array(
-                            'quoteRequest' => $quoteRequest,
-                            'date' => $today,
-                            'products' => $products
-                        )
-                    )
-                ),
-                $filename
-            );
+            $snappy->generateFromHtml([
+                $this->container->get('templating')->render(
+                    $templateDir . '/printQuoteContract.html.twig', [
+                        'quoteRequest' => $quoteRequest,
+                        'date' => $today,
+                        'products' => $products
+                    ]
+                )
+            ], $filename);
 
 
             /**
              * Concaténation des notices
              */
-            $pdfArray = array();
+            $pdfArray = [];
             $pdfArray[] = $filenameOffer;
             $pdfArray[] = $filename;
-
-
+            
             if (count($pdfArray)) {
                 $merger = new Merger();
                 $merger->addIterator($pdfArray);
@@ -602,8 +604,7 @@ class QuoteRequestManager
             if (file_exists($filenameOffer)) {
                 unlink($filenameOffer);
             }
-
-
+            
             if (!file_exists($filename)) {
                 return false;
             }
@@ -616,5 +617,4 @@ class QuoteRequestManager
             throw new Exception($e->getMessage(), $e->getCode());
         }
     }
-
 }

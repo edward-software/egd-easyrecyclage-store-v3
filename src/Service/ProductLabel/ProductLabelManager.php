@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Service;
 
 use App\Entity\ProductLabel;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
@@ -37,7 +39,7 @@ class ProductLabelManager
         try {
             
             /** @var ProductLabel $productLabel */
-            $productLabel = $this->em->getRepository('PaprecCatalogBundle:ProductLabel')->find($id);
+            $productLabel = $this->em->getRepository(ProductLabel::class)->find($id);
 
             /**
              * Vérification que le produitLabel existe ou ne soit pas supprimé
@@ -64,9 +66,10 @@ class ProductLabelManager
      */
     public function isDeleted(ProductLabel $productLabel, $throwException = false)
     {
-        $now = new \DateTime();
+        $now = new DateTime();
+        $deleted = $productLabel->getDeleted();
 
-        if ($productLabel->getDeleted() !== null && $productLabel->getDeleted() instanceof \DateTime && $productLabel->getDeleted() < $now) {
+        if ($productLabel->getDeleted() !== null && $deleted instanceof DateTime && $deleted < $now) {
 
             if ($throwException) {
                 throw new EntityNotFoundException('productLabelNotFound');
@@ -77,6 +80,4 @@ class ProductLabelManager
         
         return false;
     }
-
-
 }

@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Service;
 
 use App\Entity\Region;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
@@ -37,7 +39,7 @@ class RegionManager
         try {
             
             /** @var Region $region */
-            $region = $this->em->getRepository('PaprecCatalogBundle:Region')->find($id);
+            $region = $this->em->getRepository(Region::class)->find($id);
 
             if ($region === null || $this->isDeleted($region)) {
                 throw new EntityNotFoundException('regionNotFound');
@@ -61,9 +63,10 @@ class RegionManager
      */
     public function isDeleted(Region $region, $throwException = false)
     {
-        $now = new \DateTime();
+        $now = new DateTime();
+        $deleted = $region->getDeleted();
 
-        if ($region->getDeleted() !== null && $region->getDeleted() instanceof \DateTime && $region->getDeleted() < $now) {
+        if ($region->getDeleted() !== null && $deleted instanceof DateTime && $deleted < $now) {
 
             if ($throwException) {
                 throw new EntityNotFoundException('regionNotFound');

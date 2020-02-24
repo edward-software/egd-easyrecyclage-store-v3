@@ -1,14 +1,15 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Service;
 
 use App\Entity\PostalCode;
 use App\Entity\User;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
 
 class UserManager
 {
@@ -39,7 +40,7 @@ class UserManager
         try {
             
             /** @var User $user */
-            $user = $this->em->getRepository('PaprecUserBundle:User')->find($id);
+            $user = $this->em->getRepository(User::class)->find($id);
 
             /**
              * Vérification que le user existe ou ne soit pas supprimé
@@ -65,9 +66,10 @@ class UserManager
      */
     public function isDeleted(User $user, $throwException = false)
     {
-        $now = new \DateTime();
+        $now = new DateTime();
+        $deleted = $user->getDeleted();
 
-        if ($user->getDeleted() !== null && $user->getDeleted() instanceof \DateTime && $user->getDeleted() < $now) {
+        if ($user->getDeleted() !== null && $deleted instanceof DateTime && $deleted < $now) {
 
             if ($throwException) {
                 throw new EntityNotFoundException('userNotFound');
@@ -94,21 +96,19 @@ class UserManager
             }
 
             /** @var PostalCode $postalCode */
-            $postalCode = $this->em->getRepository('PaprecCatalogBundle:PostalCode')->findOneBy(array(
+            $postalCode = $this->em->getRepository(PostalCode::class)->findOneBy(array(
                 'code' => $pc->getCode()
             ));
 
             $user = null;
             if ($postalCode != null) {
-
                 $user = $postalCode->getUserInCharge();
             }
 
             return $user;
+            
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode());
         }
-
-
     }
 }

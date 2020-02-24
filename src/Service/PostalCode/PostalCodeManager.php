@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Service;
 
 use App\Entity\PostalCode;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
 use Exception;
@@ -37,7 +39,7 @@ class PostalCodeManager
         try {
 
             /** @var PostalCode $postalCode */
-            $postalCode = $this->em->getRepository('PaprecCatalogBundle:PostalCode')->find($id);
+            $postalCode = $this->em->getRepository(PostalCode::class)->find($id);
 
             if ($postalCode === null || $this->isDeleted($postalCode)) {
                 throw new EntityNotFoundException('postalCodeNotFound');
@@ -61,9 +63,10 @@ class PostalCodeManager
      */
     public function isDeleted(PostalCode $postalCode, $throwException = false)
     {
-        $now = new \DateTime();
+        $now = new DateTime();
+        $deleted = $postalCode->getDeleted();
 
-        if ($postalCode->getDeleted() !== null && $postalCode->getDeleted() instanceof \DateTime && $postalCode->getDeleted() < $now) {
+        if ($postalCode->getDeleted() !== null && $deleted instanceof DateTime && $deleted < $now) {
 
             if ($throwException) {
                 throw new EntityNotFoundException('postalCodeNotFound');
