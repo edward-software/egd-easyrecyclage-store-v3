@@ -37,12 +37,12 @@ class Picture
     private $type;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Paprec\CatalogBundle\Entity\Product", inversedBy="pictures")
+     * @ORM\ManyToOne(targetEntity="Product", inversedBy="pictures")
      */
     private $product;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Paprec\CatalogBundle\Entity\CustomArea", inversedBy="pictures")
+     * @ORM\ManyToOne(targetEntity="CustomArea", inversedBy="pictures")
      */
     private $customArea;
 

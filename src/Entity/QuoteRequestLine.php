@@ -5,6 +5,7 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -149,13 +150,13 @@ class QuoteRequestLine
     private $quantity;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Paprec\CatalogBundle\Entity\Product")
+     * @ORM\ManyToOne(targetEntity="Product")
      * @ORM\JoinColumn(name="productId", referencedColumnName="id", nullable=false)
      */
     private $product;
     
     /**
-     * @ORM\ManyToOne(targetEntity="Paprec\CommercialBundle\Entity\QuoteRequest", inversedBy="quoteRequestLines")
+     * @ORM\ManyToOne(targetEntity="QuoteRequest", inversedBy="quoteRequestLines")
      * @ORM\JoinColumn(name="quoteRequestId", referencedColumnName="id", nullable=false)
      */
     private $quoteRequest;
@@ -164,7 +165,7 @@ class QuoteRequestLine
     /**
      * QuoteRequestLine constructor.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {
