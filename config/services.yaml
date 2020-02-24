@@ -105,116 +105,116 @@ services:
 
     ## Declaration des services en plus de l'autowiring
 
-        ##> Catalog ##
+    ##> Catalog ##
 
-        paprec_catalog.postal_code_manager:
-            class: App\Service\PostalCodeManager
-            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+    paprec_catalog.postal_code_manager:
+        class: App\Service\PostalCodeManager
+        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-        paprec_catalog.region_manager:
-            class: App\Service\RegionManager
-            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+    paprec_catalog.region_manager:
+        class: App\Service\RegionManager
+        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-        paprec_catalog.custom_area_manager:
-            class: App\Service\CustomAreaManager
-            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+    paprec_catalog.custom_area_manager:
+        class: App\Service\CustomAreaManager
+        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-        paprec_catalog.product_manager:
-            class: App\Service\ProductManager
-            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+    paprec_catalog.product_manager:
+        class: App\Service\ProductManager
+        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-        paprec_catalog.product_label_manager:
-            class: App\Service\ProductLabelManager
-            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+    paprec_catalog.product_label_manager:
+        class: App\Service\ProductLabelManager
+        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-        paprec_catalog.picture_manager:
-            class: App\Service\PictureManager
-            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+    paprec_catalog.picture_manager:
+        class: App\Service\PictureManager
+        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-        paprec_catalog.number_manager:
-            class: App\Service\NumberManager
-            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+    paprec_catalog.number_manager:
+        class: App\Service\NumberManager
+        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-        twig.formatAmount:
-            class: App\Twig\Extension\FormatAmountExtension
-            public: false
-            arguments: ["@service_container"]
-            tags:
-                - { name: twig.extension }
+    twig.formatAmount:
+        class: App\Twig\Extension\FormatAmountExtension
+        public: false
+        arguments: ["@service_container"]
+        tags:
+            - { name: twig.extension }
 
-        twig.formatId:
-            class: App\Twig\Extension\FormatIdExtension
-            public: false
-            arguments: ["@service_container"]
-            tags:
-                - { name: twig.extension }
+    twig.formatId:
+        class: App\Twig\Extension\FormatIdExtension
+        public: false
+        arguments: ["@service_container"]
+        tags:
+            - { name: twig.extension }
 
-        twig.productLabelTranslation:
-            class: App\Twig\Extension\ProductLabelTranslationExtension
-            public: false
-            arguments: ["@service_container"]
-            tags:
-                - { name: twig.extension }
+    twig.productLabelTranslation:
+        class: App\Twig\Extension\ProductLabelTranslationExtension
+        public: false
+        arguments: ["@service_container"]
+        tags:
+            - { name: twig.extension }
 
-        ##< Catalog ##
+    ##< Catalog ##
 
-        ##> Commercial ##
+    ##> Commercial ##
 
-        paprec_commercial.quote_request_manager:
-            class: App\Service\QuoteRequestManager
-            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+    paprec_commercial.quote_request_manager:
+        class: App\Service\QuoteRequestManager
+        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-        paprec_commercial.postal_code_transformer:
-            class: App\Form\DataTransformer\PostalCodeToStringTransformer
-            arguments:
-                ['@doctrine.orm.entity_manager']
+    paprec_commercial.postal_code_transformer:
+        class: App\Form\DataTransformer\PostalCodeToStringTransformer
+        arguments:
+            ['@doctrine.orm.entity_manager']
 
-        paprec_commercial.quote_request_public_form:
-            class: App\Form\QuoteRequestPublicType
-            tags: ['form.type']
-            public: true
-            arguments:
-                ['@paprec_commercial.postal_code_transformer']
+    paprec_commercial.quote_request_public_form:
+        class: App\Form\QuoteRequestPublicType
+        tags: ['form.type']
+        public: true
+        arguments:
+            ['@paprec_commercial.postal_code_transformer']
 
-        paprec_commercial.quote_request_form:
-            class: App\Form\QuoteRequestType
-            tags: ['form.type']
-            public: true
-            arguments:
-                ['@paprec_commercial.postal_code_transformer']
+    paprec_commercial.quote_request_form:
+        class: App\Form\QuoteRequestType
+        tags: ['form.type']
+        public: true
+        arguments:
+            ['@paprec_commercial.postal_code_transformer']
 
-        ##< Commercial ##
+    ##< Commercial ##
 
-        ##> Home ##
+    ##> Home ##
 
-        ##< Home ##
+    ##< Home ##
 
-        ##> Public ##
+    ##> Public ##
 
-        paprec.cart_manager:
-            class: App\Service\CartManager
-            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+    paprec.cart_manager:
+        class: App\Service\CartManager
+        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-        twig.paprec_customizable_area:
-            class: App\Twig\Extension\PaprecCustomizableAreaExtension
-            public: false
-            arguments: ["@service_container"]
-            tags:
-                - { name: twig.extension }
+    twig.paprec_customizable_area:
+        class: App\Twig\Extension\PaprecCustomizableAreaExtension
+        public: false
+        arguments: ["@service_container"]
+        tags:
+            - { name: twig.extension }
 
-        ##< Public ##
+    ##< Public ##
 
-        ##> User ##
+    ##> User ##
 
-        twig.paprec_has_access:
-            class: App\Twig\Extension\AccessExtension
-            public: false
-            arguments: ["@service_container", "@security.token_storage"]
-            tags:
-                - { name: twig.extension }
+    twig.paprec_has_access:
+        class: App\Twig\Extension\AccessExtension
+        public: false
+        arguments: ["@service_container", "@security.token_storage"]
+        tags:
+            - { name: twig.extension }
 
-        paprec.user_manager:
-            class: App\Service\UserManager
-            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+    paprec.user_manager:
+        class: App\Service\UserManager
+        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-        ##< User ##
+    ##< User ##

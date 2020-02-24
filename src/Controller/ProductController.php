@@ -45,7 +45,7 @@ class ProductController extends AbstractController
     {
         $productManager = $this->get('paprec_catalog.product_manager');
 
-        $return = array();
+        $return = [];
         $locale = $request->getLocale();
 
         $filters = $request->get('filters');
@@ -55,15 +55,15 @@ class ProductController extends AbstractController
         $search = $request->get('search');
         $columns = $request->get('columns');
 
-        $cols['id'] = array('label' => 'id', 'id' => 'p.id', 'method' => array('getId'));
-        $cols['name'] = array('label' => 'name', 'id' => 'pL.name', 'method' => array(array('getProductLabels', 0), 'getName'));
-        $cols['dimensions'] = array('label' => 'dimensions', 'id' => 'p.dimensions', 'method' => array('getDimensions'));
-        $cols['isEnabled'] = array('label' => 'isEnabled', 'id' => 'p.isEnabled', 'method' => array('getIsEnabled'));
+        $cols['id'] = ['label' => 'id', 'id' => 'p.id', 'method' => ['getId']];
+        $cols['name'] = ['label' => 'name', 'id' => 'pL.name', 'method' => [['getProductLabels', 0], 'getName']];
+        $cols['dimensions'] = ['label' => 'dimensions', 'id' => 'p.dimensions', 'method' => ['getDimensions']];
+        $cols['isEnabled'] = ['label' => 'isEnabled', 'id' => 'p.isEnabled', 'method' => ['getIsEnabled']];
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->getRepository(Product::class)->createQueryBuilder('p');
 
-        $queryBuilder->select(array('p', 'pL'))
+        $queryBuilder->select(['p', 'pL'])
             ->leftJoin('p.productLabels', 'pL')
             ->where('p.deleted IS NULL')
             ->andWhere('pL.language = :language')
@@ -87,7 +87,7 @@ class ProductController extends AbstractController
             $orders, $columns, $filters);
 
         // Reformatage de certaines données
-        $tmp = array();
+        $tmp = [];
         foreach ($datatable['data'] as $data) {
             $line = $data;
             $line['isEnabled'] = $data['isEnabled'] ? $this->get('translator')->trans('General.1') : $this->get('translator')->trans('General.0');
@@ -124,7 +124,7 @@ class ProductController extends AbstractController
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
 
-        $queryBuilder->select(array('p'))
+        $queryBuilder->select(['p'])
             ->from('PaprecCatalogBundle:Product', 'p')
             ->where('p.deleted IS NULL');
 
@@ -261,7 +261,7 @@ class ProductController extends AbstractController
         /** @var ProductLabel[] $otherProductLabels */
         $otherProductLabels = $productManager->getProductLabels($product);
 
-        $tmp = array();
+        $tmp = [];
         foreach ($otherProductLabels as $pL) {
             if ($pL->getId() != $productLabel->getId()) {
                 $tmp[] = $pL;
@@ -276,22 +276,22 @@ class ProductController extends AbstractController
 
         $picture = new Picture();
 
-        $formAddPicture = $this->createForm(PictureProductType::class, $picture, array(
+        $formAddPicture = $this->createForm(PictureProductType::class, $picture, [
             'types' => $types
-        ));
+        ]);
 
-        $formEditPicture = $this->createForm(PictureProductType::class, $picture, array(
+        $formEditPicture = $this->createForm(PictureProductType::class, $picture, [
             'types' => $types
-        ));
+        ]);
 
 
-        return $this->render('PaprecCatalogBundle:Product:view.html.twig', array(
+        return $this->render('PaprecCatalogBundle:Product:view.html.twig', [
             'product' => $product,
             'productLabel' => $productLabel,
             'formAddPicture' => $formAddPicture->createView(),
             'formEditPicture' => $formEditPicture->createView(),
             'otherProductLabels' => $otherProductLabels
-        ));
+        ]);
     }
 
     /**
@@ -304,7 +304,7 @@ class ProductController extends AbstractController
 
         $numberManager = $this->get('paprec_catalog.number_manager');
 
-        $languages = array();
+        $languages = [];
         foreach ($this->getParameter('paprec_languages') as $language) {
             $languages[$language] = $language;
         }
@@ -313,10 +313,10 @@ class ProductController extends AbstractController
         $productLabel = new ProductLabel();
 
         $form1 = $this->createForm(ProductType::class, $product);
-        $form2 = $this->createForm(ProductLabelType::class, $productLabel, array(
+        $form2 = $this->createForm(ProductLabelType::class, $productLabel, [
             'languages' => $languages,
             'language' => 'EN'
-        ));
+        ]);
 
         $form1->handleRequest($request);
         $form2->handleRequest($request);
@@ -348,16 +348,16 @@ class ProductController extends AbstractController
             $em->persist($productLabel);
             $em->flush();
 
-            return $this->redirectToRoute('paprec_catalog_product_view', array(
+            return $this->redirectToRoute('paprec_catalog_product_view', [
                 'id' => $product->getId()
-            ));
+            ]);
 
         }
 
-        return $this->render('PaprecCatalogBundle:Product:add.html.twig', array(
+        return $this->render('PaprecCatalogBundle:Product:add.html.twig', [
             'form1' => $form1->createView(),
             'form2' => $form2->createView()
-        ));
+        ]);
     }
 
     /**
@@ -374,7 +374,7 @@ class ProductController extends AbstractController
 
         $user = $this->getUser();
 
-        $languages = array();
+        $languages = [];
         foreach ($this->getParameter('paprec_languages') as $language) {
             $languages[$language] = $language;
         }
@@ -389,10 +389,10 @@ class ProductController extends AbstractController
         $product->setTraceabilityUnitPrice($numberManager->denormalize($product->getTraceabilityUnitPrice()));
 
         $form1 = $this->createForm(ProductType::class, $product);
-        $form2 = $this->createForm(ProductLabelType::class, $productLabel, array(
+        $form2 = $this->createForm(ProductLabelType::class, $productLabel, [
             'languages' => $languages,
             'language' => $productLabel->getLanguage()
-        ));
+        ]);
 
         $form1->handleRequest($request);
         $form2->handleRequest($request);
@@ -422,16 +422,16 @@ class ProductController extends AbstractController
 
             $em->flush();
 
-            return $this->redirectToRoute('paprec_catalog_product_view', array(
+            return $this->redirectToRoute('paprec_catalog_product_view', [
                 'id' => $product->getId()
-            ));
+            ]);
         }
-        return $this->render('PaprecCatalogBundle:Product:edit.html.twig', array(
+        return $this->render('PaprecCatalogBundle:Product:edit.html.twig', [
             'form1' => $form1->createView(),
             'form2' => $form2->createView(),
             'product' => $product,
             'productLabel' => $productLabel
-        ));
+        ]);
     }
 
     /**
@@ -567,16 +567,16 @@ class ProductController extends AbstractController
         $productManager = $this->get('paprec_catalog.product_manager');
         $productManager->isDeleted($product, true);
 
-        $languages = array();
+        $languages = [];
         foreach ($this->getParameter('paprec_languages') as $language) {
             $languages[$language] = $language;
         }
         $productLabel = new ProductLabel();
 
-        $form = $this->createForm(ProductLabelType::class, $productLabel, array(
+        $form = $this->createForm(ProductLabelType::class, $productLabel, [
             'languages' => $languages,
             'language' => strtoupper($request->getLocale())
-        ));
+        ]);
 
         $form->handleRequest($request);
 
@@ -592,16 +592,16 @@ class ProductController extends AbstractController
             $em->persist($productLabel);
             $em->flush();
 
-            return $this->redirectToRoute('paprec_catalog_product_view', array(
+            return $this->redirectToRoute('paprec_catalog_product_view', [
                 'id' => $product->getId()
-            ));
+            ]);
 
         }
 
-        return $this->render('@PaprecCatalog/Product/ProductLabel/add.html.twig', array(
+        return $this->render('@PaprecCatalog/Product/ProductLabel/add.html.twig', [
             'form' => $form->createView(),
             'product' => $product,
-        ));
+        ]);
     }
 
     /**
@@ -626,15 +626,15 @@ class ProductController extends AbstractController
         /** @var ProductLabel $productLabel */
         $productLabel = $productLabelManager->get($productLabelId);
 
-        $languages = array();
+        $languages = [];
         foreach ($this->getParameter('paprec_languages') as $language) {
             $languages[$language] = $language;
         }
 
-        $form = $this->createForm(ProductLabelType::class, $productLabel, array(
+        $form = $this->createForm(ProductLabelType::class, $productLabel, [
             'languages' => $languages,
             'language' => $productLabel->getLanguage()
-        ));
+        ]);
 
         $form->handleRequest($request);
 
@@ -649,16 +649,16 @@ class ProductController extends AbstractController
 //            $em->merge($productLabel);
             $em->flush();
 
-            return $this->redirectToRoute('paprec_catalog_product_view', array(
+            return $this->redirectToRoute('paprec_catalog_product_view', [
                 'id' => $product->getId()
-            ));
+            ]);
 
         }
 
-        return $this->render('@PaprecCatalog/Product/ProductLabel/edit.html.twig', array(
+        return $this->render('@PaprecCatalog/Product/ProductLabel/edit.html.twig', [
             'form' => $form->createView(),
             'product' => $product
-        ));
+        ]);
     }
 
     /**
@@ -681,9 +681,9 @@ class ProductController extends AbstractController
 
         $em->flush();
 
-        return $this->redirectToRoute('paprec_catalog_product_view', array(
+        return $this->redirectToRoute('paprec_catalog_product_view', [
             'id' => $product->getId()
-        ));
+        ]);
     }
 
     /**
@@ -712,9 +712,9 @@ class ProductController extends AbstractController
             $types[$type] = $type;
         }
 
-        $form = $this->createForm(PictureProductType::class, $picture, array(
+        $form = $this->createForm(PictureProductType::class, $picture, [
             'types' => $types
-        ));
+        ]);
 
         $em = $this->getDoctrine()->getManager();
 
@@ -737,14 +737,14 @@ class ProductController extends AbstractController
                 $em->flush();
             }
 
-            return $this->redirectToRoute('paprec_catalog_product_view', array(
+            return $this->redirectToRoute('paprec_catalog_product_view', [
                 'id' => $product->getId()
-            ));
+            ]);
         }
-        return $this->render('PaprecCatalogBundle:Product:view.html.twig', array(
+        return $this->render('PaprecCatalogBundle:Product:view.html.twig', [
             'product' => $product,
             'formAddPicture' => $form->createView()
-        ));
+        ]);
     }
 
     /**
@@ -767,9 +767,9 @@ class ProductController extends AbstractController
             $types[$type] = $type;
         }
 
-        $form = $this->createForm(PictureProductType::class, $picture, array(
+        $form = $this->createForm(PictureProductType::class, $picture, [
             'types' => $types
-        ));
+        ]);
 
 
         $form->handleRequest($request);
@@ -788,14 +788,14 @@ class ProductController extends AbstractController
                 $em->flush();
             }
 
-            return $this->redirectToRoute('paprec_catalog_product_view', array(
+            return $this->redirectToRoute('paprec_catalog_product_view', [
                 'id' => $product->getId()
-            ));
+            ]);
         }
-        return $this->render('PaprecCatalogBundle:Product:view.html.twig', array(
+        return $this->render('PaprecCatalogBundle:Product:view.html.twig', [
             'product' => $product,
             'formEditPicture' => $form->createView()
-        ));
+        ]);
     }
 
 
@@ -821,9 +821,9 @@ class ProductController extends AbstractController
         }
         $em->flush();
 
-        return $this->redirectToRoute('paprec_catalog_product_view', array(
+        return $this->redirectToRoute('paprec_catalog_product_view', [
             'id' => $product->getId()
-        ));
+        ]);
     }
 
     /**
@@ -846,9 +846,9 @@ class ProductController extends AbstractController
         }
         $em->flush();
 
-        return $this->redirectToRoute('paprec_catalog_product_view', array(
+        return $this->redirectToRoute('paprec_catalog_product_view', [
             'id' => $product->getId()
-        ));
+        ]);
     }
 
     /**
@@ -870,9 +870,9 @@ class ProductController extends AbstractController
         }
         $em->flush();
 
-        return $this->redirectToRoute('paprec_catalog_product_view', array(
+        return $this->redirectToRoute('paprec_catalog_product_view', [
             'id' => $product->getId()
-        ));
+        ]);
     }
 
 }

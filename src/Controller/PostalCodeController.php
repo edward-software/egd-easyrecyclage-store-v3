@@ -7,7 +7,6 @@ use App\Entity\PostalCode;
 use App\Form\PostalCodeType;
 use DateTime;
 use Doctrine\ORM\QueryBuilder;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -40,7 +39,7 @@ class PostalCodeController extends AbstractController
     {
         $numberManager = $this->get('paprec_catalog.number_manager');
 
-        $return = array();
+        $return = [];
 
         $filters = $request->get('filters');
         $pageSize = $request->get('length');
@@ -49,21 +48,21 @@ class PostalCodeController extends AbstractController
         $search = $request->get('search');
         $columns = $request->get('columns');
 
-        $cols['id'] = array('label' => 'id', 'id' => 'pC.id', 'method' => array('getId'));
-        $cols['code'] = array('label' => 'code', 'id' => 'pC.code', 'method' => array('getCode'));
-        $cols['city'] = array('label' => 'city', 'id' => 'pC.city', 'method' => array('getCity'));
-        $cols['zone'] = array('label' => 'zone', 'id' => 'pC.zone', 'method' => array('getZone'));
-        $cols['region'] = array('label' => 'region', 'id' => 'r.name', 'method' => array('getRegion', 'getName'));
+        $cols['id'] = ['label' => 'id', 'id' => 'pC.id', 'method' => ['getId']];
+        $cols['code'] = ['label' => 'code', 'id' => 'pC.code', 'method' => ['getCode']];
+        $cols['city'] = ['label' => 'city', 'id' => 'pC.city', 'method' => ['getCity']];
+        $cols['zone'] = ['label' => 'zone', 'id' => 'pC.zone', 'method' => ['getZone']];
+        $cols['region'] = ['label' => 'region', 'id' => 'r.name', 'method' => ['getRegion', 'getName']];
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->getRepository(PostalCode::class)->createQueryBuilder('pC');
         
-        $queryBuilder->select(array('pC'))
+        $queryBuilder->select(['pC'])
             ->leftJoin('pC.region', 'r')
             ->where('pC.deleted IS NULL');
 
         if (is_array($search) && isset($search['value']) && $search['value'] != '') {
-            if (substr($search['value'], 0, 1) == '#') {
+            if (substr($search['value'], 0, 1) === '#') {
                 $queryBuilder->andWhere($queryBuilder->expr()->orx(
                     $queryBuilder->expr()->eq('pC.id', '?1')
                 ))->setParameter(1, substr($search['value'], 1));
@@ -101,7 +100,7 @@ class PostalCodeController extends AbstractController
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->getRepository(PostalCode::class)->createQueryBuilder('pC');
 
-        $queryBuilder->select(array('pC'))
+        $queryBuilder->select(['pC'])
             ->where('pC.deleted IS NULL');
 
         /** @var PostalCode[] $postalCodes */
@@ -175,9 +174,9 @@ class PostalCodeController extends AbstractController
         $postalCodeManager = $this->get('paprec_catalog.postal_code_manager');
         $postalCodeManager->isDeleted($postalCode, true);
 
-        return $this->render('PaprecCatalogBundle:PostalCode:view.html.twig', array(
+        return $this->render('PaprecCatalogBundle:PostalCode:view.html.twig', [
             'postalCode' => $postalCode
-        ));
+        ]);
     }
 
     /**
@@ -213,15 +212,15 @@ class PostalCodeController extends AbstractController
             $em->persist($postalCode);
             $em->flush();
 
-            return $this->redirectToRoute('paprec_catalog_postalCode_view', array(
+            return $this->redirectToRoute('paprec_catalog_postalCode_view', [
                 'id' => $postalCode->getId()
-            ));
+            ]);
 
         }
 
-        return $this->render('PaprecCatalogBundle:PostalCode:add.html.twig', array(
+        return $this->render('PaprecCatalogBundle:PostalCode:add.html.twig', [
             'form' => $form->createView()
-        ));
+        ]);
     }
 
     /**
@@ -263,16 +262,16 @@ class PostalCodeController extends AbstractController
             $em = $this->getDoctrine()->getManager();
             $em->flush();
             
-            return $this->redirectToRoute('paprec_catalog_postalCode_view', array(
+            return $this->redirectToRoute('paprec_catalog_postalCode_view', [
                 'id' => $postalCode->getId()
-            ));
+            ]);
 
         }
         
-        return $this->render('PaprecCatalogBundle:PostalCode:edit.html.twig', array(
+        return $this->render('PaprecCatalogBundle:PostalCode:edit.html.twig', [
             'form' => $form->createView(),
             'postalCode' => $postalCode
-        ));
+        ]);
     }
 
     /**
@@ -325,7 +324,7 @@ class PostalCodeController extends AbstractController
      */
     public function autocompleteAction(Request $request)
     {
-        $codes = array();
+        $codes = [];
         $term = trim(strip_tags($request->get('term')));
 
         $em = $this->getDoctrine()->getManager();

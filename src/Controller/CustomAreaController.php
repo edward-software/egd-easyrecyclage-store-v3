@@ -53,7 +53,7 @@ class CustomAreaController extends AbstractController
     public function loadListAction(Request $request)
     {
         
-        $return = array();
+        $return = [];
         
         $filters = $request->get('filters');
         $pageSize = $request->get('length');
@@ -62,16 +62,16 @@ class CustomAreaController extends AbstractController
         $search = $request->get('search');
         $columns = $request->get('columns');
         
-        $cols['id'] = array('label' => 'id', 'id' => 'r.id', 'method' => array('getId'));
-        $cols['code'] = array('label' => 'code', 'id' => 'r.code', 'method' => array('getCode'));
-        $cols['isDisplayed'] = array('label' => 'isDisplayed', 'id' => 'r.isDisplayed', 'method' => array('getIsDisplayed'));
-        $cols['language'] = array('label' => 'language', 'id' => 'r.language', 'method' => array('getLanguage'));
+        $cols['id'] = ['label' => 'id', 'id' => 'r.id', 'method' => ['getId']];
+        $cols['code'] = ['label' => 'code', 'id' => 'r.code', 'method' => ['getCode']];
+        $cols['isDisplayed'] = ['label' => 'isDisplayed', 'id' => 'r.isDisplayed', 'method' => ['getIsDisplayed']];
+        $cols['language'] = ['label' => 'language', 'id' => 'r.language', 'method' => ['getLanguage']];
         
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->getRepository(CustomArea::class)->createQueryBuilder('r');
         
         $queryBuilder
-            ->select(array('r'))
+            ->select(['r'])
             ->where('r.deleted IS NULL');
         
         if (is_array($search) && isset($search['value']) && $search['value'] != '') {
@@ -91,7 +91,7 @@ class CustomAreaController extends AbstractController
         $datatable = $this->get('goondi_tools.datatable')->generateTable($cols, $queryBuilder, $pageSize, $start, $orders, $columns, $filters);
         
         // Reformatage de certaines données
-        $tmp = array();
+        $tmp = [];
         foreach ($datatable['data'] as $data) {
             $line = $data;
             $line['isDisplayed'] = $data['isDisplayed'] ? $this->get('translator')->trans('General.1') : $this->get('translator')->trans('General.0');
@@ -129,19 +129,19 @@ class CustomAreaController extends AbstractController
         
         $picture = new Picture();
         
-        $formAddPicture = $this->createForm(PictureProductType::class, $picture, array(
+        $formAddPicture = $this->createForm(PictureProductType::class, $picture, [
             'types' => $types
-        ));
+        ]);
         
-        $formEditPicture = $this->createForm(PictureProductType::class, $picture, array(
+        $formEditPicture = $this->createForm(PictureProductType::class, $picture, [
             'types' => $types
-        ));
+        ]);
         
-        return $this->render('PaprecCatalogBundle:CustomArea:view.html.twig', array(
+        return $this->render('PaprecCatalogBundle:CustomArea:view.html.twig', [
             'customArea' => $customArea,
             'formAddPicture' => $formAddPicture->createView(),
             'formEditPicture' => $formEditPicture->createView()
-        ));
+        ]);
     }
     
     /**
@@ -154,21 +154,21 @@ class CustomAreaController extends AbstractController
         
         $customArea = new CustomArea();
         
-        $codes = array();
+        $codes = [];
         foreach ($this->getParameter('paprec_custom_area_codes') as $code) {
             $codes[$code] = $code;
         }
         
-        $languages = array();
+        $languages = [];
         foreach ($this->getParameter('paprec_languages') as $language) {
             $languages[$language] = $language;
         }
         
-        $form = $this->createForm(CustomAreaType::class, $customArea, array(
+        $form = $this->createForm(CustomAreaType::class, $customArea, [
             'languages' => $languages,
             'language' => strtoupper($request->getLocale()),
             'codes' => $codes
-        ));
+        ]);
         
         $form->handleRequest($request);
         
@@ -183,15 +183,15 @@ class CustomAreaController extends AbstractController
             $em->persist($customArea);
             $em->flush();
             
-            return $this->redirectToRoute('paprec_catalog_custom_area_view', array(
+            return $this->redirectToRoute('paprec_catalog_custom_area_view', [
                 'id' => $customArea->getId()
-            ));
+            ]);
             
         }
         
-        return $this->render('PaprecCatalogBundle:CustomArea:add.html.twig', array(
+        return $this->render('PaprecCatalogBundle:CustomArea:add.html.twig', [
             'form' => $form->createView()
-        ));
+        ]);
     }
     
     /**
@@ -209,21 +209,21 @@ class CustomAreaController extends AbstractController
         $customAreaManager = $this->get('paprec_catalog.custom_area_manager');
         $customAreaManager->isDeleted($customArea, true);
         
-        $codes = array();
+        $codes = [];
         foreach ($this->getParameter('paprec_custom_area_codes') as $code) {
             $codes[$code] = $code;
         }
         
-        $languages = array();
+        $languages = [];
         foreach ($this->getParameter('paprec_languages') as $language) {
             $languages[$language] = $language;
         }
         
-        $form = $this->createForm(CustomAreaType::class, $customArea, array(
+        $form = $this->createForm(CustomAreaType::class, $customArea, [
             'languages' => $languages,
             'codes' => $codes,
             'language' => strtoupper($request->getLocale())
-        ));
+        ]);
         
         $form->handleRequest($request);
         
@@ -237,16 +237,16 @@ class CustomAreaController extends AbstractController
             $em = $this->getDoctrine()->getManager();
             $em->flush();
             
-            return $this->redirectToRoute('paprec_catalog_custom_area_view', array(
+            return $this->redirectToRoute('paprec_catalog_custom_area_view', [
                 'id' => $customArea->getId()
-            ));
+            ]);
             
         }
         
-        return $this->render('PaprecCatalogBundle:CustomArea:edit.html.twig', array(
+        return $this->render('PaprecCatalogBundle:CustomArea:edit.html.twig', [
             'form' => $form->createView(),
             'customArea' => $customArea
-        ));
+        ]);
     }
     
     /**
@@ -318,9 +318,9 @@ class CustomAreaController extends AbstractController
             $types[$type] = $type;
         }
         
-        $form = $this->createForm(PictureProductType::class, $picture, array(
+        $form = $this->createForm(PictureProductType::class, $picture, [
             'types' => $types
-        ));
+        ]);
         
         $em = $this->getDoctrine()->getManager();
         
@@ -343,14 +343,14 @@ class CustomAreaController extends AbstractController
                 $em->flush();
             }
             
-            return $this->redirectToRoute('paprec_catalog_custom_area_view', array(
+            return $this->redirectToRoute('paprec_catalog_custom_area_view', [
                 'id' => $customArea->getId()
-            ));
+            ]);
         }
-        return $this->render('PaprecCatalogBundle:CustomArea:view.html.twig', array(
+        return $this->render('PaprecCatalogBundle:CustomArea:view.html.twig', [
             'customArea' => $customArea,
             'formAddPicture' => $form->createView()
-        ));
+        ]);
     }
     
     /**
@@ -373,9 +373,9 @@ class CustomAreaController extends AbstractController
             $types[$type] = $type;
         }
         
-        $form = $this->createForm(PictureProductType::class, $picture, array(
+        $form = $this->createForm(PictureProductType::class, $picture, [
             'types' => $types
-        ));
+        ]);
         
         
         $form->handleRequest($request);
@@ -394,14 +394,14 @@ class CustomAreaController extends AbstractController
                 $em->flush();
             }
             
-            return $this->redirectToRoute('paprec_catalog_custom_area_view', array(
+            return $this->redirectToRoute('paprec_catalog_custom_area_view', [
                 'id' => $customArea->getId()
-            ));
+            ]);
         }
-        return $this->render('PaprecCatalogBundle:CustomArea:view.html.twig', array(
+        return $this->render('PaprecCatalogBundle:CustomArea:view.html.twig', [
             'customArea' => $customArea,
             'formEditPicture' => $form->createView()
-        ));
+        ]);
     }
     
     /**
@@ -426,9 +426,9 @@ class CustomAreaController extends AbstractController
         }
         $em->flush();
         
-        return $this->redirectToRoute('paprec_catalog_custom_area_view', array(
+        return $this->redirectToRoute('paprec_catalog_custom_area_view', [
             'id' => $customArea->getId()
-        ));
+        ]);
     }
     
     /**

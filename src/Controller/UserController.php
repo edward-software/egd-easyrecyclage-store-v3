@@ -34,7 +34,7 @@ class UserController extends AbstractController
      */
     public function loadListAction(Request $request)
     {
-        $return = array();
+        $return = [];
 
         $filters = $request->get('filters');
         $pageSize = $request->get('length');
@@ -43,18 +43,18 @@ class UserController extends AbstractController
         $search = $request->get('search');
         $columns = $request->get('columns');
 
-        $cols['id'] = array('label' => 'id', 'id' => 'u.id', 'method' => array('getId'));
-        $cols['username'] = array('label' => 'username', 'id' => 'u.username', 'method' => array('getUsername'));
-        $cols['firstName'] = array('label' => 'firstName', 'id' => 'u.firstName', 'method' => array('getFirstName'));
-        $cols['lastName'] = array('label' => 'lastName', 'id' => 'u.lastName', 'method' => array('getLastName'));
-        $cols['email'] = array('label' => 'email', 'id' => 'u.email', 'method' => array('getEmail'));
-        $cols['enabled'] = array('label' => 'enabled', 'id' => 'u.enabled', 'method' => array('isEnabled'));
-        $cols['dateCreation'] = array('label' => 'dateCreation', 'id' => 'u.dateCreation', 'method' => array('getDateCreation'), 'filter' => array(array('name' => 'format', 'args' => array('Y-m-d H:i:s'))));
+        $cols['id'] = ['label' => 'id', 'id' => 'u.id', 'method' => ['getId']];
+        $cols['username'] = ['label' => 'username', 'id' => 'u.username', 'method' => ['getUsername']];
+        $cols['firstName'] = ['label' => 'firstName', 'id' => 'u.firstName', 'method' => ['getFirstName']];
+        $cols['lastName'] = ['label' => 'lastName', 'id' => 'u.lastName', 'method' => ['getLastName']];
+        $cols['email'] = ['label' => 'email', 'id' => 'u.email', 'method' => ['getEmail']];
+        $cols['enabled'] = ['label' => 'enabled', 'id' => 'u.enabled', 'method' => ['isEnabled']];
+        $cols['dateCreation'] = ['label' => 'dateCreation', 'id' => 'u.dateCreation', 'method' => ['getDateCreation'], 'filter' => [['name' => 'format', 'args' => ['Y-m-d H:i:s']]]];
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
 
-        $queryBuilder->select(array('u'))
+        $queryBuilder->select(['u'])
             ->from('PaprecUserBundle:User', 'u')
             ->where('u.deleted IS NULL');
 
@@ -100,7 +100,7 @@ class UserController extends AbstractController
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
 
-        $queryBuilder->select(array('u'))
+        $queryBuilder->select(['u'])
             ->from('PaprecUserBundle:User', 'u')
             ->where('u.deleted is NULL');
 
@@ -131,7 +131,7 @@ class UserController extends AbstractController
 
         if ($users && is_iterable($users) && count($users)) {
             foreach ($users as $user) {
-                $roles = array();
+                $roles = [];
 
                 if ($user && is_iterable($user->getRoles()) && count($user->getRoles()))
                     foreach ($user->getRoles() as $role) {
@@ -140,7 +140,7 @@ class UserController extends AbstractController
                         }
                     }
 
-                $postalCodes = array();
+                $postalCodes = [];
                 if ($user && is_iterable($user->getPostalCodes()) && count($user->getPostalCodes()))
                 foreach ($user->getPostalCodes() as $pc) {
                         $postalCodes[] = $pc->getCode();
@@ -191,9 +191,9 @@ class UserController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        return $this->render('PaprecUserBundle:User:view.html.twig', array(
+        return $this->render('PaprecUserBundle:User:view.html.twig', [
             'user' => $user
-        ));
+        ]);
     }
 
     /**
@@ -205,19 +205,19 @@ class UserController extends AbstractController
 
         $user = new User();
 
-        $roles = array();
+        $roles = [];
         foreach ($this->getParameter('security.role_hierarchy.roles') as $role => $children) {
             $roles[$role] = $role;
         }
-        $languages = array();
+        $languages = [];
         foreach ($this->getParameter('paprec_languages') as $language) {
             $languages[$language] = $language;
         }
 
-        $form = $this->createForm(UserType::class, $user, array(
+        $form = $this->createForm(UserType::class, $user, [
             'roles' => $roles,
             'languages' => $languages
-        ));
+        ]);
 
         $form->handleRequest($request);
 
@@ -230,15 +230,15 @@ class UserController extends AbstractController
             $em->persist($user);
             $em->flush();
 
-            return $this->redirectToRoute('paprec_user_user_view', array(
+            return $this->redirectToRoute('paprec_user_user_view', [
                 'id' => $user->getId()
-            ));
+            ]);
 
         }
 
-        return $this->render('PaprecUserBundle:User:add.html.twig', array(
+        return $this->render('PaprecUserBundle:User:add.html.twig', [
             'form' => $form->createView()
-        ));
+        ]);
     }
 
     /**
@@ -251,20 +251,20 @@ class UserController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        $roles = array();
+        $roles = [];
         foreach ($this->getParameter('security.role_hierarchy.roles') as $role => $children) {
             $roles[$role] = $role;
         }
 
-        $languages = array();
+        $languages = [];
         foreach ($this->getParameter('paprec_languages') as $language) {
             $languages[$language] = $language;
         }
 
-        $form = $this->createForm(UserType::class, $user, array(
+        $form = $this->createForm(UserType::class, $user, [
             'roles' => $roles,
             'languages' => $languages
-        ));
+        ]);
 
         $form->handleRequest($request);
 
@@ -276,15 +276,15 @@ class UserController extends AbstractController
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 
-            return $this->redirectToRoute('paprec_user_user_view', array(
+            return $this->redirectToRoute('paprec_user_user_view', [
                 'id' => $user->getId()
-            ));
+            ]);
         }
 
-        return $this->render('PaprecUserBundle:User:edit.html.twig', array(
+        return $this->render('PaprecUserBundle:User:edit.html.twig', [
             'form' => $form->createView(),
             'user' => $user
-        ));
+        ]);
     }
 
     /**
@@ -296,14 +296,14 @@ class UserController extends AbstractController
 
         $user = $this->getUser();
 
-        $languages = array();
+        $languages = [];
         foreach ($this->getParameter('paprec_languages') as $language) {
             $languages[$language] = $language;
         }
 
-        $form = $this->createForm(UserMyProfileType::class, $user, array(
+        $form = $this->createForm(UserMyProfileType::class, $user, [
             'languages' => $languages
-        ));
+        ]);
 
         $form->handleRequest($request);
 
@@ -319,10 +319,10 @@ class UserController extends AbstractController
 
         }
 
-        return $this->render('PaprecUserBundle:User:editMyProfile.html.twig', array(
+        return $this->render('PaprecUserBundle:User:editMyProfile.html.twig', [
             'form' => $form->createView(),
             'user' => $user
-        ));
+        ]);
     }
 
     /**
@@ -336,9 +336,9 @@ class UserController extends AbstractController
 
             $this->get('session')->getFlashBag()->add('errors', 'userIsNotEnabled');
 
-            return $this->redirectToRoute('paprec_user_user_view', array(
+            return $this->redirectToRoute('paprec_user_user_view', [
                 'id' => $user->getId()
-            ));
+            ]);
         }
 
         $tokenGenerator = $this->container->get('fos_user.util.token_generator');
@@ -353,19 +353,19 @@ class UserController extends AbstractController
             ->setSubject('Easy-Recyclage : Identifiants')
             ->setFrom($this->getParameter('paprec_email_sender'))
             ->setTo($user->getEmail())
-            ->setBody($this->container->get('templating')->render('PaprecUserBundle:User:sendAccessEmail.html.twig', array(
+            ->setBody($this->container->get('templating')->render('PaprecUserBundle:User:sendAccessEmail.html.twig', [
                 'user' => $user,
                 'password' => $password,
-            )), 'text/html');
+            ]), 'text/html');
 
         if ($this->container->get('mailer')->send($message)) {
             $this->get('session')->getFlashBag()->add('success', 'accessHasBeenSent');
         } else {
             $this->get('session')->getFlashBag()->add('error', 'accessCannotBeSent');
         }
-        return $this->redirectToRoute('paprec_user_user_view', array(
+        return $this->redirectToRoute('paprec_user_user_view', [
             'id' => $user->getId()
-        ));
+        ]);
     }
 
     /**
@@ -401,15 +401,15 @@ class UserController extends AbstractController
                         ->setSubject('Easy-Recyclage : Identifiants')
                         ->setFrom($this->getParameter('paprec_email_sender'))
                         ->setTo($user->getEmail())
-                        ->setBody($this->container->get('templating')->render('PaprecUserBundle:User:sendAccessEmail.html.twig', array(
+                        ->setBody($this->container->get('templating')->render('PaprecUserBundle:User:sendAccessEmail.html.twig', [
                             'user' => $user,
                             'password' => $password,
-                        )), 'text/html');
+                        ]), 'text/html');
                     
                     if ($this->container->get('mailer')->send($message)) {
-                        $this->get('session')->getFlashBag()->add('success', array('msg' => 'accessHasBeenSent', 'var' => $user->getEmail()));
+                        $this->get('session')->getFlashBag()->add('success', ['msg' => 'accessHasBeenSent', 'var' => $user->getEmail()]);
                     } else {
-                        $this->get('session')->getFlashBag()->add('error', array('msg' => 'accessCannotBeSent', 'var' => $user->getEmail()));
+                        $this->get('session')->getFlashBag()->add('error', ['msg' => 'accessCannotBeSent', 'var' => $user->getEmail()]);
                     }
                 }
 

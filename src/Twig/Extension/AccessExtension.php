@@ -14,6 +14,7 @@ class AccessExtension extends AbstractExtension
     private $container;
     private $token;
     
+    
     /**
      * AccessExtension constructor.
      *
@@ -26,17 +27,17 @@ class AccessExtension extends AbstractExtension
         $this->token = $token;
     }
 
+    
     /**
      * @return array|TwigFunction[]
      */
     public function getFunctions()
     {
-        return array(
+        return [
             new TwigFunction('paprec_has_access', [$this, 'hasAccess']),
-        );
+        ];
     }
-
-
+    
     /**
      * @param $role
      * @param null $division

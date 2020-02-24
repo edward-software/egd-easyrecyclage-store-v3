@@ -24,7 +24,7 @@ class SubscriptionController extends AbstractController
      */
     public function redirectToIndexAction(Request $request, $locale)
     {
-        return $this->redirectToRoute('paprec_public_catalog_index', array('locale' => $locale));
+        return $this->redirectToRoute('paprec_public_catalog_index', ['locale' => $locale]);
 
     }
 
@@ -48,20 +48,20 @@ class SubscriptionController extends AbstractController
             $em->persist($cart);
             $em->flush();
             
-            return $this->redirectToRoute('paprec_public_catalog_index', array(
+            return $this->redirectToRoute('paprec_public_catalog_index', [
                 'locale' => $locale,
                 'cartUuid' => $cart->getId()
-            ));
+            ]);
         } else {
             $cart = $cartManager->get($cartUuid);
             $products = $productManager->getAvailableProducts();
         }
 
-        return $this->render('@PaprecPublic/Common/catalog.html.twig', array(
+        return $this->render('@PaprecPublic/Common/catalog.html.twig', [
             'locale' => $locale,
             'cart' => $cart,
             'products' => $products
-        ));
+        ]);
     }
 
     /**
@@ -81,12 +81,12 @@ class SubscriptionController extends AbstractController
         /** @var Cart $cart */
         $cart = $cartManager->get($cartUuid);
 
-        $access = array();
+        $access = [];
         foreach ($this->getParameter('paprec_quote_access') as $a) {
             $access[$a] = $a;
         }
 
-        $staff = array();
+        $staff = [];
         foreach ($this->getParameter('paprec_quote_staff') as $s) {
             $staff[$s] = $s;
         }
@@ -94,11 +94,11 @@ class SubscriptionController extends AbstractController
         /** @var QuoteRequest $quoteRequest */
         $quoteRequest = new QuoteRequest();
 
-        $form = $this->createForm(QuoteRequestPublicType::class, $quoteRequest, array(
+        $form = $this->createForm(QuoteRequestPublicType::class, $quoteRequest, [
             'access' => $access,
             'staff' => $staff,
             'locale' => $locale
-        ));
+        ]);
 
         $form->handleRequest($request);
         
@@ -141,20 +141,20 @@ class SubscriptionController extends AbstractController
             $sendNewRequestEmail = $quoteRequestManager->sendNewRequestEmail($quoteRequest, $locale);
 
             if ($sendConfirmEmail && $sendNewRequestEmail) {
-                return $this->redirectToRoute('paprec_public_confirm_index', array(
+                return $this->redirectToRoute('paprec_public_confirm_index', [
                     'locale' => $locale,
                     'cartUuid' => $cart->getId(),
                     'quoteRequestId' => $quoteRequest->getId()
-                ));
+                ]);
             }
             exit;
         }
 
-        return $this->render('@PaprecPublic/Common/contact.html.twig', array(
+        return $this->render('@PaprecPublic/Common/contact.html.twig', [
             'locale' => $locale,
             'cart' => $cart,
             'form' => $form->createView()
-        ));
+        ]);
     }
 
     /**
@@ -172,8 +172,9 @@ class SubscriptionController extends AbstractController
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-            "secret" => $this->getParameter('recaptcha_secret_key'), "response" => $recaptchaToken));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, [
+            "secret" => $this->getParameter('recaptcha_secret_key'), "response" => $recaptchaToken
+        ]);
         $response = curl_exec($ch);
         curl_close($ch);
         $data = json_decode($response);
@@ -195,11 +196,11 @@ class SubscriptionController extends AbstractController
         $cart = $cartManager->get($cartUuid);
         $quoteRequest = $quoteRequestManager->get($quoteRequestId);
 
-        return $this->render('@PaprecPublic/Common/confirm.html.twig', array(
+        return $this->render('@PaprecPublic/Common/confirm.html.twig', [
             'locale' => $locale,
             'quoteRequest' => $quoteRequest,
             'cart' => $cart,
-        ));
+        ]);
     }
     
     /**
@@ -218,11 +219,11 @@ class SubscriptionController extends AbstractController
             $product = $productManager->get($productId);
             $cart = $cartManager->addContent($cartUuid, $product, $quantity);
             
-            return $this->render('@PaprecPublic/Common/partials/quoteLine.html.twig', array(
+            return $this->render('@PaprecPublic/Common/partials/quoteLine.html.twig', [
                 'locale' => $locale,
                 'product' => $product,
                 'quantity' => $quantity
-            ));
+            ]);
         } catch (Exception $e) {
             
             return new JsonResponse(null, 400);
@@ -242,12 +243,12 @@ class SubscriptionController extends AbstractController
 
         try {
             $cartManager->addFrequency($cartUuid, $frequency, $frequencyTimes, $frequencyInterval);
-            $content = json_encode(array('message' => 'frequency_added'));
+            $content = json_encode(['message' => 'frequency_added']);
             
             return new JsonResponse($content, 204);
         } catch (Exception $e) {
             
-            return new JsonResponse(array('error' => $e->getMessage()), 400);
+            return new JsonResponse(['error' => $e->getMessage()], 400);
         }
     }
 
@@ -269,11 +270,11 @@ class SubscriptionController extends AbstractController
             $qtty = $cartManager->addOneProduct($cartUuid, $productId);
 
 
-            return $this->render('@PaprecPublic/Common/partials/quoteLine.html.twig', array(
+            return $this->render('@PaprecPublic/Common/partials/quoteLine.html.twig', [
                 'locale' => $locale,
                 'product' => $product,
                 'quantity' => $qtty
-            ));
+            ]);
 
         } catch (Exception $e) {
             
@@ -300,11 +301,11 @@ class SubscriptionController extends AbstractController
 
             if ($qtty > 0) {
                 
-                return $this->render('@PaprecPublic/Common/partials/quoteLine.html.twig', array(
+                return $this->render('@PaprecPublic/Common/partials/quoteLine.html.twig', [
                     'locale' => $locale,
                     'product' => $product,
                     'quantity' => $qtty
-                ));
+                ]);
             } else {
                 
                 return new JsonResponse(null, 200);
@@ -325,12 +326,12 @@ class SubscriptionController extends AbstractController
         $products = $productManager->getAvailableProducts();
         $quoteRequest = $quoteRequestManager->get($quoteId);
         
-        return $this->render('@PaprecCommercial/QuoteRequest/PDF/geneve/printQuoteContract.html.twig', array(
+        return $this->render('@PaprecCommercial/QuoteRequest/PDF/geneve/printQuoteContract.html.twig', [
             'quoteRequest' => $quoteRequest,
             'date' => new DateTime(),
             'products' => $products
 
-        ));
+        ]);
     }
 
     /**
@@ -341,11 +342,11 @@ class SubscriptionController extends AbstractController
         $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
         $quoteRequest = $quoteRequestManager->get($quoteId);
         
-        return $this->render('@PaprecCommercial/QuoteRequest/PDF/geneve/printQuoteOffer.html.twig', array(
+        return $this->render('@PaprecCommercial/QuoteRequest/PDF/geneve/printQuoteOffer.html.twig', [
             'quoteRequest' => $quoteRequest,
             'date' => new DateTime(),
             'locale' => $locale
-        ));
+        ]);
     }
 
     /**
@@ -357,9 +358,9 @@ class SubscriptionController extends AbstractController
         $quoteRequest = $quoteRequestManager->get($quoteId);
         $filename = $quoteRequestManager->generatePDF($quoteRequest, $locale);
         
-        return $this->render('@PaprecCommercial/QuoteRequest/showPDF.html.twig', array(
+        return $this->render('@PaprecCommercial/QuoteRequest/showPDF.html.twig', [
             'filename' => $filename
-        ));
+        ]);
     }
 
     /**
@@ -370,9 +371,9 @@ class SubscriptionController extends AbstractController
         $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
         $quoteRequest = $quoteRequestManager->get($quoteId);
         
-        return $this->render('@PaprecCommercial/QuoteRequest/emails/newQuoteEmail.html.twig', array(
+        return $this->render('@PaprecCommercial/QuoteRequest/emails/newQuoteEmail.html.twig', [
             'quoteRequest' => $quoteRequest,
             'locale' => $locale
-        ));
+        ]);
     }
 }

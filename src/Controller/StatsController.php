@@ -17,7 +17,7 @@ class StatsController extends AbstractController
      */
     public function indexAction(Request $request)
     {
-        $totalQuoteStatus = array();
+        $totalQuoteStatus = [];
         $dateStart = $request->get('dateStart');
         $dateEnd = $request->get('dateEnd');
         $dateStartSql = null;
@@ -51,14 +51,14 @@ class StatsController extends AbstractController
         }
 
 
-        return $this->render('@PaprecCommercial/Stats/index.html.twig', array(
+        return $this->render('@PaprecCommercial/Stats/index.html.twig', [
             'quoteStatusList' => $quoteStatusList,
             'totalQuoteStatus' => $totalQuoteStatus,
             'dateStart' => $dateStart,
             'dateEnd' => $dateEnd,
             'dateStartSql' => $dateStartSql,
             'dateEndSql' => $dateEndSql
-        ));
+        ]);
     }
 
 
@@ -86,7 +86,7 @@ class StatsController extends AbstractController
         
         $numberManager = $this->get('paprec_catalog.number_manager');
 
-        $quoteStats = array();
+        $quoteStats = [];
         /**
          * Nombre de devis
          */
@@ -168,7 +168,7 @@ class StatsController extends AbstractController
 
         $numberManager = $this->get('paprec_catalog.number_manager');
 
-        $orderStats = array();
+        $orderStats = [];
         /**
          * Nombre de commandes
          */
@@ -258,11 +258,11 @@ class StatsController extends AbstractController
             }
         }
 
-        return $this->redirectToRoute('paprec_commercial_' . $type . '_export', array(
+        return $this->redirectToRoute('paprec_commercial_' . $type . '_export', [
             'dateStart' => $dateStart,
             'dateEnd' => $dateEnd,
             'status' => $status
-        ));
+        ]);
     }
 
 }

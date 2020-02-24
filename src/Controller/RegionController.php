@@ -35,7 +35,7 @@ class RegionController extends AbstractController
     public function loadListAction(Request $request)
     {
 
-        $return = array();
+        $return = [];
 
         $filters = $request->get('filters');
         $pageSize = $request->get('length');
@@ -44,14 +44,14 @@ class RegionController extends AbstractController
         $search = $request->get('search');
         $columns = $request->get('columns');
 
-        $cols['id'] = array('label' => 'id', 'id' => 'r.id', 'method' => array('getId'));
-        $cols['name'] = array('label' => 'name', 'id' => 'r.name', 'method' => array('getName'));
-        $cols['email'] = array('label' => 'email', 'id' => 'r.email', 'method' => array('getEmail'));
+        $cols['id'] = ['label' => 'id', 'id' => 'r.id', 'method' => ['getId']];
+        $cols['name'] = ['label' => 'name', 'id' => 'r.name', 'method' => ['getName']];
+        $cols['email'] = ['label' => 'email', 'id' => 'r.email', 'method' => ['getEmail']];
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->getRepository(Region::class)->createQueryBuilder('r');
         
-        $queryBuilder->select(array('r'))
+        $queryBuilder->select(['r'])
             ->where('r.deleted IS NULL');
 
         if (is_array($search) && isset($search['value']) && $search['value'] != '') {
@@ -97,7 +97,7 @@ class RegionController extends AbstractController
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->getRepository(Region::class)->createQueryBuilder('r');
 
-        $queryBuilder->select(array('r'))
+        $queryBuilder->select(['r'])
             ->where('r.deleted IS NULL');
 
         /** @var Region[] $regions */
@@ -218,9 +218,9 @@ class RegionController extends AbstractController
         $regionManager = $this->get('paprec_catalog.region_manager');
         $regionManager->isDeleted($region, true);
 
-        return $this->render('PaprecCatalogBundle:Region:view.html.twig', array(
+        return $this->render('PaprecCatalogBundle:Region:view.html.twig', [
             'region' => $region
-        ));
+        ]);
     }
 
     /**
@@ -248,15 +248,15 @@ class RegionController extends AbstractController
             $em->persist($region);
             $em->flush();
 
-            return $this->redirectToRoute('paprec_catalog_region_view', array(
+            return $this->redirectToRoute('paprec_catalog_region_view', [
                 'id' => $region->getId()
-            ));
+            ]);
 
         }
 
-        return $this->render('PaprecCatalogBundle:Region:add.html.twig', array(
+        return $this->render('PaprecCatalogBundle:Region:add.html.twig', [
             'form' => $form->createView()
-        ));
+        ]);
     }
 
     /**
@@ -288,16 +288,16 @@ class RegionController extends AbstractController
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 
-            return $this->redirectToRoute('paprec_catalog_region_view', array(
+            return $this->redirectToRoute('paprec_catalog_region_view', [
                 'id' => $region->getId()
-            ));
+            ]);
 
         }
 
-        return $this->render('PaprecCatalogBundle:Region:edit.html.twig', array(
+        return $this->render('PaprecCatalogBundle:Region:edit.html.twig', [
             'form' => $form->createView(),
             'region' => $region
-        ));
+        ]);
     }
 
     /**

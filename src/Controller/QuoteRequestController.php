@@ -44,7 +44,7 @@ class QuoteRequestController extends AbstractController
     public function loadListAction(Request $request)
     {
         $numberManager = $this->get('paprec_catalog.number_manager');
-        $return = array();
+        $return = [];
 
         $filters = $request->get('filters');
         $pageSize = $request->get('length');
@@ -53,16 +53,16 @@ class QuoteRequestController extends AbstractController
         $search = $request->get('search');
         $columns = $request->get('columns');
 
-        $cols['id'] = array('label' => 'id', 'id' => 'q.id', 'method' => array('getId'));
-        $cols['businessName'] = array('label' => 'businessName', 'id' => 'q.businessName', 'method' => array('getBusinessName'));
-        $cols['totalAmount'] = array('label' => 'totalAmount', 'id' => 'q.totalAmount', 'method' => array('getTotalAmount'));
-        $cols['quoteStatus'] = array('label' => 'quoteStatus', 'id' => 'q.quoteStatus', 'method' => array('getQuoteStatus'));
-        $cols['dateCreation'] = array('label' => 'dateCreation', 'id' => 'q.dateCreation', 'method' => array('getDateCreation'), 'filter' => array(array('name' => 'format', 'args' => array('Y-m-d H:i:s'))));
+        $cols['id'] = ['label' => 'id', 'id' => 'q.id', 'method' => ['getId']];
+        $cols['businessName'] = ['label' => 'businessName', 'id' => 'q.businessName', 'method' => ['getBusinessName']];
+        $cols['totalAmount'] = ['label' => 'totalAmount', 'id' => 'q.totalAmount', 'method' => ['getTotalAmount']];
+        $cols['quoteStatus'] = ['label' => 'quoteStatus', 'id' => 'q.quoteStatus', 'method' => ['getQuoteStatus']];
+        $cols['dateCreation'] = ['label' => 'dateCreation', 'id' => 'q.dateCreation', 'method' => ['getDateCreation'], 'filter' => [['name' => 'format', 'args' => ['Y-m-d H:i:s']]]];
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
 
-        $queryBuilder->select(array('q'))
+        $queryBuilder->select(['q'])
             ->from('PaprecCommercialBundle:QuoteRequest', 'q')
             ->where('q.deleted IS NULL');
 
@@ -83,7 +83,7 @@ class QuoteRequestController extends AbstractController
 
         $datatable = $this->get('goondi_tools.datatable')->generateTable($cols, $queryBuilder, $pageSize, $start, $orders, $columns, $filters);
         // Reformatage de certaines données
-        $tmp = array();
+        $tmp = [];
         foreach ($datatable['data'] as $data) {
             $line = $data;
             $line['totalAmount'] = $numberManager->formatAmount($data['totalAmount'], 'EUR', $request->getLocale());
@@ -120,7 +120,7 @@ class QuoteRequestController extends AbstractController
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
 
-        $queryBuilder->select(array('q'))
+        $queryBuilder->select(['q'])
             ->from('PaprecCommercialBundle:QuoteRequest', 'q')
             ->where('q.deleted IS NULL');
         if ($status != null && !empty($status)) {
@@ -275,9 +275,9 @@ class QuoteRequestController extends AbstractController
         $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
         $quoteRequestManager->isDeleted($quoteRequest, true);
 
-        return $this->render('PaprecCommercialBundle:QuoteRequest:view.html.twig', array(
+        return $this->render('PaprecCommercialBundle:QuoteRequest:view.html.twig', [
             'quoteRequest' => $quoteRequest
-        ));
+        ]);
     }
 
     /**
@@ -292,32 +292,32 @@ class QuoteRequestController extends AbstractController
 
         $quoteRequest = new QuoteRequest();
 
-        $status = array();
+        $status = [];
         foreach ($this->getParameter('paprec_quote_status') as $s) {
             $status[$s] = $s;
         }
 
-        $locales = array();
+        $locales = [];
         foreach ($this->getParameter('paprec_languages') as $language) {
             $locales[$language] = strtolower($language);
         }
 
-        $access = array();
+        $access = [];
         foreach ($this->getParameter('paprec_quote_access') as $a) {
             $access[$a] = $a;
         }
 
-        $staff = array();
+        $staff = [];
         foreach ($this->getParameter('paprec_quote_staff') as $s) {
             $staff[$s] = $s;
         }
 
-        $form = $this->createForm(QuoteRequestType::class, $quoteRequest, array(
+        $form = $this->createForm(QuoteRequestType::class, $quoteRequest, [
             'status' => $status,
             'locales' => $locales,
             'access' => $access,
             'staff' => $staff
-        ));
+        ]);
 
         $form->handleRequest($request);
 
@@ -335,15 +335,15 @@ class QuoteRequestController extends AbstractController
             $em->persist($quoteRequest);
             $em->flush();
 
-            return $this->redirectToRoute('paprec_commercial_quoteRequest_view', array(
+            return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
                 'id' => $quoteRequest->getId()
-            ));
+            ]);
 
         }
 
-        return $this->render('PaprecCommercialBundle:QuoteRequest:add.html.twig', array(
+        return $this->render('PaprecCommercialBundle:QuoteRequest:add.html.twig', [
             'form' => $form->createView()
-        ));
+        ]);
     }
 
     /**
@@ -360,22 +360,22 @@ class QuoteRequestController extends AbstractController
         $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
         $quoteRequestManager->isDeleted($quoteRequest, true);
 
-        $status = array();
+        $status = [];
         foreach ($this->getParameter('paprec_quote_status') as $s) {
             $status[$s] = $s;
         }
 
-        $locales = array();
+        $locales = [];
         foreach ($this->getParameter('paprec_languages') as $language) {
             $locales[$language] = strtolower($language);
         }
 
-        $access = array();
+        $access = [];
         foreach ($this->getParameter('paprec_quote_access') as $a) {
             $access[$a] = $a;
         }
 
-        $staff = array();
+        $staff = [];
         foreach ($this->getParameter('paprec_quote_staff') as $s) {
             $staff[$s] = $s;
         }
@@ -383,12 +383,12 @@ class QuoteRequestController extends AbstractController
         $quoteRequest->setOverallDiscount($numberManager->denormalize($quoteRequest->getOverallDiscount()));
         $quoteRequest->setAnnualBudget($numberManager->denormalize($quoteRequest->getAnnualBudget()));
 
-        $form = $this->createForm(QuoteRequestType::class, $quoteRequest, array(
+        $form = $this->createForm(QuoteRequestType::class, $quoteRequest, [
             'status' => $status,
             'locales' => $locales,
             'access' => $access,
             'staff' => $staff
-        ));
+        ]);
 
         $savedCommercial = $quoteRequest->getUserInCharge();
 
@@ -422,16 +422,16 @@ class QuoteRequestController extends AbstractController
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 
-            return $this->redirectToRoute('paprec_commercial_quoteRequest_view', array(
+            return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
                 'id' => $quoteRequest->getId()
-            ));
+            ]);
 
         }
 
-        return $this->render('PaprecCommercialBundle:QuoteRequest:edit.html.twig', array(
+        return $this->render('PaprecCommercialBundle:QuoteRequest:edit.html.twig', [
             'form' => $form->createView(),
             'quoteRequest' => $quoteRequest
-        ));
+        ]);
     }
 
     /**
@@ -507,16 +507,16 @@ class QuoteRequestController extends AbstractController
             $quoteRequestLine = $form->getData();
             $quoteRequestManager->addLine($quoteRequest, $quoteRequestLine, $user);
 
-            return $this->redirectToRoute('paprec_commercial_quoteRequest_view', array(
+            return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
                 'id' => $quoteRequest->getId()
-            ));
+            ]);
 
         }
 
-        return $this->render('PaprecCommercialBundle:QuoteRequestLine:add.html.twig', array(
+        return $this->render('PaprecCommercialBundle:QuoteRequestLine:add.html.twig', [
             'form' => $form->createView(),
             'quoteRequest' => $quoteRequest,
-        ));
+        ]);
     }
 
     /**
@@ -546,16 +546,16 @@ class QuoteRequestController extends AbstractController
 
             $quoteRequestManager->editLine($quoteRequest, $quoteRequestLine, $user);
 
-            return $this->redirectToRoute('paprec_commercial_quoteRequest_view', array(
+            return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
                 'id' => $quoteRequest->getId()
-            ));
+            ]);
         }
 
-        return $this->render('PaprecCommercialBundle:QuoteRequestLine:edit.html.twig', array(
+        return $this->render('PaprecCommercialBundle:QuoteRequestLine:edit.html.twig', [
             'form' => $form->createView(),
             'quoteRequest' => $quoteRequest,
             'quoteRequestLine' => $quoteRequestLine
-        ));
+        ]);
     }
 
     /**
@@ -586,9 +586,9 @@ class QuoteRequestController extends AbstractController
         $em->flush();
 
 
-        return $this->redirectToRoute('paprec_commercial_quoteRequest_view', array(
+        return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
             'id' => $quoteRequest->getId()
-        ));
+        ]);
     }
 
     /**
@@ -611,9 +611,9 @@ class QuoteRequestController extends AbstractController
             }
         }
 
-        return $this->redirectToRoute('paprec_commercial_quoteRequest_view', array(
+        return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
             'id' => $quoteRequest->getId()
-        ));
+        ]);
     }
 
     /**
