@@ -5,6 +5,9 @@ namespace App\Controller;
 
 use App\Entity\QuoteRequest;
 use App\Entity\QuoteRequestLine;
+use App\Form\QuoteRequestLineAddType;
+use App\Form\QuoteRequestLineEditType;
+use App\Form\QuoteRequestType;
 use DateTime;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;

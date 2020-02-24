@@ -5,6 +5,8 @@ namespace App\Controller;
 
 use App\Entity\CustomArea;
 use App\Entity\Picture;
+use App\Form\CustomAreaType;
+use App\Form\PictureProductType;
 use DateTime;
 use Doctrine\ORM\QueryBuilder;
 use Exception;

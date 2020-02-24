@@ -5,6 +5,8 @@ namespace App\Controller;
 
 use App\Entity\Cart;
 use App\Entity\QuoteRequest;
+use App\Form\QuoteRequestPublicType;
+use DateTime;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -325,7 +327,7 @@ class SubscriptionController extends AbstractController
         
         return $this->render('@PaprecCommercial/QuoteRequest/PDF/geneve/printQuoteContract.html.twig', array(
             'quoteRequest' => $quoteRequest,
-            'date' => new \DateTime(),
+            'date' => new DateTime(),
             'products' => $products
 
         ));
@@ -341,7 +343,7 @@ class SubscriptionController extends AbstractController
         
         return $this->render('@PaprecCommercial/QuoteRequest/PDF/geneve/printQuoteOffer.html.twig', array(
             'quoteRequest' => $quoteRequest,
-            'date' => new \DateTime(),
+            'date' => new DateTime(),
             'locale' => $locale
         ));
     }
