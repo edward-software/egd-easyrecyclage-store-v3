@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Twig\Extension;
+namespace App\Twig\Extension;
 
 use Symfony\Component\DependencyInjection\Container;
 use Twig\Extension\AbstractExtension;

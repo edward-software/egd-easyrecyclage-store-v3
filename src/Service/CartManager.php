@@ -11,23 +11,31 @@ use Doctrine\ORM\EntityNotFoundException;
 use \Exception;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-
 class CartManager
 {
-
+    
     private $em;
     private $container;
-
+    
+    
+    /**
+     * CartManager constructor.
+     *
+     * @param EntityManagerInterface $em
+     * @param ContainerInterface $container
+     */
     public function __construct(EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->em = $em;
         $this->container = $container;
     }
-
+    
+    
     /**
      * Retourne un Cart en passant son Id ou un object Cart
-     * @param Cart $cart
-     * @return null|object|Cart
+     * @param $cart
+     *
+     * @return Cart
      * @throws Exception
      */
     public function get($cart)
@@ -109,8 +117,7 @@ class CartManager
             throw new Exception($e->getMessage(), $e->getCode());
         }
     }
-
-
+    
     /**
      * Ajoute du content au cart pour un produit et une quantité donnés
      *
@@ -142,8 +149,7 @@ class CartManager
         
         return $cart;
     }
-
-
+    
     /**
      * Supprime un produit
      * @param $id
@@ -171,10 +177,8 @@ class CartManager
         
         return $cart;
     }
-
-
+    
     /**
-     *
      * @param $id
      * @param $frequency
      * @param $frequencyTimes
@@ -195,8 +199,7 @@ class CartManager
             throw new Exception('frequency_invalid');
         }
     }
-
-
+    
     /**
      * Ajoute du content au cart pour un produit
      *

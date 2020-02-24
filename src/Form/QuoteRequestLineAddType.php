@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\Product;
+use App\Entity\QuoteRequestLine;
 use App\Repository\ProductRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -16,13 +17,13 @@ class QuoteRequestLineAddType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options) : void
     {
         $builder
             ->add('quantity')
             ->add('product', EntityType::class, [
                 'class' => Product::class,
-                'query_builder' => function (ProductRepository $er) {
+                'query_builder' => static function (ProductRepository $er) {
                     return $er->createQueryBuilder('p')
                         ->select(array('p', 'pL'))
                         ->leftJoin('p.productLabels', 'pL')
@@ -40,10 +41,10 @@ class QuoteRequestLineAddType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver) : void
     {
         $resolver->setDefaults([
-            'data_class' => 'App\Entity\QuoteRequestLine',
+            'data_class' => QuoteRequestLine::class,
         ]);
     }
 }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use App\Entity\PostalCode;
 use App\Entity\Region;
 use App\Entity\User;
 use App\Repository\RegionRepository;
@@ -19,39 +20,39 @@ class PostalCodeType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options) : void
     {
         $builder
             ->add('code', TextType::class, [
-                "required" => true,
+                'required' => true,
             ])
             ->add('city', TextType::class, [
-                "required" => true,
+                'required' => true,
             ])
             ->add('zone', TextType::class, [
-                "required" => true,
+                'required' => true,
             ])
             ->add('setUpRate', TextType::class, [
-                "required" => true,
+                'required' => true,
             ])
             ->add('rentalRate', TextType::class, [
-                "required" => true,
+                'required' => true,
             ])
             ->add('transportRate', TextType::class, [
-                "required" => true,
+                'required' => true,
             ])
             ->add('treatmentRate', TextType::class, [
-                "required" => true,
+                'required' => true,
             ])
             ->add('traceabilityRate', TextType::class, [
-                "required" => true,
+                'required' => true,
             ])
             ->add('region', EntityType::class, [
                 'class' => Region::class,
                 'choice_label' => 'name',
                 'multiple' => false,
                 'expanded' => false,
-                'query_builder' => function (RegionRepository $rr) {
+                'query_builder' => static function (RegionRepository $rr) {
                     return $rr
                         ->createQueryBuilder('r')
                         ->where('r.deleted IS NULL')
@@ -65,11 +66,11 @@ class PostalCodeType extends AbstractType
                 'expanded' => false,
                 'placeholder' => '',
                 'empty_data' => null,
-                'choice_label' => function (User $user) {
+                'choice_label' => static function (User $user) {
                     return $user->getFirstName() . ' ' . $user->getLastName();
                 },
                 'required' => false,
-                'query_builder' => function (UserRepository $ur) {
+                'query_builder' => static function (UserRepository $ur) {
                     return $ur->createQueryBuilder('u')
                         ->where('u.deleted IS NULL')
                         ->andWhere('u.roles LIKE \'%ROLE_COMMERCIAL%\'')
@@ -82,10 +83,10 @@ class PostalCodeType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver) : void
     {
         $resolver->setDefaults([
-            'data_class' => 'App\Entity\PostalCode',
+            'data_class' => PostalCode::class,
         ]);
     }
 }

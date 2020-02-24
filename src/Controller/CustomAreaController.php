@@ -75,7 +75,7 @@ class CustomAreaController extends AbstractController
             ->where('r.deleted IS NULL');
         
         if (is_array($search) && isset($search['value']) && $search['value'] != '') {
-            if (substr($search['value'], 0, 1) == '#') {
+            if (substr($search['value'], 0, 1) === '#') {
                 $queryBuilder->andWhere($queryBuilder->expr()->orx(
                     $queryBuilder->expr()->eq('r.id', '?1')
                 ))->setParameter(1, substr($search['value'], 1));
@@ -289,7 +289,7 @@ class CustomAreaController extends AbstractController
         if (is_array($ids) && count($ids)) {
             
             /** @var CustomArea[] $customAreas */
-            $customAreas = $em->getRepository('PaprecCatalogBundle:CustomArea')->findById($ids);
+            $customAreas = $em->getRepository(CustomArea::class)->findById($ids);
             
             foreach ($customAreas as $customArea) {
                 foreach ($customArea->getPictures() as $picture) {

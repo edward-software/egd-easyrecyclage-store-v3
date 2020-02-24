@@ -16,14 +16,16 @@ class CustomAreaManager
     private $em;
     private $container;
 
+    
     public function __construct(EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->em = $em;
         $this->container = $container;
     }
     
+    
     /**
-     * @param CustomArea $customArea
+     * @param $customArea
      *
      * @return CustomArea
      * @throws Exception

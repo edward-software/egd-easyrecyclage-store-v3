@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use App\Entity\Product;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -16,7 +17,7 @@ class ProductType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options) : void
     {
         $builder
             ->add('capacity')
@@ -24,11 +25,11 @@ class ProductType extends AbstractType
             ->add('folderNumber')
             ->add('dimensions', TextareaType::class)
             ->add('isEnabled', ChoiceType::class, [
-                "choices" => [
+                'choices' => [
                     'Non' => 0,
                     'Oui' => 1
                 ],
-                "expanded" => true,
+                'expanded' => true,
             ])
             ->add('setUpPrice', TextType::class)
             ->add('rentalUnitPrice', TextType::class)
@@ -42,10 +43,10 @@ class ProductType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver) : void
     {
         $resolver->setDefaults([
-            'data_class' => 'App\Entity\Product',
+            'data_class' => Product::class,
         ]);
     }
     
@@ -53,7 +54,7 @@ class ProductType extends AbstractType
      * TODO : Is it still usefull ?
      * @return string
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix() : string
     {
         return 'paprec_catalogbundle_product';
     }

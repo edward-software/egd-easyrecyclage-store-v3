@@ -15,15 +15,23 @@ class RegionManager
 
     private $em;
     private $container;
-
+    
+    
+    /**
+     * RegionManager constructor.
+     *
+     * @param EntityManagerInterface $em
+     * @param ContainerInterface $container
+     */
     public function __construct(EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->em = $em;
         $this->container = $container;
     }
     
+    
     /**
-     * @param Region $region
+     * @param $region
      *
      * @return Region
      * @throws Exception

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Paprec\UserBundle\Twig\Extension;
+namespace App\Twig\Extension;
 
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;

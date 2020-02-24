@@ -16,7 +16,7 @@ class CustomAreaType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options) : void
     {
         $builder
             ->add('leftContent', CKEditorType::class, [
@@ -28,16 +28,16 @@ class CustomAreaType extends AbstractType
                 'required' => true,
             ])
             ->add('isDisplayed', ChoiceType::class, [
-                "choices" => [
+                'choices' => [
                     'Non' => 0,
                     'Oui' => 1,
                 ],
-                "expanded" => true,
+                'expanded' => true,
             ])
             ->add('code', ChoiceType::class, [
-                "choices" => $options['codes'],
-                "multiple" => false,
-                "expanded" => false,
+                'choices' => $options['codes'],
+                'multiple' => false,
+                'expanded' => false,
             ])
             ->add('language', ChoiceType::class, [
                 'choices' => $options['languages'],
@@ -49,7 +49,7 @@ class CustomAreaType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver) : void
     {
         $resolver->setDefaults([
             'data_class' => CustomArea::class,
@@ -63,7 +63,7 @@ class CustomAreaType extends AbstractType
      * TODO : Is it still usefull ?
      * @return string
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix() : string
     {
         return 'paprec_catalogbundle_customarea';
     }

@@ -15,15 +15,22 @@ class PostalCodeManager
 
     private $em;
     private $container;
-
+    
+    /**
+     * PostalCodeManager constructor.
+     *
+     * @param EntityManagerInterface $em
+     * @param ContainerInterface $container
+     */
     public function __construct(EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->em = $em;
         $this->container = $container;
     }
     
+    
     /**
-     * @param PostalCode $postalCode
+     * @param $postalCode
      *
      * @return object|null
      * @throws Exception

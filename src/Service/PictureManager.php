@@ -14,15 +14,23 @@ class PictureManager
 
     private $em;
     private $container;
-
+    
+    
+    /**
+     * PictureManager constructor.
+     *
+     * @param EntityManagerInterface $em
+     * @param ContainerInterface $container
+     */
     public function __construct(EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->em = $em;
         $this->container = $container;
     }
     
+    
     /**
-     * @param Picture $picture
+     * @param $picture
      *
      * @return Picture
      * @throws Exception

@@ -5,6 +5,7 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Ramsey\Uuid\UuidInterface;
 
 /**
@@ -85,7 +86,7 @@ class Cart
     /**
      * Cart constructor.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {

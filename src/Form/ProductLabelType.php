@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use App\Entity\ProductLabel;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -15,7 +16,7 @@ class ProductLabelType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options) : void
     {
         $builder
             ->add('name')
@@ -32,10 +33,10 @@ class ProductLabelType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver) : void
     {
         $resolver->setDefaults([
-            'data_class' => 'App\Entity\ProductLabel',
+            'data_class' => ProductLabel::class,
             'languages' => null,
             'language' => null,
         ]);
@@ -45,7 +46,7 @@ class ProductLabelType extends AbstractType
      * TODO : Is it still usefull ?
      * @return string
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix() : string
     {
         return 'paprec_catalogbundle_product_label';
     }

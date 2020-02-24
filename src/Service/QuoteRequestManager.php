@@ -21,6 +21,7 @@ class QuoteRequestManager
     private $em;
     private $container;
     
+    
     /**
      * QuoteRequestManager constructor.
      *
@@ -33,8 +34,9 @@ class QuoteRequestManager
         $this->container = $container;
     }
     
+    
     /**
-     * @param QuoteRequest $quoteRequest
+     * @param $quoteRequest
      * @param bool $throwException
      *
      * @return object|null
@@ -119,8 +121,7 @@ class QuoteRequestManager
         
         return false;
     }
-
-
+    
     /**
      * Ajoute une quoteRequestLine à un quoteRequest
      * @param QuoteRequest $quoteRequest
@@ -213,8 +214,7 @@ class QuoteRequestManager
             $this->em->flush();
         }
     }
-
-
+    
     /**
      * Pour ajouter une QuoteRequestLine depuis le Cart, il faut d'abord retrouver le Product
      * @param $productId
@@ -320,8 +320,7 @@ class QuoteRequestManager
         
         return $totalAmount;
     }
-
-
+    
     /**
      * Envoie un mail à la personne ayant fait une demande de devis
      * @throws Exception
@@ -365,8 +364,7 @@ class QuoteRequestManager
             throw new Exception($e->getMessage(), $e->getCode());
         }
     }
-
-
+    
     /**
      * Envoie un mail au commercial associé lui indiquant la nouvelle demande de devis créée
      * @throws Exception
@@ -443,8 +441,7 @@ class QuoteRequestManager
     {
         return time();
     }
-
-
+    
     /**
      * Envoi de l'offre contrat généré au client
      *

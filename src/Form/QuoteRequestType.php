@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use App\Entity\QuoteRequest;
 use App\Entity\User;
 use App\Form\DataTransformer\PostalCodeToStringTransformer;
 use App\Repository\UserRepository;
@@ -34,7 +35,7 @@ class QuoteRequestType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options) : void
     {
         $builder
             ->add('locale', ChoiceType::class, [
@@ -50,14 +51,14 @@ class QuoteRequestType extends AbstractType
                 'expanded' => true,
             ])
             ->add('access', ChoiceType::class, [
-                "choices" => $options['access'],
-                "choice_label" => function ($choiceValue, $key, $value) {
+                'choices' => $options['access'],
+                'choice_label' => static function ($choiceValue) {
                     return 'Commercial.AccessList.' . $choiceValue;
                 },
             ])
             ->add('staff', ChoiceType::class, [
-                "choices" => $options['staff'],
-                "choice_label" => function ($choiceValue, $key, $value) {
+                'choices' => $options['staff'],
+                'choice_label' => static function ($choiceValue) {
                     return 'Commercial.StaffList.' . $choiceValue;
                 },
             ])
@@ -66,11 +67,11 @@ class QuoteRequestType extends AbstractType
             ->add('email', TextType::class)
             ->add('phone', TextType::class)
             ->add('isMultisite', ChoiceType::class, [
-                "choices" => [0, 1],
-                "choice_label" => function ($choiceValue, $key, $value) {
+                'choices' => [0, 1],
+                'choice_label' => static function ($choiceValue) {
                     return 'General.' . $choiceValue;
                 },
-                "expanded" => false,
+                'expanded' => false,
             ])
             ->add('address', TextType::class)
             ->add('postalCode', TextType::class, [
@@ -79,8 +80,8 @@ class QuoteRequestType extends AbstractType
             ->add('city', TextType::class)
             ->add('comment', TextareaType::class)
             ->add('quoteStatus', ChoiceType::class, [
-                "choices" => $options['status'],
-                "choice_label" => function ($choiceValue, $key, $value) {
+                'choices' => $options['status'],
+                'choice_label' => static function ($choiceValue) {
                     return 'Commercial.QuoteStatusList.' . $choiceValue;
                 }
             ])
@@ -93,7 +94,7 @@ class QuoteRequestType extends AbstractType
                     'Regular' => 'regular',
                     'Ponctual' => 'ponctual',
                 ],
-                "choice_label" => function ($choiceValue, $key, $value) {
+                'choice_label' => static function ($choiceValue) {
                     return 'Commercial.QuoteRequest.' . ucfirst($choiceValue);
                 },
                 'expanded' => true,
@@ -120,7 +121,7 @@ class QuoteRequestType extends AbstractType
                     'quarter' => 'quarter',
                     'year' => 'year',
                 ],
-                "choice_label" => function ($choiceValue, $key, $value) {
+                'choice_label' => static function ($choiceValue) {
                     return 'Public.Catalog.' . ucfirst($choiceValue);
                 },
                 'expanded' => false,
@@ -134,10 +135,10 @@ class QuoteRequestType extends AbstractType
                 'expanded' => false,
                 'placeholder' => '',
                 'empty_data' => null,
-                'choice_label' => function (User $user) {
+                'choice_label' => static function (User $user) {
                     return $user->getFirstName() . ' ' . $user->getLastName();
                 },
-                'query_builder' => function (UserRepository $er) {
+                'query_builder' => static function (UserRepository $er) {
                     return $er->createQueryBuilder('u')
                         ->where('u.deleted IS NULL')
                         ->orderBy('u.firstName');
@@ -154,11 +155,11 @@ class QuoteRequestType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver) : void
     {
         $resolver->setDefaults([
-            'data_class' => 'App\Entity\QuoteRequest',
-            'validation_groups' => function (FormInterface $form) {
+            'data_class' => QuoteRequest::class,
+            'validation_groups' => static function (FormInterface $form) {
                 $data = $form->getData();
                 if ($data->getIsMultisite() === 1) {
                     
@@ -178,7 +179,7 @@ class QuoteRequestType extends AbstractType
      * TODO : Is it still usefull ?
      * @return string
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix() : string
     {
         return 'paprec_catalogbundle_quote_request';
     }

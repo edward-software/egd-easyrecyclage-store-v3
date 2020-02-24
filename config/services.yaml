@@ -5,6 +5,82 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
 
+    ##> Catalog ##
+
+    paprec_catalog.product.picto_path: "%kernel.root_dir%/../web/uploads/pictos"
+
+    paprec_types_picture:
+        - PICTO
+        - PICTURE
+        - PILOTPICTURE
+
+    paprec_custom_area_types_picture:
+        - LEFT
+        - RIGHT
+
+    paprec_languages:
+        - DE
+        - FR
+        - IT
+        - EN
+
+    paprec_custom_area_codes:
+        - catalog_top
+
+    ##< Catalog ##
+
+    ##> Commercial ##
+
+    paprec_quote_status:
+        - CREATED
+        - PENDING
+        - PROCESSING
+        - CLOSED
+
+    paprec_quote_access:
+        - stairs
+        - elevator
+        - ground
+
+    paprec_quote_access_price:
+        stairs: 20
+        elevator: 10
+        ground: 0
+
+    paprec_quote_staff:
+        - '19'
+        - '1019'
+        - '2029'
+        - '3039'
+        - '4049'
+        - '5059'
+        - '6069'
+        - '7079'
+        - '8089'
+        - '9099'
+        - '100109'
+        - '110119'
+        - '120129'
+        - '130139'
+        - '140149'
+        - '150+'
+
+    ##< Commercial ##
+
+    ##> Home ##
+
+    ##< Home ##
+
+    ##> Public ##
+
+    paprec_commercial.data_tmp_directory: "%kernel.project_dir%/data/tmp"
+
+    ##< Public ##
+
+    ##> User ##
+
+    ##< User ##
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -25,3 +101,120 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+
+    ## Declaration des services en plus de l'autowiring
+
+        ##> Catalog ##
+
+        paprec_catalog.postal_code_manager:
+            class: App\Service\PostalCodeManager
+            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+
+        paprec_catalog.region_manager:
+            class: App\Service\RegionManager
+            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+
+        paprec_catalog.custom_area_manager:
+            class: App\Service\CustomAreaManager
+            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+
+        paprec_catalog.product_manager:
+            class: App\Service\ProductManager
+            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+
+        paprec_catalog.product_label_manager:
+            class: App\Service\ProductLabelManager
+            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+
+        paprec_catalog.picture_manager:
+            class: App\Service\PictureManager
+            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+
+        paprec_catalog.number_manager:
+            class: App\Service\NumberManager
+            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+
+        twig.formatAmount:
+            class: App\Twig\Extension\FormatAmountExtension
+            public: false
+            arguments: ["@service_container"]
+            tags:
+                - { name: twig.extension }
+
+        twig.formatId:
+            class: App\Twig\Extension\FormatIdExtension
+            public: false
+            arguments: ["@service_container"]
+            tags:
+                - { name: twig.extension }
+
+        twig.productLabelTranslation:
+            class: App\Twig\Extension\ProductLabelTranslationExtension
+            public: false
+            arguments: ["@service_container"]
+            tags:
+                - { name: twig.extension }
+
+        ##< Catalog ##
+
+        ##> Commercial ##
+
+        paprec_commercial.quote_request_manager:
+            class: App\Service\QuoteRequestManager
+            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+
+        paprec_commercial.postal_code_transformer:
+            class: App\Form\DataTransformer\PostalCodeToStringTransformer
+            arguments:
+                ['@doctrine.orm.entity_manager']
+
+        paprec_commercial.quote_request_public_form:
+            class: App\Form\QuoteRequestPublicType
+            tags: ['form.type']
+            public: true
+            arguments:
+                ['@paprec_commercial.postal_code_transformer']
+
+        paprec_commercial.quote_request_form:
+            class: App\Form\QuoteRequestType
+            tags: ['form.type']
+            public: true
+            arguments:
+                ['@paprec_commercial.postal_code_transformer']
+
+        ##< Commercial ##
+
+        ##> Home ##
+
+        ##< Home ##
+
+        ##> Public ##
+
+        paprec.cart_manager:
+            class: App\Service\CartManager
+            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+
+        twig.paprec_customizable_area:
+            class: App\Twig\Extension\PaprecCustomizableAreaExtension
+            public: false
+            arguments: ["@service_container"]
+            tags:
+                - { name: twig.extension }
+
+        ##< Public ##
+
+        ##> User ##
+
+        twig.paprec_has_access:
+            class: App\Twig\Extension\AccessExtension
+            public: false
+            arguments: ["@service_container", "@security.token_storage"]
+            tags:
+                - { name: twig.extension }
+
+        paprec.user_manager:
+            class: App\Service\UserManager
+            arguments: ["@doctrine.orm.entity_manager", "@service_container"]
+
+        ##< User ##

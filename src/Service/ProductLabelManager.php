@@ -15,15 +15,23 @@ class ProductLabelManager
 
     private $em;
     private $container;
-
+    
+    
+    /**
+     * ProductLabelManager constructor.
+     *
+     * @param EntityManagerInterface $em
+     * @param ContainerInterface $container
+     */
     public function __construct(EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->em = $em;
         $this->container = $container;
     }
     
+    
     /**
-     * @param ProductLabel $productLabel
+     * @param $productLabel
      *
      * @return object|null
      * @throws Exception

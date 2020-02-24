@@ -16,13 +16,21 @@ class UserManager
 
     private $em;
     private $container;
-
+    
+    
+    /**
+     * UserManager constructor.
+     *
+     * @param EntityManagerInterface $em
+     * @param ContainerInterface $container
+     */
     public function __construct(EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->em = $em;
         $this->container = $container;
     }
 
+    
     /**
      * Retourne un User en passant son Id ou un object USer
      * @param $user

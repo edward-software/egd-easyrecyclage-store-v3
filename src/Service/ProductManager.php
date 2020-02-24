@@ -22,15 +22,23 @@ class ProductManager
 
     private $em;
     private $container;
-
+    
+    
+    /**
+     * ProductManager constructor.
+     *
+     * @param EntityManagerInterface $em
+     * @param ContainerInterface $container
+     */
     public function __construct(EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->em = $em;
         $this->container = $container;
     }
     
+    
     /**
-     * @param Product $product
+     * @param $product
      *
      * @return Product
      * @throws Exception
@@ -305,7 +313,10 @@ class ProductManager
         
         return false;
     }
-
+    
+    /**
+     * @return mixed
+     */
     public function getAvailableProducts()
     {
         /** @var QueryBuilder $queryBuilder */

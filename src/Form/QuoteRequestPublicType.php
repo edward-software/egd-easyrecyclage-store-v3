@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Form;
 
+use App\Entity\QuoteRequest;
 use App\Form\DataTransformer\PostalCodeToStringTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -32,7 +33,7 @@ class QuoteRequestPublicType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array $options
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options) : void
     {
         $builder
             ->add('canton')
@@ -45,16 +46,16 @@ class QuoteRequestPublicType extends AbstractType
                 'expanded' => true
             ])
             ->add('access', ChoiceType::class, [
-                "choices" => $options['access'],
-                "choice_label" => function ($choiceValue, $key, $value) {
+                'choices' => $options['access'],
+                'choice_label' => static function ($choiceValue) {
                     return 'Commercial.AccessList.' . $choiceValue;
                 },
                 'data' => 'stairs',
                 'required' => true
             ])
             ->add('staff', ChoiceType::class, [
-                "choices" => $options['staff'],
-                "choice_label" => function ($choiceValue, $key, $value) {
+                'choices' => $options['staff'],
+                'choice_label' => static function ($choiceValue) {
                     return 'Commercial.StaffList.' . $choiceValue;
                 },
                 'data' => '19',
@@ -67,12 +68,12 @@ class QuoteRequestPublicType extends AbstractType
                 'invalid_message' => 'Public.Contact.PhoneError',
             ])
             ->add('isMultisite', ChoiceType::class, [
-                "choices" => [0, 1],
-                "choice_label" => function ($choiceValue, $key, $value) {
+                'choices' => [0, 1],
+                'choice_label' => static function ($choiceValue) {
                     return 'General.' . $choiceValue;
                 },
-                "data" => 0,
-                "expanded" => true,
+                'data' => 0,
+                'expanded' => true,
             ])
             ->add('address', TextType::class)
             ->add('postalCode', TextType::class, [
@@ -91,11 +92,11 @@ class QuoteRequestPublicType extends AbstractType
     /**
      * @param OptionsResolver $resolver
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver) : void
     {
         $resolver->setDefaults([
-            'data_class' => 'App\Entity\QuoteRequest',
-            'validation_groups' => function (FormInterface $form) {
+            'data_class' => QuoteRequest::class,
+            'validation_groups' => static function (FormInterface $form) {
                 $data = $form->getData();
                 if ($data->getIsMultisite() === 1) {
                     return ['public'];
@@ -113,7 +114,7 @@ class QuoteRequestPublicType extends AbstractType
      * TODO : Is it still usefull ?
      * @return string
      */
-    public function getBlockPrefix()
+    public function getBlockPrefix() : string
     {
         return 'paprec_catalogbundle_quote_request_public';
     }

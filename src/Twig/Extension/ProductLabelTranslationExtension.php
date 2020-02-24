@@ -1,12 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace Twig\Extension;
+namespace App\Twig\Extension;
 
 use App\Entity\Product;
 use App\Service\ProductManager;
 use Exception;
 use Symfony\Component\DependencyInjection\Container;
+use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 class ProductLabelTranslationExtension extends AbstractExtension
