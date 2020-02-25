@@ -10,17 +10,13 @@ use Twig\TwigFunction;
 
 class FormatIdExtension extends AbstractExtension
 {
-
-    private $container;
     
     /**
      * FormatIdExtension constructor.
-     *
-     * @param Container $container
      */
-    public function __construct(Container $container)
+    public function __construct()
     {
-        $this->container = $container;
+    
     }
     
     /**

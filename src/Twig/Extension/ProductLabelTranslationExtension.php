@@ -6,49 +6,59 @@ namespace App\Twig\Extension;
 use App\Entity\Product;
 use App\Service\ProductManager;
 use Exception;
-use Symfony\Component\DependencyInjection\Container;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 class ProductLabelTranslationExtension extends AbstractExtension
 {
 
-    private $container;
+    private $productManager;
 
-    public function __construct(Container $container)
+    
+    public function __construct(ProductManager $productManager)
     {
-        $this->container = $container;
+        $this->productManager = $productManager;
     }
-
+    
+    
+    /**
+     * @return array|TwigFilter[]
+     */
     public function getFilters()
     {
         return array(
             new TwigFilter('productLabelTranslation', [$this, 'productLabelTranslation']),
         );
     }
-
+    
+    /**
+     * @param Product $product
+     * @param $lang
+     * @param null $attr
+     *
+     * @return string
+     */
     public function productLabelTranslation(Product $product, $lang, $attr = null)
     {
         $returnLabel = '';
         
         try {
-            /** @var ProductManager $productManager */
-            $productManager = $this->container->get('paprec_catalog.product_manager');
             
-            $product = $productManager->get($product);
+            /** @var Product $product */
+            $product = $this->productManager->get($product);
             
             switch ($attr) {
                 case 'shortDescription':
-                    $returnLabel = $productManager->getProductLabelByProductAndLocale($product, $lang)->getShortDescription();
+                    $returnLabel = $this->productManager->getProductLabelByProductAndLocale($product, $lang)->getShortDescription();
                     break;
                 case 'version':
-                    $returnLabel = $productManager->getProductLabelByProductAndLocale($product, $lang)->getVersion();
+                    $returnLabel = $this->productManager->getProductLabelByProductAndLocale($product, $lang)->getVersion();
                     break;
                 case 'lockType':
-                    $returnLabel = $productManager->getProductLabelByProductAndLocale($product, $lang)->getLockType();
+                    $returnLabel = $this->productManager->getProductLabelByProductAndLocale($product, $lang)->getLockType();
                     break;
                 default:
-                    $returnLabel = $productManager->getProductLabelByProductAndLocale($product, $lang)->getName();
+                    $returnLabel = $this->productManager->getProductLabelByProductAndLocale($product, $lang)->getName();
             }
         } catch (Exception $e) {
         

@@ -138,12 +138,6 @@
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.1"
     },
-    "markbaker/complex": {
-        "version": "1.4.7"
-    },
-    "markbaker/matrix": {
-        "version": "1.2.0"
-    },
     "monolog/monolog": {
         "version": "1.25.3"
     },
@@ -168,9 +162,6 @@
     "phpdocumentor/type-resolver": {
         "version": "1.0.1"
     },
-    "phpoffice/phpspreadsheet": {
-        "version": "1.10.1"
-    },
     "psr/cache": {
         "version": "1.0.1"
     },
@@ -182,9 +173,6 @@
     },
     "psr/log": {
         "version": "1.1.2"
-    },
-    "psr/simple-cache": {
-        "version": "1.0.1"
     },
     "ramsey/uuid": {
         "version": "3.9.2"
@@ -585,6 +573,18 @@
     },
     "tecnickcom/tcpdf": {
         "version": "6.3.4"
+    },
+    "twig/extensions": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "a86723ee8d8b2f9437c8ce60a5546a1c267da5ed"
+        },
+        "files": [
+            "config/packages/twig_extensions.yaml"
+        ]
     },
     "twig/extra-bundle": {
         "version": "v3.0.3"

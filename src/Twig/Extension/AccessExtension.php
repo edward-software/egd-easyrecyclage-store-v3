@@ -3,30 +3,31 @@ declare(strict_types=1);
 
 namespace App\Twig\Extension;
 
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class AccessExtension extends AbstractExtension
 {
 
-    private $container;
-    private $token;
+    private $authorizationChecker;
+    private $tokenStorage;
     
     
     /**
      * AccessExtension constructor.
      *
-     * @param Container $container
-     * @param TokenStorage $token
+     * @param AuthorizationCheckerInterface $authorizationChecker
+     * @param TokenStorageInterface $tokenStorage
      */
-    public function __construct(Container $container, TokenStorage $token)
+    public function __construct(AuthorizationCheckerInterface $authorizationChecker, TokenStorageInterface $tokenStorage)
     {
-        $this->container = $container;
-        $this->token = $token;
+        $this->authorizationChecker = $authorizationChecker;
+        $this->tokenStorage = $tokenStorage;
     }
-
+    
     
     /**
      * @return array|TwigFunction[]
@@ -41,15 +42,17 @@ class AccessExtension extends AbstractExtension
     /**
      * @param $role
      * @param null $division
+     *
      * @return bool
      */
     public function hasAccess($role, $division = null)
     {
-        $token = $this->token->getToken();
+        /** @var TokenInterface $token */
+        $token = $this->tokenStorage->getToken();
         
         if ($token->isAuthenticated() && $token->getUser()) {
             if ($division && $division != null) {
-                if(!$this->container->get('security.authorization_checker')->isGranted($role)) {
+                if(!$this->authorizationChecker->isGranted($role)) {
                     
                     return false;
                 }

@@ -6,20 +6,21 @@ namespace App\Twig\Extension;
 use App\Entity\CustomArea;
 use App\Service\CustomAreaManager;
 use Exception;
-use Symfony\Component\DependencyInjection\Container;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 class PaprecCustomizableAreaExtension extends AbstractExtension
 {
 
-    private $container;
+    private $customAreaManager;
 
-    public function __construct(Container $container)
+    
+    public function __construct(CustomAreaManager $customAreaManager)
     {
-        $this->container = $container;
+        $this->customAreaManager = $customAreaManager;
     }
 
+    
     /**
      * @return array|\Twig_Function[]
      */
@@ -39,11 +40,11 @@ class PaprecCustomizableAreaExtension extends AbstractExtension
     {
         try {
             $locale = strtoupper($locale);
-            /** @var CustomAreaManager $customAreaManager */
-            $customAreaManager = $this->container->get('paprec_catalog.custom_area_manager');
-
-            return $customAreaManager->getByCodeLocale($code, $locale);
+            
+            return $this->customAreaManager->getByCodeLocale($code, $locale);
+            
         } catch (Exception $e) {
+            
             throw new Exception($e->getMessage(), $e->getCode());
         }
 

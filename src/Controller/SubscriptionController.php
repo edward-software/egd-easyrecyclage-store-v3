@@ -4,8 +4,12 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Cart;
+use App\Entity\Product;
 use App\Entity\QuoteRequest;
 use App\Form\QuoteRequestPublicType;
+use App\Service\CartManager;
+use App\Service\ProductManager;
+use App\Service\QuoteRequestManager;
 use DateTime;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,15 +38,12 @@ class SubscriptionController extends AbstractController
      * @return Response
      * @throws Exception
      */
-    public function catalogAction(Request $request, $locale, $cartUuid)
+    public function catalogAction(Request $request, $locale, $cartUuid, CartManager $cartManager, ProductManager $productManager)
     {
         $em = $this->getDoctrine()->getManager();
-        $cartManager = $this->get('paprec.cart_manager');
-        $productManager = $this->get('paprec_catalog.product_manager');
 
         if (!$cartUuid) {
             
-            /** @var Cart $cart */
             $cart = $cartManager->create(90);
             
             $em->persist($cart);
@@ -52,12 +53,15 @@ class SubscriptionController extends AbstractController
                 'locale' => $locale,
                 'cartUuid' => $cart->getId()
             ]);
-        } else {
-            $cart = $cartManager->get($cartUuid);
-            $products = $productManager->getAvailableProducts();
         }
-
-        return $this->render('@PaprecPublic/Common/catalog.html.twig', [
+    
+        /** @var Cart $cart */
+        $cart = $cartManager->get($cartUuid);
+        
+        /** @var Product[] $products */
+        $products = $productManager->getAvailableProducts();
+    
+        return $this->render('public/common/catalog.html.twig', [
             'locale' => $locale,
             'cart' => $cart,
             'products' => $products
@@ -177,9 +181,8 @@ class SubscriptionController extends AbstractController
         ]);
         $response = curl_exec($ch);
         curl_close($ch);
-        $data = json_decode($response);
-
-        return $data->success;
+    
+        return json_decode($response)->success;
     }
 
     /**
@@ -306,10 +309,9 @@ class SubscriptionController extends AbstractController
                     'product' => $product,
                     'quantity' => $qtty
                 ]);
-            } else {
-                
-                return new JsonResponse(null, 200);
             }
+    
+            return new JsonResponse(null, 200);
         } catch (Exception $e) {
             
             return new JsonResponse(null, 400);
@@ -319,61 +321,62 @@ class SubscriptionController extends AbstractController
     /**
      * @Route("/{locale}/contract/{quoteId}", name="paprec_public_contract_confirm_email")
      */
-    public function showContract(Request $request, $quoteId, $locale)
+    public function showContract(Request $request, $quoteId, $locale, QuoteRequestManager $quoteRequestManager, ProductManager $productManager)
     {
-        $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
-        $productManager = $this->get('paprec_catalog.product_manager');
+        /** @var Product[] $products */
         $products = $productManager->getAvailableProducts();
+        
+        /** @var QuoteRequest $quoteRequest */
         $quoteRequest = $quoteRequestManager->get($quoteId);
         
         return $this->render('@PaprecCommercial/QuoteRequest/PDF/geneve/printQuoteContract.html.twig', [
             'quoteRequest' => $quoteRequest,
             'date' => new DateTime(),
-            'products' => $products
-
+            'products' => $products,
         ]);
     }
 
     /**
      * @Route("/{locale}/offer/{quoteId}", name="paprec_public_offer_confirm_email")
      */
-    public function showOffer(Request $request, $quoteId, $locale)
+    public function showOffer(Request $request, $quoteId, $locale, QuoteRequestManager $quoteRequestManager)
     {
-        $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
+        /** @var QuoteRequest $quoteRequest */
         $quoteRequest = $quoteRequestManager->get($quoteId);
         
         return $this->render('@PaprecCommercial/QuoteRequest/PDF/geneve/printQuoteOffer.html.twig', [
             'quoteRequest' => $quoteRequest,
             'date' => new DateTime(),
-            'locale' => $locale
+            'locale' => $locale,
         ]);
     }
 
     /**
      * @Route("/{locale}/pdf/contract/{quoteId}", name="paprec_public_confirm_pdf_show_contract")
      */
-    public function showContractPDF(Request $request, $quoteId, $locale)
+    public function showContractPDF(Request $request, $quoteId, $locale, QuoteRequestManager $quoteRequestManager)
     {
-        $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
+        /** @var QuoteRequest $quoteRequest */
         $quoteRequest = $quoteRequestManager->get($quoteId);
+        
         $filename = $quoteRequestManager->generatePDF($quoteRequest, $locale);
         
         return $this->render('@PaprecCommercial/QuoteRequest/showPDF.html.twig', [
-            'filename' => $filename
+            'filename' => $filename,
         ]);
     }
 
     /**
      * @Route("/{locale}/email/contract/{quoteId}", name="paprec_public_confirm_email_show_contract")
      */
-    public function showEmail(Request $request, $quoteId, $locale)
+    public function showEmail(Request $request, $quoteId, $locale, QuoteRequestManager $quoteRequestManager)
     {
-        $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
+        /** @var QuoteRequest $quoteRequest */
         $quoteRequest = $quoteRequestManager->get($quoteId);
         
         return $this->render('@PaprecCommercial/QuoteRequest/emails/newQuoteEmail.html.twig', [
             'quoteRequest' => $quoteRequest,
-            'locale' => $locale
+            'locale' => $locale,
         ]);
     }
 }

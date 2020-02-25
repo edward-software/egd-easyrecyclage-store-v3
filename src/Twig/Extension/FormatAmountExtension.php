@@ -3,8 +3,7 @@ declare(strict_types=1);
 
 namespace App\Twig\Extension;
 
-use Exception;
-use Symfony\Component\DependencyInjection\Container;
+use App\Service\NumberManager;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -12,17 +11,14 @@ use Twig\TwigFunction;
 class FormatAmountExtension extends AbstractExtension
 {
 
-    private $container;
+    private $numberManager;
     
-    /**
-     * FormatAmountExtension constructor.
-     *
-     * @param Container $container
-     */
-    public function __construct(Container $container)
+    
+    public function __construct(NumberManager $numberManager)
     {
-        $this->container = $container;
+        $this->numberManager = $numberManager;
     }
+    
     
     /**
      * @return array|TwigFilter[]
@@ -41,18 +37,15 @@ class FormatAmountExtension extends AbstractExtension
      * @param null $type
      *
      * @return string
-     * @throws Exception
      */
     public function formatAmount($amount, $locale, $currency = null, $type = null)
     {
         if ($type === 'PERCENTAGE') {
             $currency = 'PERCENTAGE';
         }
-
-        $formatManager = $this->container->get('paprec_catalog.number_manager');
         
         if ($type === 'FORMAT15') {
-            return $formatManager->formatAmount15($amount, $locale);
+            return $this->numberManager->formatAmount15($amount, $locale);
         }
 
         if ($type === 'DEC2') {
@@ -60,8 +53,7 @@ class FormatAmountExtension extends AbstractExtension
             return  number_format((float)$amount, 2);
         }
 
-        return $formatManager->formatAmount($amount, $currency, $locale);
-
+        return $this->numberManager->formatAmount($amount, $currency, $locale);
     }
     
     /**

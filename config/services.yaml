@@ -135,27 +135,6 @@ services:
         class: App\Service\NumberManager
         arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-    twig.formatAmount:
-        class: App\Twig\Extension\FormatAmountExtension
-        public: false
-        arguments: ["@service_container"]
-        tags:
-            - { name: twig.extension }
-
-    twig.formatId:
-        class: App\Twig\Extension\FormatIdExtension
-        public: false
-        arguments: ["@service_container"]
-        tags:
-            - { name: twig.extension }
-
-    twig.productLabelTranslation:
-        class: App\Twig\Extension\ProductLabelTranslationExtension
-        public: false
-        arguments: ["@service_container"]
-        tags:
-            - { name: twig.extension }
-
     ##< Catalog ##
 
     ##> Commercial ##
@@ -195,23 +174,9 @@ services:
         class: App\Service\CartManager
         arguments: ["@doctrine.orm.entity_manager", "@service_container"]
 
-    twig.paprec_customizable_area:
-        class: App\Twig\Extension\PaprecCustomizableAreaExtension
-        public: false
-        arguments: ["@service_container"]
-        tags:
-            - { name: twig.extension }
-
     ##< Public ##
 
     ##> User ##
-
-    twig.paprec_has_access:
-        class: App\Twig\Extension\AccessExtension
-        public: false
-        arguments: ["@service_container", "@security.token_storage"]
-        tags:
-            - { name: twig.extension }
 
     paprec.user_manager:
         class: App\Service\UserManager

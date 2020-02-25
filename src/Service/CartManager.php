@@ -73,7 +73,7 @@ class CartManager
      */
     public function isDisabled(Cart $cart, $throwException = false)
     {
-        $now = new \DateTime();
+        $now = new DateTime();
         $disabled = $cart->getDisabled();
 
         if ($cart->getDisabled() !== null && $disabled instanceof DateTime && $disabled < $now) {
@@ -87,11 +87,12 @@ class CartManager
         
         return false;
     }
-
+    
     /**
      * Créé un nouveau Cart en initialisant sa date Disabled  dans Today + $deltaJours
      *
      * @param $deltaJours
+     *
      * @return Cart
      * @throws Exception
      */
@@ -101,10 +102,8 @@ class CartManager
 
             $cart = new Cart();
 
-            /**
-             * Initialisant de $disabled
-             */
-            $now = new \DateTime();
+            // Initialisant de $disabled
+            $now = new DateTime();
             $disabledDate = $now->modify('+' . $deltaJours . 'day');
             $cart->setDisabled($disabledDate);
             
@@ -112,7 +111,6 @@ class CartManager
             $this->em->flush();
 
             return $cart;
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode());
         }
@@ -122,9 +120,10 @@ class CartManager
      * Ajoute du content au cart pour un produit et une quantité donnés
      *
      * @param $id
-     * @param $productId
+     * @param Product $product
      * @param $quantity
-     * @return mixed
+     *
+     * @return Cart
      * @throws Exception
      */
     public function addContent($id, Product $product, $quantity)
