@@ -154,7 +154,7 @@ class SubscriptionController extends AbstractController
             exit;
         }
 
-        return $this->render('@PaprecPublic/Common/contact.html.twig', [
+        return $this->render('public/common/contact.html.twig', [
             'locale' => $locale,
             'cart' => $cart,
             'form' => $form->createView()
@@ -199,7 +199,7 @@ class SubscriptionController extends AbstractController
         $cart = $cartManager->get($cartUuid);
         $quoteRequest = $quoteRequestManager->get($quoteRequestId);
 
-        return $this->render('@PaprecPublic/Common/confirm.html.twig', [
+        return $this->render('public/common/confirm.html.twig', [
             'locale' => $locale,
             'quoteRequest' => $quoteRequest,
             'cart' => $cart,
@@ -222,7 +222,7 @@ class SubscriptionController extends AbstractController
             $product = $productManager->get($productId);
             $cart = $cartManager->addContent($cartUuid, $product, $quantity);
             
-            return $this->render('@PaprecPublic/Common/partials/quoteLine.html.twig', [
+            return $this->render('public/common/partials/quoteLine.html.twig', [
                 'locale' => $locale,
                 'product' => $product,
                 'quantity' => $quantity
@@ -273,7 +273,7 @@ class SubscriptionController extends AbstractController
             $qtty = $cartManager->addOneProduct($cartUuid, $productId);
 
 
-            return $this->render('@PaprecPublic/Common/partials/quoteLine.html.twig', [
+            return $this->render('public/common/partials/quoteLine.html.twig', [
                 'locale' => $locale,
                 'product' => $product,
                 'quantity' => $qtty
@@ -304,7 +304,7 @@ class SubscriptionController extends AbstractController
 
             if ($qtty > 0) {
                 
-                return $this->render('@PaprecPublic/Common/partials/quoteLine.html.twig', [
+                return $this->render('public/common/partials/quoteLine.html.twig', [
                     'locale' => $locale,
                     'product' => $product,
                     'quantity' => $qtty
@@ -329,7 +329,7 @@ class SubscriptionController extends AbstractController
         /** @var QuoteRequest $quoteRequest */
         $quoteRequest = $quoteRequestManager->get($quoteId);
         
-        return $this->render('@PaprecCommercial/QuoteRequest/PDF/geneve/printQuoteContract.html.twig', [
+        return $this->render('commercial/quoteRequest/pdf/geneve/printQuoteContract.html.twig', [
             'quoteRequest' => $quoteRequest,
             'date' => new DateTime(),
             'products' => $products,
@@ -344,7 +344,7 @@ class SubscriptionController extends AbstractController
         /** @var QuoteRequest $quoteRequest */
         $quoteRequest = $quoteRequestManager->get($quoteId);
         
-        return $this->render('@PaprecCommercial/QuoteRequest/PDF/geneve/printQuoteOffer.html.twig', [
+        return $this->render('commercial/quoteRequest/pdf/geneve/printQuoteOffer.html.twig', [
             'quoteRequest' => $quoteRequest,
             'date' => new DateTime(),
             'locale' => $locale,
@@ -361,7 +361,7 @@ class SubscriptionController extends AbstractController
         
         $filename = $quoteRequestManager->generatePDF($quoteRequest, $locale);
         
-        return $this->render('@PaprecCommercial/QuoteRequest/showPDF.html.twig', [
+        return $this->render('commercial/quoteRequest/showPDF.html.twig', [
             'filename' => $filename,
         ]);
     }
@@ -374,7 +374,7 @@ class SubscriptionController extends AbstractController
         /** @var QuoteRequest $quoteRequest */
         $quoteRequest = $quoteRequestManager->get($quoteId);
         
-        return $this->render('@PaprecCommercial/QuoteRequest/emails/newQuoteEmail.html.twig', [
+        return $this->render('commercial/quoteRequest/emails/newQuoteEmail.html.twig', [
             'quoteRequest' => $quoteRequest,
             'locale' => $locale,
         ]);
