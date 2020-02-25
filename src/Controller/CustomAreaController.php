@@ -7,7 +7,10 @@ use App\Entity\CustomArea;
 use App\Entity\Picture;
 use App\Form\CustomAreaType;
 use App\Form\PictureProductType;
+use App\Service\CustomAreaManager;
+use App\Service\PictureManager;
 use DateTime;
+use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -16,7 +19,9 @@ use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -29,6 +34,8 @@ class CustomAreaController extends AbstractController
 {
     /**
      * @Route("/custom/area", name="custom_area")
+     *
+     * @return Response
      */
     public function index()
     {
@@ -40,19 +47,24 @@ class CustomAreaController extends AbstractController
     /**
      * @Route("/customarea", name="paprec_catalog_custom_area_index")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @return Response
      */
     public function indexAction()
     {
-        return $this->render('PaprecCatalogBundle:CustomArea:index.html.twig');
+        return $this->render('custom_area/index.html.twig');
     }
     
     /**
      * @Route("/customarea/loadList", name="paprec_catalog_custom_area_loadList")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
      */
     public function loadListAction(Request $request)
     {
-        
         $return = [];
         
         $filters = $request->get('filters');
@@ -107,20 +119,21 @@ class CustomAreaController extends AbstractController
         $return['resultDescription'] = "success";
         
         return new JsonResponse($return);
-        
     }
     
     /**
      * @Route("/customarea/view/{id}", name="paprec_catalog_custom_area_view")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
      * @param Request $request
      * @param CustomArea $customArea
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @param CustomAreaManager $customAreaManager
+     *
+     * @return Response
+     * @throws EntityNotFoundException
      */
-    public function viewAction(Request $request, CustomArea $customArea)
+    public function viewAction(Request $request, CustomArea $customArea, CustomAreaManager $customAreaManager)
     {
-        $customAreaManager = $this->get('paprec_catalog.custom_area_manager');
         $customAreaManager->isDeleted($customArea, true);
         
         foreach ($this->getParameter('paprec_custom_area_types_picture') as $type) {
@@ -137,7 +150,7 @@ class CustomAreaController extends AbstractController
             'types' => $types
         ]);
         
-        return $this->render('PaprecCatalogBundle:CustomArea:view.html.twig', [
+        return $this->render('catalog/customArea/view.html.twig', [
             'customArea' => $customArea,
             'formAddPicture' => $formAddPicture->createView(),
             'formEditPicture' => $formEditPicture->createView()
@@ -147,6 +160,11 @@ class CustomAreaController extends AbstractController
     /**
      * @Route("/customarea/add", name="paprec_catalog_custom_area_add")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse|Response
+     * @throws Exception
      */
     public function addAction(Request $request)
     {
@@ -186,10 +204,9 @@ class CustomAreaController extends AbstractController
             return $this->redirectToRoute('paprec_catalog_custom_area_view', [
                 'id' => $customArea->getId()
             ]);
-            
         }
         
-        return $this->render('PaprecCatalogBundle:CustomArea:add.html.twig', [
+        return $this->render('catalog/customArea/add.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -197,16 +214,18 @@ class CustomAreaController extends AbstractController
     /**
      * @Route("/customarea/edit/{id}", name="paprec_catalog_custom_area_edit")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
      * @param Request $request
      * @param CustomArea $customArea
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @param CustomAreaManager $customAreaManager
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
+     * @throws EntityNotFoundException
      */
-    public function editAction(Request $request, CustomArea $customArea)
+    public function editAction(Request $request, CustomArea $customArea, CustomAreaManager $customAreaManager)
     {
         $user = $this->getUser();
         
-        $customAreaManager = $this->get('paprec_catalog.custom_area_manager');
         $customAreaManager->isDeleted($customArea, true);
         
         $codes = [];
@@ -240,10 +259,9 @@ class CustomAreaController extends AbstractController
             return $this->redirectToRoute('paprec_catalog_custom_area_view', [
                 'id' => $customArea->getId()
             ]);
-            
         }
         
-        return $this->render('PaprecCatalogBundle:CustomArea:edit.html.twig', [
+        return $this->render('catalog/customArea/edit.html.twig', [
             'form' => $form->createView(),
             'customArea' => $customArea
         ]);
@@ -252,6 +270,12 @@ class CustomAreaController extends AbstractController
     /**
      * @Route("/customarea/remove/{id}", name="paprec_catalog_custom_area_remove")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     * @param CustomArea $customArea
+     *
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function removeAction(Request $request, CustomArea $customArea)
     {
@@ -273,6 +297,11 @@ class CustomAreaController extends AbstractController
     /**
      * @Route("/customarea/removeMany/{ids}", name="paprec_catalog_custom_area_removeMany")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function removeManyAction(Request $request)
     {
@@ -309,6 +338,12 @@ class CustomAreaController extends AbstractController
     /**
      * @Route("/customarea/addPicture/{id}/{type}", name="paprec_catalog_custom_area_addPicture")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     * @param CustomArea $customArea
+     *
+     * @return RedirectResponse|Response
+     * @throws Exception
      */
     public function addPictureAction(Request $request, CustomArea $customArea)
     {
@@ -347,7 +382,8 @@ class CustomAreaController extends AbstractController
                 'id' => $customArea->getId()
             ]);
         }
-        return $this->render('PaprecCatalogBundle:CustomArea:view.html.twig', [
+        
+        return $this->render('catalog/customArea/view.html.twig', [
             'customArea' => $customArea,
             'formAddPicture' => $form->createView()
         ]);
@@ -356,19 +392,23 @@ class CustomAreaController extends AbstractController
     /**
      * @Route("/customarea/editPicture/{id}/{pictureID}", name="paprec_catalog_custom_area_editPicture")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     * @param CustomArea $customArea
+     *
+     * @return RedirectResponse|Response
+     * @throws Exception
      */
-    public function editPictureAction(Request $request, CustomArea $customArea)
+    public function editPictureAction(Request $request, CustomArea $customArea, PictureManager $pictureManager)
     {
-        $customAreaManager = $this->get('paprec_catalog.custom_area_manager');
-        $pictureManager = $this->get('paprec_catalog.picture_manager');
-        
         $em = $this->getDoctrine()->getManager();
         $pictureID = $request->get('pictureID');
+        
+        /** @var Picture $picture */
         $picture = $pictureManager->get($pictureID);
+        
         $oldPath = $picture->getPath();
-        
-        $em = $this->getDoctrine()->getEntityManager();
-        
+    
         foreach ($this->getParameter('paprec_custom_area_types_picture') as $type) {
             $types[$type] = $type;
         }
@@ -398,7 +438,7 @@ class CustomAreaController extends AbstractController
                 'id' => $customArea->getId()
             ]);
         }
-        return $this->render('PaprecCatalogBundle:CustomArea:view.html.twig', [
+        return $this->render('catalog/customArea/view.html.twig', [
             'customArea' => $customArea,
             'formEditPicture' => $form->createView()
         ]);
@@ -407,15 +447,21 @@ class CustomAreaController extends AbstractController
     /**
      * @Route("/customarea/removePicture/{id}/{pictureID}", name="paprec_catalog_custom_area_removePicture")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     * @param CustomArea $customArea
+     *
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function removePictureAction(Request $request, CustomArea $customArea)
     {
-        
         $em = $this->getDoctrine()->getManager();
-        
         $pictureID = $request->get('pictureID');
         
+        /** @var Picture[] $pictures */
         $pictures = $customArea->getPictures();
+        
         foreach ($pictures as $picture) {
             if ($picture->getId() == $pictureID) {
                 $customArea->setDateUpdate(new DateTime());
@@ -435,15 +481,17 @@ class CustomAreaController extends AbstractController
      * Supprimme un fichier du sytème de fichiers
      *
      * @param $path
+     *
+     * @throws Exception
      */
     public function removeFile($path)
     {
         $fs = new Filesystem();
+        
         try {
             $fs->remove($path);
         } catch (IOException $e) {
             throw new Exception($e->getMessage());
         }
     }
-    
 }
