@@ -556,9 +556,9 @@ class QuoteRequest
     /**
      * Get isMultisite.
      *
-     * @return bool
+     * @return bool|null
      */
-    public function getIsMultisite() : bool
+    public function getIsMultisite() : ?bool
     {
         return $this->isMultisite;
     }
@@ -952,9 +952,9 @@ class QuoteRequest
     /**
      * Get staff.
      *
-     * @return string
+     * @return string|null
      */
-    public function getStaff() : string
+    public function getStaff() : ?string
     {
         return $this->staff;
     }
@@ -976,9 +976,9 @@ class QuoteRequest
     /**
      * Get access.
      *
-     * @return string
+     * @return string|null
      */
-    public function getAccess() : string
+    public function getAccess() : ?string
     {
         return $this->access;
     }

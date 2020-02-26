@@ -103,15 +103,18 @@ class SubscriptionController extends AbstractController
     {
         /** @var Cart $cart */
         $cart = $cartManager->get($cartUuid);
-
+    
+        $quoteAccesses = $this->getParameter('paprec_languages');
+        $quoteStaffs = $this->getParameter('paprec_quote_staff');
+        
         $access = [];
-        foreach ($this->getParameter('paprec_quote_access') as $a) {
-            $access[$a] = $a;
+        foreach ($quoteAccesses as $quoteAccess) {
+            $access[$quoteAccess] = $quoteAccess;
         }
 
         $staff = [];
-        foreach ($this->getParameter('paprec_quote_staff') as $s) {
-            $staff[$s] = $s;
+        foreach ($quoteStaffs as $quoteStaff) {
+            $staff[$quoteStaff] = $quoteStaff;
         }
 
         /** @var QuoteRequest $quoteRequest */
@@ -178,7 +181,8 @@ class SubscriptionController extends AbstractController
         return $this->render('public/common/contact.html.twig', [
             'locale' => $locale,
             'cart' => $cart,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'recaptcha_site_key' => $_ENV['RECAPTCHA_SITE_KEY'],
         ]);
     }
     
@@ -273,16 +277,15 @@ class SubscriptionController extends AbstractController
     /**
      * @Route("/{locale}/addFrequency/{cartUuid}", defaults={"cartUuid"=null}, name="paprec_public_catalog_addFrequency", condition="request.isXmlHttpRequest()")
      *
-     * @param Request $request
-     * @param         $locale
-     * @param         $cartUuid
+     * @param Request     $request
+     * @param             $locale
+     * @param             $cartUuid
+     * @param CartManager $cartManager
      *
      * @return JsonResponse
      */
-    public function addFrequencyAction(Request $request, $locale, $cartUuid)
+    public function addFrequencyAction(Request $request, $locale, $cartUuid, CartManager $cartManager)
     {
-        $cartManager = $this->get('paprec.cart_manager');
-
         $frequency = $request->get('frequency');
         $frequencyTimes = $request->get('frequency_times');
         $frequencyInterval = $request->get('frequency_interval');
