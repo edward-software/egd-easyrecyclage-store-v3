@@ -419,7 +419,7 @@ class SubscriptionController extends AbstractController
     }
     
     /**
-     * @Route("/{locale}/offer/{quoteId}", name="paprec_public_offer_confirm_email"
+     * @Route("/{locale}/offer/{quoteId}", name="paprec_public_offer_confirm_email")
      *
      * @param Request             $request
      * @param                     $quoteId

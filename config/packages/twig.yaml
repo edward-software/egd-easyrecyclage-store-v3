@@ -3,3 +3,6 @@ twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
     exception_controller: null
+    globals:
+        reisswolf_public_site_url: '%env(REISSWOLF_PUBLIC_SITE_URL)%'
+        reisswolf_public_technical_service: '%env(REISSWOLF_PUBLIC_TECHNICAL_SERVICE)%'

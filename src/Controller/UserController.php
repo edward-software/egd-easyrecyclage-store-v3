@@ -429,7 +429,7 @@ class UserController extends AbstractController
         $em->flush();
         
         $message = (new Swift_Message('Easy-Recyclage : Identifiants'))
-            ->setFrom($this->getParameter('paprec_email_sender'))
+            ->setFrom($_ENV['MAILER_PAPREC_SENDER'])
             ->setTo($user->getEmail())
             ->setBody(
                 $this->render(
@@ -496,7 +496,7 @@ class UserController extends AbstractController
                     $em->flush();
     
                     $message = (new Swift_Message('Easy-Recyclage : Identifiants'))
-                        ->setFrom($this->getParameter('paprec_email_sender'))
+                        ->setFrom($_ENV['MAILER_PAPREC_SENDER'])
                         ->setTo($user->getEmail())
                         ->setBody(
                             $this->render(
