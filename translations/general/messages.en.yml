@@ -1,0 +1,74 @@
+General:
+  All:                      All
+  List:                     List
+  Add:                      Add
+  Edit:                     Edit
+  Remove:                   Remove
+  Close:                    Close
+  View:                     View
+  Yes:                      Yes
+  1:                        Yes
+  No:                       No
+  0:                        No
+  Name:                     Name
+  SystemError:              System Error !
+  Users:                    Users
+  Save:                     Save
+  Cancel:                   Cancel
+  Confirm:                  Confirmation
+  Confirm-cancel:           Are you sure you want to cancel ?
+  Confirm-remove:           Do you confirm the deletion ?
+  Confirm-disable:          Are you sure you want to turn them all off ?
+  Confirm-enable:           Are you sure you want to turn them all on ?
+  In-progress:              In progress
+  Archiving:                Archiving
+  Mr:                       Monsieur
+  Mme:                      Madame
+  Date-update:              Update date
+  System-information:       System information
+  Information:              Informations
+  Date-creation:            Created on
+  Datatable:
+    Records-per-page:       _MENU_ records per page
+    Nothing-found:          Nothing found - sorry
+    Showing-page:           Showing _START_ to _END_ of _TOTAL_ entries
+    No-records-available:   No records available
+    Search:                 Search
+    Loading:                Loading...
+    Previous:               Previous
+    Next:                   Next
+  Presence-error:           Presence error
+  Menu:
+    Administration:         Administration
+    Users:                  Users
+    Dashboard:              Dashboard
+    Logout:                 Logout
+    MyProfile:              My profile
+    Customers:              Customers
+    My-profile:             My profile
+  Form:
+    Submit:                 Submit
+    CreationDate:           Created on
+    UpdatedDate:            Updated on
+    CreationUser:           Created by
+    UpdatedUser:            Updated by
+    NeverUpdated:           Never updated
+    Password:               Password
+    RepeatPassword:         Repeat password
+    Email:                  Email
+    Language:               Language
+    Timezone:               Timezone
+    Enable:                 Enable
+    Username:               Username
+    Roles:                  Roles
+    Permissions:            Permissions
+    Unlock:                 Unlock
+    Name:                   Name
+    Birthday:               Birthday
+    Nationality:            Nationality
+    FirstName:              First name
+    LastName:               Last name
+    Address:                Address
+    PostalCode:             Postal Code
+    City:                   City
+    Access-type:            Access type

@@ -1,0 +1,4 @@
+Public:
+  Contact:
+    PostalCodeError: Es handelt sich nicht um eine gültige Postleitzahl. Wählen Sie aus der Dropdown-Liste aus.
+    PhoneError:      Falsches Format (z. B. 0041701020304,+41701020304, 0033701020304)

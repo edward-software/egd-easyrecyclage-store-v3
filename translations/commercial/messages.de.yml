@@ -1,0 +1,119 @@
+Commercial:
+  Bundle-name:               Gestion commerciale
+  QuoteRequests:             Demandes de devis
+  Settings:                  Paramétrage
+  QuoteRequest:
+    QuoteRequests:           Demandes de devis
+    List:                    Liste des demandes de devis
+    Add:                     Ajout d'un devis
+    Export:                  Export des devis
+    BusinessName:            Nom société
+    TotalAmount:             Montant total
+    QuoteStatus:             Status devis
+    Date-crea:               Date créa.
+    Canton:                  Canton
+    Civility:                Civilité
+    LastName:                Nom
+    FirstName:               Prénom
+    Email:                   Email
+    Phone:                   Téléphone
+    Address:                 Adresse
+    PostalCode:              Code postal
+    City:                    Ville
+    Informations-BO:         Informations Back-Office
+    Informations-FO:         Informations Front-Office
+    Frequency:               Fréquence
+    PassingFrequency:        Fréquence de passage (si régulier)
+    FrequencyTimes:          Nb de passages (si régulier)
+    month:                   mois
+    quarter:                 trimestre
+    year:                    an
+    week:                    semaine
+    CoworkerNumber:          Effectif
+    UserInCharge:            Commercial en charge
+    Reference:               Référence de l'offre
+    IsMultisite:             Prestation multi-sites
+    Comment:                 Commentaire
+    OverallDiscount:         Ajustement prix (+/- en %)
+    CustomerId:              Numéro client
+    SalesmanComment:         Commentaire commercial
+    AnnualBudget:            Budget annuel
+    View:                    Vue du devis
+    Download-quote:          Télécharger PDF
+    Send-quote:              Envoyer devis au client
+    ProductsList:            Liste des produits
+    AddLine:                 Ajouter un produit
+    Confirm-send-quote:      Êtes-vous sûr de vouloir envoyer le devis au client ?
+    Edit:                    Edition du devis
+    Ponctual:                A la demande
+    Regular:                 Régulière
+    Error:
+      generatedQuoteNotSent: Erreur lors de la génération et l'envoi du devis.
+    Success:
+      generatedQuoteSent:    Le devis a bien été généré et envoyé au client.
+      newUserInChargeWarned: Eine E-Mail wurde an den neuen zuständigen Vertriebsmitarbeiter gesendet.
+    Locale:                  Langue
+    Number:                  Numéro offre
+
+  QuoteStatusList:
+    CREATED:                 Créé
+    PENDING:                 En attente
+    PROCESSING:              En traitement
+    CLOSED:                  Fermé
+  StaffList:
+    19:                      De 1 à 9 employés
+    1019:                    De 10 à 19 employés
+    2029:                    De 20 à 29 employés
+    3039:                    De 30 à 39 employés
+    4049:                    De 40 à 49 employés
+    5059:                    De 50 à 59 employés
+    6069:                    De 60 à 69 employés
+    7079:                    De 70 à 79 employés
+    8089:                    De 80 à 89 employés
+    9099:                    De 90 à 99 employés
+    100109:                  De 100 à 109 employés
+    110119:                  De 110 à 119 employés
+    120129:                  De 120 à 129 employés
+    130139:                  De 130 à 139 employés
+    140149:                  De 140 à 149 employés
+    150+:                    Plus de 150 employés
+  AccessList:
+    stairs:                  Par escalier
+    elevator:                Par ascenseur
+    ground:                  Niveau rue sans marche
+  QuoteRequestLine:
+    ProductName:             Nom du produit
+    UnitPrice:               Prix unitaire
+    Quantity:                Quantité
+    RentalPrice:             Location
+    SetUpPrice:              Mise en place
+    Transport:               Transport
+    Treatment:               Traitement
+    Traceability:            Traçabilité
+    Access:                  Accès
+    TotalAmount:             Montant total
+    Add:                     Ajout d'un produit
+    Product:                 Produit
+  NewQuoteEmail:
+    Title:                   Ihnen wurde eine neue Angebotsanfrage zugeordnet.
+    Dear:                    Sehr geehrter Kollege Reisswolf
+    Message1:                Anbei finden Sie eine Anfrage zur Überprüfung des Angebots für das geografische Gebiet sowie den geplanten Vertrag.
+    Message2:                Wir danken Ihnen im Voraus.
+    Partner:                 Ihr Partner Reisswolf
+  ConfirmEmail:
+    Object:                  Ihre Angebotsanfrage
+    Dear:
+      M:                     Sehr geehrter Herr
+      Mrs:                   Sehr geehrte Frau
+    Title:                   Ihre Anfrage wurde berücksichtigt und an den Vertrieb in Ihrer Region weitergeleitet.
+    Message1:                Vielen Dank für Ihre Anfrage vom %date%. Es freut uns, dass Sie sich für die Dienstleistungen von REISSWOLF interessieren.
+    TechnicalService:        service technique
+    Message2:                Wir werden Ihnen in den kommenden Stunden unser Angebot für die Leistungen von REISSWOLF zusenden.
+    Regards:                 Mit freundlichen Grüssen.
+    Partner:                 Ihr Reisswolf-Partner
+    Disclaimer:
+      Message1:              Sie haben diese E-Mail erhalten, um Sie über wichtige Änderungen an den von Ihnen genutzten
+      Message2:              -Diensten zu informieren.
+User:
+  User:
+    Lang:                    Langue

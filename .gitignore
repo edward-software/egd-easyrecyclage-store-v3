@@ -15,6 +15,13 @@
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
 
-###< IDE environment files ###
+###> IDE environment files ###
 .idea/
 .DS_Store
+###< IDE environment files ###
+
+###> Front-end ###
+node_modules
+public/build
+public/uploads
+###< Front-end ###
