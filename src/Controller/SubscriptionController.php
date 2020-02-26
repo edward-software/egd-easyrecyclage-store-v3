@@ -104,7 +104,7 @@ class SubscriptionController extends AbstractController
         /** @var Cart $cart */
         $cart = $cartManager->get($cartUuid);
     
-        $quoteAccesses = $this->getParameter('paprec_languages');
+        $quoteAccesses = $this->getParameter('paprec_quote_access');
         $quoteStaffs = $this->getParameter('paprec_quote_staff');
         
         $access = [];
