@@ -10,6 +10,7 @@ use App\Form\QuoteRequestPublicType;
 use App\Service\CartManager;
 use App\Service\ProductManager;
 use App\Service\QuoteRequestManager;
+use App\Service\UserManager;
 use DateTime;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,19 +24,29 @@ class SubscriptionController extends AbstractController
 {
     /**
      * @Route("/{locale}", name="paprec_public_devis_home")
+     *
      * @param Request $request
+     * @param         $locale
+     *
      * @return RedirectResponse
      */
     public function redirectToIndexAction(Request $request, $locale)
     {
-        return $this->redirectToRoute('paprec_public_catalog_index', ['locale' => $locale]);
-
+        return $this->redirectToRoute('paprec_public_catalog_index', [
+            'locale' => $locale
+        ]);
     }
-
+    
     /**
      * @Route("/{locale}/step0/{cartUuid}", defaults={"cartUuid"=null}, name="paprec_public_catalog_index")
-     * @param Request $request
-     * @return Response
+     *
+     * @param Request        $request
+     * @param                $locale
+     * @param                $cartUuid
+     * @param CartManager    $cartManager
+     * @param ProductManager $productManager
+     *
+     * @return RedirectResponse|Response
      * @throws Exception
      */
     public function catalogAction(Request $request, $locale, $cartUuid, CartManager $cartManager, ProductManager $productManager)
@@ -67,21 +78,29 @@ class SubscriptionController extends AbstractController
             'products' => $products
         ]);
     }
-
+    
     /**
      * @Route("/{locale}/step1/{cartUuid}",  name="paprec_public_contact_index")
-     * @param Request $request
-     * @param $locale
-     * @param $cartUuid
-     * @return Response
+     *
+     * @param Request             $request
+     * @param                     $locale
+     * @param                     $cartUuid
+     * @param CartManager         $cartManager
+     * @param QuoteRequestManager $quoteRequestManager
+     * @param UserManager         $userManager
+     *
+     * @return RedirectResponse|Response
      * @throws Exception
      */
-    public function contactDetailAction(Request $request, $locale, $cartUuid)
+    public function contactDetailAction(
+        Request $request,
+        $locale,
+        $cartUuid,
+        CartManager $cartManager,
+        QuoteRequestManager $quoteRequestManager,
+        UserManager $userManager
+    )
     {
-        $cartManager = $this->get('paprec.cart_manager');
-        $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
-        $userManager = $this->get('paprec.user_manager');
-
         /** @var Cart $cart */
         $cart = $cartManager->get($cartUuid);
 
@@ -117,7 +136,9 @@ class SubscriptionController extends AbstractController
 
             $regionName = 'CH';
             if (!$quoteRequest->getIsMultisite() && $quoteRequest->getPostalCode()) {
-                $regionName = substr(iconv('UTF-8', 'ASCII//IGNORE', $quoteRequest->getPostalCode()->getRegion()->getName()), 0, 2);
+                $regionName = substr(
+                    iconv('UTF-8', 'ASCII//IGNORE', $quoteRequest->getPostalCode()->getRegion()->getName()), 0, 2
+                );
             }
             
             $reference = strtoupper($regionName) . $quoteRequest->getDateCreation()->format('ymd');
@@ -160,12 +181,13 @@ class SubscriptionController extends AbstractController
             'form' => $form->createView()
         ]);
     }
-
+    
     /**
      * A partir du token reCaptcha récupéré dans le formulaire
      * On fait une requête vers google pour vérifier la validité du Captcha
      *
      * @param $recaptchaToken
+     *
      * @return mixed
      */
     private function captchaVerify($recaptchaToken)
@@ -184,18 +206,29 @@ class SubscriptionController extends AbstractController
     
         return json_decode($response)->success;
     }
-
+    
     /**
      * @Route("/{locale}/step2/{cartUuid}/{quoteRequestId}", name="paprec_public_confirm_index")
-     * @param Request $request
+     *
+     * @param Request             $request
+     * @param                     $locale
+     * @param                     $cartUuid
+     * @param                     $quoteRequestId
+     * @param CartManager         $cartManager
+     * @param QuoteRequestManager $quoteRequestManager
+     *
      * @return Response
      * @throws Exception
      */
-    public function confirmAction(Request $request, $locale, $cartUuid, $quoteRequestId)
+    public function confirmAction(
+        Request $request,
+        $locale,
+        $cartUuid,
+        $quoteRequestId,
+        CartManager $cartManager,
+        QuoteRequestManager $quoteRequestManager
+    )
     {
-        $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
-        $cartManager = $this->get('paprec.cart_manager');
-
         $cart = $cartManager->get($cartUuid);
         $quoteRequest = $quoteRequestManager->get($quoteRequestId);
 
@@ -208,14 +241,18 @@ class SubscriptionController extends AbstractController
     
     /**
      * @Route("/{locale}/addContent/{cartUuid}", defaults={"cartUuid"=null}, name="paprec_public_catalog_addContent", condition="request.isXmlHttpRequest()")
+     *
+     * @param Request        $request
+     * @param                $locale
+     * @param                $cartUuid
+     * @param CartManager    $cartManager
+     * @param ProductManager $productManager
+     *
+     * @return JsonResponse|Response
      */
-    public function addContentAction(Request $request, $locale, $cartUuid)
+    public function addContentAction(Request $request, $locale, $cartUuid, CartManager $cartManager, ProductManager $productManager)
     {
-        $cartManager = $this->get('paprec.cart_manager');
-        $productManager = $this->container->get('paprec_catalog.product_manager');
-
         $productId = $request->get('productId');
-
         $quantity = $request->get('quantity');
 
         try {
@@ -232,9 +269,15 @@ class SubscriptionController extends AbstractController
             return new JsonResponse(null, 400);
         }
     }
-
+    
     /**
      * @Route("/{locale}/addFrequency/{cartUuid}", defaults={"cartUuid"=null}, name="paprec_public_catalog_addFrequency", condition="request.isXmlHttpRequest()")
+     *
+     * @param Request $request
+     * @param         $locale
+     * @param         $cartUuid
+     *
+     * @return JsonResponse
      */
     public function addFrequencyAction(Request $request, $locale, $cartUuid)
     {
@@ -254,51 +297,75 @@ class SubscriptionController extends AbstractController
             return new JsonResponse(['error' => $e->getMessage()], 400);
         }
     }
-
+    
     /**
      * Augmente la quantité d'un produit dans le panier de 1
      * L'ajoute au panier si produit non présent
      *
      * @Route("/{locale}/addOneContent/{cartUuid}/{productId}", name="paprec_public_catalog_addOneContent", condition="request.isXmlHttpRequest()")
-     * @throws Exception
+     *
+     * @param Request        $request
+     * @param                $locale
+     * @param                $cartUuid
+     * @param                $productId
+     * @param CartManager    $cartManager
+     * @param ProductManager $productManager
+     *
+     * @return JsonResponse|Response
      */
-    public function addOneProductAction(Request $request, $locale, $cartUuid, $productId)
+    public function addOneProductAction(
+        Request $request,
+        $locale,
+        $cartUuid,
+        $productId,
+        CartManager $cartManager,
+        ProductManager $productManager
+    )
     {
-        $cartManager = $this->get('paprec.cart_manager');
-        $productManager = $this->container->get('paprec_catalog.product_manager');
-
         try {
             $product = $productManager->get($productId);
+            
             // On ajoute ou on supprime le produit sélecionné au tableau des displayedCategories du Cart
             $qtty = $cartManager->addOneProduct($cartUuid, $productId);
-
 
             return $this->render('public/common/partials/quoteLine.html.twig', [
                 'locale' => $locale,
                 'product' => $product,
                 'quantity' => $qtty
             ]);
-
         } catch (Exception $e) {
             
             return new JsonResponse(null, 400);
         }
     }
-
+    
     /**
      * Diminue la quantité d'un produit dans le panier de 1
      * Le supprime du panier si quantité = 0
      *
      * @Route("/{locale}/removeOneContent/{cartUuid}/{productId}", name="paprec_public_catalog_removeOneContent", condition="request.isXmlHttpRequest()")
-     * @throws Exception
+     *
+     * @param Request        $request
+     * @param                $locale
+     * @param                $cartUuid
+     * @param                $productId
+     * @param CartManager    $cartManager
+     * @param ProductManager $productManager
+     *
+     * @return JsonResponse|Response
      */
-    public function removeOneProductAction(Request $request, $locale, $cartUuid, $productId)
+    public function removeOneProductAction(
+        Request $request,
+        $locale,
+        $cartUuid,
+        $productId,
+        CartManager $cartManager,
+        ProductManager $productManager
+    )
     {
-        $cartManager = $this->get('paprec.cart_manager');
-        $productManager = $this->container->get('paprec_catalog.product_manager');
-
         try {
             $product = $productManager->get($productId);
+            
             // On ajoute ou on supprime le produit sélecionné au tableau des displayedCategories du Cart
             $qtty = $cartManager->removeOneProduct($cartUuid, $productId);
 
@@ -317,11 +384,26 @@ class SubscriptionController extends AbstractController
             return new JsonResponse(null, 400);
         }
     }
-
+    
     /**
      * @Route("/{locale}/contract/{quoteId}", name="paprec_public_contract_confirm_email")
+     *
+     * @param Request             $request
+     * @param                     $quoteId
+     * @param                     $locale
+     * @param QuoteRequestManager $quoteRequestManager
+     * @param ProductManager      $productManager
+     *
+     * @return Response
+     * @throws Exception
      */
-    public function showContract(Request $request, $quoteId, $locale, QuoteRequestManager $quoteRequestManager, ProductManager $productManager)
+    public function showContract(
+        Request $request,
+        $quoteId,
+        $locale,
+        QuoteRequestManager $quoteRequestManager,
+        ProductManager $productManager
+    )
     {
         /** @var Product[] $products */
         $products = $productManager->getAvailableProducts();
@@ -335,9 +417,17 @@ class SubscriptionController extends AbstractController
             'products' => $products,
         ]);
     }
-
+    
     /**
-     * @Route("/{locale}/offer/{quoteId}", name="paprec_public_offer_confirm_email")
+     * @Route("/{locale}/offer/{quoteId}", name="paprec_public_offer_confirm_email"
+     *
+     * @param Request             $request
+     * @param                     $quoteId
+     * @param                     $locale
+     * @param QuoteRequestManager $quoteRequestManager
+     *
+     * @return Response
+     * @throws Exception
      */
     public function showOffer(Request $request, $quoteId, $locale, QuoteRequestManager $quoteRequestManager)
     {
@@ -350,9 +440,17 @@ class SubscriptionController extends AbstractController
             'locale' => $locale,
         ]);
     }
-
+    
     /**
      * @Route("/{locale}/pdf/contract/{quoteId}", name="paprec_public_confirm_pdf_show_contract")
+     *
+     * @param Request             $request
+     * @param                     $quoteId
+     * @param                     $locale
+     * @param QuoteRequestManager $quoteRequestManager
+     *
+     * @return Response
+     * @throws Exception
      */
     public function showContractPDF(Request $request, $quoteId, $locale, QuoteRequestManager $quoteRequestManager)
     {
@@ -365,9 +463,17 @@ class SubscriptionController extends AbstractController
             'filename' => $filename,
         ]);
     }
-
+    
     /**
      * @Route("/{locale}/email/contract/{quoteId}", name="paprec_public_confirm_email_show_contract")
+     *
+     * @param Request             $request
+     * @param                     $quoteId
+     * @param                     $locale
+     * @param QuoteRequestManager $quoteRequestManager
+     *
+     * @return Response
+     * @throws Exception
      */
     public function showEmail(Request $request, $quoteId, $locale, QuoteRequestManager $quoteRequestManager)
     {

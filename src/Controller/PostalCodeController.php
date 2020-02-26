@@ -18,6 +18,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,7 +52,7 @@ class PostalCodeController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function loadListAction(Request $request, NumberManager $numberManager)
+    public function loadListAction(Request $request)
     {
         $return = [];
 
@@ -183,30 +184,28 @@ class PostalCodeController extends AbstractController
         }
     
         $writer = new Xlsx($spreadsheet);
-
-        $fileName = 'ReisswolfShop-Extract-Postal-Codes-' . date('Y-m-d') . '.xlsx';
-
-        
-        /** TODO Fix this because liuggio/ExcelBundle is deprecated since Symfony 2
-         *
-         * // create the response
-         * $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
-         *
-         * // adding headers
-         * $dispositionHeader = $response->headers->makeDisposition(
-         *     ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-         *     $fileName
-         * );
-         *
-         * $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-         * $response->headers->set('Pragma', 'public');
-         * $response->headers->set('Cache-Control', 'maxage=1');
-         * $response->headers->set('Content-Disposition', $dispositionHeader);
-         *
-         * return $response;
-         */
     
-        return null;
+        $fileName = 'ReisswolfShop-Extract-Postal-Codes-' . date('Y-m-d') . '.xlsx';
+    
+        // Create a Response
+        $response =  new StreamedResponse(
+            function () use ($writer, $fileName) {
+                $writer->save($fileName);
+            }
+        );
+        
+        // Adding headers
+        $dispositionHeader = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $fileName
+        );
+        
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+        
+        return $response;
     }
     
     /**

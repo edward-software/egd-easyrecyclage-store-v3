@@ -6,10 +6,20 @@ namespace App\Controller;
 use App\Entity\Region;
 use App\Entity\User;
 use App\Form\RegionType;
+use App\Repository\RegionRepository;
+use App\Service\RegionManager;
+use App\Service\UserManager;
 use DateTime;
+use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
+use Exception;
+use PhpOffice\PhpSpreadsheet\Exception as PSException;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,19 +32,24 @@ class RegionController extends AbstractController
     /**
      * @Route("/region", name="paprec_catalog_region_index")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @return Response
      */
     public function indexAction()
     {
-        return $this->render('PaprecCatalogBundle:Region:index.html.twig');
+        return $this->render('catalog/region/index.html.twig');
     }
-
+    
     /**
      * @Route("/region/loadList", name="paprec_catalog_region_loadList")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
      */
     public function loadListAction(Request $request)
     {
-
         $return = [];
 
         $filters = $request->get('filters');
@@ -48,22 +63,46 @@ class RegionController extends AbstractController
         $cols['name'] = ['label' => 'name', 'id' => 'r.name', 'method' => ['getName']];
         $cols['email'] = ['label' => 'email', 'id' => 'r.email', 'method' => ['getEmail']];
 
-        /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $this->getDoctrine()->getManager()->getRepository(Region::class)->createQueryBuilder('r');
+        $em = $this->getDoctrine()->getManager();
         
-        $queryBuilder->select(['r'])
+        /** @var RegionRepository $regionRepository */
+        $regionRepository = $em->getRepository(Region::class);
+        
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $regionRepository->createQueryBuilder('r');
+        
+        $queryBuilder
+            ->select(['r'])
             ->where('r.deleted IS NULL');
 
         if (is_array($search) && isset($search['value']) && $search['value'] != '') {
-            if (substr($search['value'], 0, 1) == '#') {
-                $queryBuilder->andWhere($queryBuilder->expr()->orx(
-                    $queryBuilder->expr()->eq('r.id', '?1')
-                ))->setParameter(1, substr($search['value'], 1));
+            if (substr($search['value'], 0, 1) === '#') {
+                $queryBuilder
+                    ->andWhere(
+                        $queryBuilder
+                            ->expr()
+                            ->orx(
+                                $queryBuilder
+                                    ->expr()
+                                    ->eq('r.id', '?1')
+                            )
+                    )
+                    ->setParameter(1, substr($search['value'], 1));
             } else {
-                $queryBuilder->andWhere($queryBuilder->expr()->orx(
-                    $queryBuilder->expr()->like('r.name', '?1'),
-                    $queryBuilder->expr()->like('r.email', '?1')
-                ))->setParameter(1, '%' . $search['value'] . '%');
+                $queryBuilder
+                    ->andWhere(
+                        $queryBuilder
+                            ->expr()
+                            ->orx(
+                                $queryBuilder
+                                    ->expr()
+                                    ->like('r.name', '?1'),
+                                $queryBuilder
+                                    ->expr()
+                                    ->like('r.email', '?1')
+                            )
+                    )
+                    ->setParameter(1, '%' . $search['value'] . '%');
             }
         }
 
@@ -76,39 +115,44 @@ class RegionController extends AbstractController
         $return['resultDescription'] = "success";
 
         return new JsonResponse($return);
-
     }
-
+    
     /**
      * @Route("/region/export", name="paprec_catalog_region_export")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request     $request
+     * @param UserManager $userManager
+     * @param Spreadsheet $spreadsheet
+     *
+     * @return StreamedResponse
+     * @throws PSException
      */
-    public function exportAction(Request $request)
+    public function exportAction(Request $request, UserManager $userManager, Spreadsheet $spreadsheet)
     {
-        /** @var NumberManager $numberManager */
-        $numberManager = $this->get('paprec_catalog.number_manager');
+        $em = $this->getDoctrine()->getManager();
         
-        /** @var UserManager $userManager */
-        $userManager = $this->container->get('paprec.user_manager');
-
-        /** @var Spreadsheet $phpExcelObject */
-        $phpExcelObject = $this->container->get('phpexcel')->createPHPExcelObject();
-
+        /** @var RegionRepository $regionRepository */
+        $regionRepository = $em->getRepository(Region::class);
+        
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $this->getDoctrine()->getManager()->getRepository(Region::class)->createQueryBuilder('r');
+        $queryBuilder = $regionRepository->createQueryBuilder('r');
 
-        $queryBuilder->select(['r'])
+        $queryBuilder
+            ->select(['r'])
             ->where('r.deleted IS NULL');
 
         /** @var Region[] $regions */
         $regions = $queryBuilder->getQuery()->getResult();
-
-        $phpExcelObject->getProperties()->setCreator("Reisswolf Shop")
+    
+        $spreadsheet
+            ->getProperties()
+            ->setCreator("Reisswolf Shop")
             ->setLastModifiedBy("Reisswolf Shop")
             ->setTitle("Reisswolf Shop - Regions")
             ->setSubject("Extract");
     
-        $sheet = $phpExcelObject->setActiveSheetIndex(0);
+        $sheet = $spreadsheet->setActiveSheetIndex(0);
         $sheet->setTitle('Regions');
     
         $sheetLabels = [
@@ -148,7 +192,7 @@ class RegionController extends AbstractController
             $getters = [
                 $region->getId(),
                 $region->getDateCreation()->format('Y-m-d'),
-                $region->getDateUpdate()->format('Y-m-d'),
+                $region->getDateUpdate() ? $region->getDateUpdate()->format('Y-m-d') : '',
                 $region->getDeleted() ? 'true' : 'false',
                 $region->getUserCreation(),
                 $region->getUserUpdate(),
@@ -158,7 +202,7 @@ class RegionController extends AbstractController
                 $user->getUsername(),
                 $user->getEmail(),
                 $user->getDateCreation()->format('Y-m-d'),
-                $user->getDateUpdate()->format('Y-m-d'),
+                $user->getDateUpdate() ? $user->getDateUpdate()->format('Y-m-d') : '',
                 $user->getDeleted() ? 'true' : 'false',
                 $user->getCompanyName(),
                 $user->getLastName(),
@@ -184,19 +228,25 @@ class RegionController extends AbstractController
         for ($i = 'A'; $i <= $sheet->getHighestDataColumn(); $i++) {
             $sheet->getColumnDimension($i)->setAutoSize(true);
         }
-
-        $writer = $this->container->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+    
+    
+        $writer = new Xlsx($spreadsheet);
 
         $fileName = 'ReisswolfShop-Extract-Regions-' . date('Y-m-d') . '.xlsx';
+    
+        // Create a Response
+        $response =  new StreamedResponse(
+            function () use ($writer, $fileName) {
+                $writer->save($fileName);
+            }
+        );
 
-        // create the response
-        $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
-
-        // adding headers
+        // Adding headers
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
             $fileName
         );
+        
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
@@ -204,21 +254,23 @@ class RegionController extends AbstractController
 
         return $response;
     }
-
+    
     /**
      * @Route("/region/view/{id}", name="paprec_catalog_region_view")
      * @Security("has_role('ROLE_COMMERCIAL')")
-     * @param Request $request
-     * @param Region $region
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     *
+     * @param Request       $request
+     * @param Region        $region
+     * @param RegionManager $regionManager
+     *
+     * @return Response
+     * @throws EntityNotFoundException
      */
-    public function viewAction(Request $request, Region $region)
+    public function viewAction(Request $request, Region $region, RegionManager $regionManager)
     {
-        $regionManager = $this->get('paprec_catalog.region_manager');
         $regionManager->isDeleted($region, true);
 
-        return $this->render('PaprecCatalogBundle:Region:view.html.twig', [
+        return $this->render('catalog/region/view.html.twig', [
             'region' => $region
         ]);
     }
@@ -227,14 +279,12 @@ class RegionController extends AbstractController
      * @Route("/region/add", name="paprec_catalog_region_add")
      * @Security("has_role('ROLE_COMMERCIAL')")
      */
-    public function addAction(Request $request)
+    public function addAction(Request $request, Region $region)
     {
+        /** @var User $user */
         $user = $this->getUser();
 
-        $region = new Region();
-
         $form = $this->createForm(RegionType::class, $region);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -251,31 +301,31 @@ class RegionController extends AbstractController
             return $this->redirectToRoute('paprec_catalog_region_view', [
                 'id' => $region->getId()
             ]);
-
         }
 
-        return $this->render('PaprecCatalogBundle:Region:add.html.twig', [
+        return $this->render('catalog/region/add.html.twig', [
             'form' => $form->createView()
         ]);
     }
-
+    
     /**
      * @Route("/region/edit/{id}", name="paprec_catalog_region_edit")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
      * @param Request $request
-     * @param Region $region
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @param Region  $region
+     *
+     * @return RedirectResponse|Response
+     * @throws EntityNotFoundException
      */
-    public function editAction(Request $request, Region $region)
+    public function editAction(Request $request, Region $region, RegionManager $regionManager)
     {
+        /** @var User $user */
         $user = $this->getUser();
 
-        $regionManager = $this->get('paprec_catalog.region_manager');
         $regionManager->isDeleted($region, true);
 
         $form = $this->createForm(RegionType::class, $region);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -291,18 +341,23 @@ class RegionController extends AbstractController
             return $this->redirectToRoute('paprec_catalog_region_view', [
                 'id' => $region->getId()
             ]);
-
         }
 
-        return $this->render('PaprecCatalogBundle:Region:edit.html.twig', [
+        return $this->render('catalog/region/edit.html.twig', [
             'form' => $form->createView(),
             'region' => $region
         ]);
     }
-
+    
     /**
      * @Route("/region/remove/{id}", name="paprec_catalog_region_remove")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     * @param Region  $region
+     *
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function removeAction(Request $request, Region $region)
     {
@@ -318,10 +373,15 @@ class RegionController extends AbstractController
 
         return $this->redirectToRoute('paprec_catalog_region_index');
     }
-
+    
     /**
      * @Route("/region/removeMany/{ids}", name="paprec_catalog_region_removeMany")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function removeManyAction(Request $request)
     {
@@ -348,12 +408,9 @@ class RegionController extends AbstractController
                     }
                 }
             }
-            
             $em->flush();
         }
 
         return $this->redirectToRoute('paprec_catalog_region_index');
     }
-
-
 }

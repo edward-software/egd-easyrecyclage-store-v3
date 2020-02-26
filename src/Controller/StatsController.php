@@ -3,8 +3,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\NumberManager;
 use Doctrine\DBAL\Driver\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +17,10 @@ class StatsController extends AbstractController
     /**
      * @Route("/stats", name="paprec_commercial_stats_index")
      * @Security("has_role('ROLE_COMMERCIAL') or has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     *
+     * @return Response
      */
     public function indexAction(Request $request)
     {
@@ -25,23 +32,19 @@ class StatsController extends AbstractController
 
         if (!empty($dateStart)) {
             if ($dateStart !== '0') {
-                $dateStartSql = join('-', array_reverse(explode('/', $dateStart)));
+                $dateStartSql = implode('-', array_reverse(explode('/', $dateStart)));
             }
         }
         if (!empty($dateEnd)) {
             if ($dateEnd !== '0') {
-                $dateEndSql = join('-', array_reverse(explode('/', $dateEnd)));
+                $dateEndSql = implode('-', array_reverse(explode('/', $dateEnd)));
             }
         }
 
-        /**
-         * Récupération des statuts possibles des devis et commandes
-         */
+        // Récupération des statuts possibles des devis et commandes
         $quoteStatusList = $this->getParameter('paprec_quote_status');
 
-        /**
-         * Calcul des totaux de chaque tableau qu'importe le statut
-         */
+        // Calcul des totaux de chaque tableau qu'importe le statut
         $totalQuoteStatus['total'] = $this->getQuoteStats( $dateStart, $dateEnd);
 
         if (is_array($quoteStatusList) && count($quoteStatusList)) {
@@ -50,8 +53,9 @@ class StatsController extends AbstractController
             }
         }
 
-
-        return $this->render('@PaprecCommercial/Stats/index.html.twig', [
+        // TODO View doesn't exists even in the old project
+        // return $this->render('@PaprecCommercial/Stats/index.html.twig', [
+        return $this->render('index.html.twig', [
             'quoteStatusList' => $quoteStatusList,
             'totalQuoteStatus' => $totalQuoteStatus,
             'dateStart' => $dateStart,
@@ -60,75 +64,83 @@ class StatsController extends AbstractController
             'dateEndSql' => $dateEndSql
         ]);
     }
-
-
+    
     /**
      * Fonction retournant dans un tableau les stats sur les devis en fonction de la division et du statut
      * Le tableau retourné correspond à une colonne d'un tableau dans le HTML
-     * Si on ne renseigne pas de $total et de $status, alors la fonction retourne les stats totales sur les devis de la division qu'importe le statut du devis
+     * Si on ne renseigne pas de $total et de $status, alors la fonction retourne les stats totales sur les
+     * devis de la division qu'importe le statut du devis
      *
-     * @param $division
-     * @param null $total
-     * @param null $status
+     * @param NumberManager $numberManager
+     * @param null          $dateStart
+     * @param null          $dateEnd
+     * @param null          $total
+     * @param null          $status
+     *
      * @return array
      */
-    private function getQuoteStats($dateStart = null, $dateEnd = null, $total = null, $status = null)
+    private function getQuoteStats(NumberManager $numberManager, $dateStart = null, $dateEnd = null, $total = null, $status = null)
     {
         /**
          * On formate les dates qui sont au format jj/mm/aaaa pour pouvoir les utiliser en SQL
          */
         if ($dateStart && !empty($dateStart)) {
-            $dateStart = join('-', array_reverse(explode('/', $dateStart)));
+            $dateStart = implode('-', array_reverse(explode('/', $dateStart)));
         }
         if ($dateEnd && !empty($dateEnd)) {
-            $dateEnd = join('-', array_reverse(explode('/', $dateEnd)));
+            $dateEnd = implode('-', array_reverse(explode('/', $dateEnd)));
         }
         
-        $numberManager = $this->get('paprec_catalog.number_manager');
-
         $quoteStats = [];
-        /**
-         * Nombre de devis
-         */
+        
+        // Nombre de devis
         $sql = "SELECT COUNT(*) as nbQuote FROM quoteRequests q WHERE q.deleted IS NULL";
+        
         if ($status != null) {
             $sql .= " AND q.quoteStatus = '" . $status . "'";
         }
+        
         if ($dateStart && !empty($dateStart) && $dateEnd && !empty($dateEnd)) {
             $sql .= " AND q.dateCreation BETWEEN '" . $dateStart . "' AND '" . $dateEnd . "'";
         }
+        
         $result = $this->executeSQL($sql);
         $quoteStats['nbQuote'] = $result[0]['nbQuote'];
 
-        /**
-         * Montant total
-         */
+        //Montant total
         $sql = "SELECT SUM(COALESCE(q.totalAmount, 0)) as totalAmount FROM quoteRequests q WHERE q.deleted IS NULL";
+        
         if ($status != null) {
             $sql .= " AND q.quoteStatus = '" . $status . "'";
         }
+        
         if ($dateStart && !empty($dateStart) && $dateEnd && !empty($dateEnd)) {
             $sql .= " AND q.dateCreation BETWEEN '" . $dateStart . "' AND '" . $dateEnd . "'";
         }
+        
         $result = $this->executeSQL($sql);
         $quoteStats['totalAmountFloat'] = $numberManager->denormalize($result[0]['totalAmount']);
-        $quoteStats['totalAmount'] = number_format($numberManager->denormalize($result[0]['totalAmount']), 2, ',', ' ');
+        $quoteStats['totalAmount'] = number_format(
+            $numberManager->denormalize($result[0]['totalAmount']), 2, ',', ' '
+        );
 
-        /**
-         * Montant total moyen
-         */
+        // Montant total moyen
+        
         if ($quoteStats['nbQuote']) {
-            $quoteStats['averageTotalAmount'] = number_format($quoteStats['totalAmountFloat'] / $quoteStats['nbQuote'], 2, ',', ' ');
+            $quoteStats['averageTotalAmount'] = number_format(
+                $quoteStats['totalAmountFloat'] / $quoteStats['nbQuote'], 2, ',', ' '
+            );
         }
 
         return $quoteStats;
     }
-
+    
     /**
      * Execute une requete SQL avec le connecteur PDO et retourne les résultats dans un tableau
      *
      * @param $sql
-     * @return mixed
+     *
+     * @return mixed[]
      */
     private function executeSQL($sql)
     {
@@ -142,89 +154,104 @@ class StatsController extends AbstractController
         
         return $result = $stmt->fetchAll();
     }
-
+    
     /**
-     *
      * Fonction retournant dans un tableau les stats sur les commandes en fonction de la division et du statut
      * Le tableau retourné correspond à une colonne d'un tableau dans le HTML
-     * Si on ne renseigne pas de $total et de $status, alors la fonction retourne les stats totales sur les commandes de la division qu'importe le statut de celles-ci
+     * Si on ne renseigne pas de $total et de $status, alors la fonction retourne les stats totales sur les
+     * commandes de la division qu'importe le statut de celles-ci
      *
-     * @param $division
-     * @param null $total
-     * @param null $status
+     * @param NumberManager $numberManager
+     * @param               $division
+     * @param null          $dateStart
+     * @param null          $dateEnd
+     * @param null          $total
+     * @param null          $status
+     *
      * @return array
      */
-    private function getOrderStats($division, $dateStart = null, $dateEnd = null, $total = null, $status = null)
+    private function getOrderStats(
+        NumberManager $numberManager,
+        $division,
+        $dateStart = null,
+        $dateEnd = null,
+        $total = null,
+        $status = null
+    )
     {
-        /**
-         * On formate les dates qui sont au format jj/mm/aaaa pour pouvoir les utiliser en SQL
-         */
+        //On formate les dates qui sont au format jj/mm/aaaa pour pouvoir les utiliser en SQL
         if ($dateStart && !empty($dateStart)) {
-            $dateStart = join('-', array_reverse(explode('/', $dateStart)));
+            $dateStart = implode('-', array_reverse(explode('/', $dateStart)));
         }
+        
         if ($dateEnd && !empty($dateEnd)) {
-            $dateEnd = join('-', array_reverse(explode('/', $dateEnd)));
+            $dateEnd = implode('-', array_reverse(explode('/', $dateEnd)));
         }
-
-        $numberManager = $this->get('paprec_catalog.number_manager');
-
+        
         $orderStats = [];
-        /**
-         * Nombre de commandes
-         */
+        
+        // Nombre de commandes
         $sql = "SELECT COUNT(*) as nbOrder FROM product" . $division . "Orders p WHERE p.deleted IS NULL";
+        
         if ($status != null) {
             $sql .= " AND p.orderStatus = '" . $status . "'";
         }
+        
         if ($dateStart && !empty($dateStart) && $dateEnd && !empty($dateEnd)) {
             $sql .= " AND p.dateCreation BETWEEN '" . $dateStart . "' AND '" . $dateEnd . "'";
         }
+        
         $result = $this->executeSQL($sql);
         $orderStats['nbOrder'] = $result[0]['nbOrder'];
 
-        /**
-         * Montant total
-         */
+        // Montant total
         $sql = "SELECT SUM(COALESCE(p.totalAmount, 0)) as totalAmount FROM product" . $division . "Orders p WHERE p.deleted IS NULL";
+        
         if ($status != null) {
             $sql .= " AND p.orderStatus = '" . $status . "'";
         }
+        
         if ($dateStart && !empty($dateStart) && $dateEnd && !empty($dateEnd)) {
             $sql .= " AND p.dateCreation BETWEEN '" . $dateStart . "' AND '" . $dateEnd . "'";
         }
+        
         $result = $this->executeSQL($sql);
         $orderStats['totalAmountFloat'] = $numberManager->denormalize($result[0]['totalAmount']);
-        $orderStats['totalAmount'] = number_format($numberManager->denormalize($result[0]['totalAmount']), 2, ',', ' ');
+        $orderStats['totalAmount'] = number_format(
+            $numberManager->denormalize($result[0]['totalAmount']), 2, ',', ' '
+        );
 
-        /**
-         * Montant total moyen
-         */
+        // Montant total moyen
         if ($orderStats['nbOrder']) {
-            $orderStats['averageTotalAmount'] = number_format($orderStats['totalAmountFloat'] / $orderStats['nbOrder'], 2, ',', ' ');
+            $orderStats['averageTotalAmount'] = number_format(
+                $orderStats['totalAmountFloat'] / $orderStats['nbOrder'], 2, ',', ' '
+            );
         }
 
-        /**
-         * % en nombre
-         */
+        // % en nombre
         $orderStats['percentByNumber'] = 0;
+        
         if ($orderStats['nbOrder']) {
             if ($total['nbOrder']) {
                 if ($total['nbOrder'] !== 0) {
-                    $orderStats['percentByNumber'] = number_format(round($orderStats['nbOrder'] * 100 / $total['nbOrder'], 2), 2, ',', ' ');
+                    $orderStats['percentByNumber'] = number_format(round(
+                        $orderStats['nbOrder'] * 100 / $total['nbOrder'], 2), 2, ',', ' '
+                    );
                 }
             } else {
                 $orderStats['percentByNumber'] = 100;
             }
         }
 
-        /**
-         * % en CA
-         */
+        // % en CA
         $orderStats['percentByTurnover'] = 0;
+        
         if ($orderStats['totalAmountFloat']) {
             if ($total['totalAmountFloat']) {
                 if ($total['totalAmountFloat'] !== 0) {
-                    $orderStats['percentByTurnover'] = number_format(round($orderStats['totalAmountFloat'] * 100 / $total['totalAmountFloat'], 2), 2, ',', ' ');
+                    $orderStats['percentByTurnover'] = number_format(
+                        round($orderStats['totalAmountFloat'] * 100 / $total['totalAmountFloat'], 2), 2, ',', ' '
+                    );
                 }
             } else {
                 $orderStats['percentByTurnover'] = 100;
@@ -233,13 +260,20 @@ class StatsController extends AbstractController
 
         return $orderStats;
     }
-
+    
     /**
      * En fonction du type passsé, redirige vers la fonction exportAction() des controllers de devis ou de commande
      * Exporte uniquement les devis/commandes répondant aux critères de status et de dates si non nulls
      *
      * @Route("/stats/export/{type}/{status}/{dateStart}/{dateEnd}", defaults={"status"=null, "dateEnd"=null, "dateStart"=null}, name="paprec_commercial_stats_export")
      * @Security("has_role('ROLE_COMMERCIAL') or has_role('ROLE_COMMERCIAL_DIVISION')")
+     *
+     * @param $type
+     * @param $status
+     * @param $dateStart
+     * @param $dateEnd
+     *
+     * @return RedirectResponse
      */
     public function exportAction($type, $status, $dateStart, $dateEnd)
     {
@@ -247,14 +281,14 @@ class StatsController extends AbstractController
             if ($dateStart === '0') {
                 $dateStart = null;
             } else {
-                $dateStart = join('-', array_reverse(explode('/', $dateStart)));
+                $dateStart = implode('-', array_reverse(explode('/', $dateStart)));
             }
         }
         if (!empty($dateEnd)) {
             if ($dateEnd === '0') {
                 $dateEnd = null;
             } else {
-                $dateEnd = join('-', array_reverse(explode('/', $dateEnd)));
+                $dateEnd = implode('-', array_reverse(explode('/', $dateEnd)));
             }
         }
 
@@ -264,5 +298,4 @@ class StatsController extends AbstractController
             'status' => $status
         ]);
     }
-
 }

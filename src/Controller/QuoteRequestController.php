@@ -5,22 +5,30 @@ namespace App\Controller;
 
 use App\Entity\QuoteRequest;
 use App\Entity\QuoteRequestLine;
+use App\Entity\User;
 use App\Form\QuoteRequestLineAddType;
 use App\Form\QuoteRequestLineEditType;
 use App\Form\QuoteRequestType;
+use App\Service\NumberManager;
+use App\Service\QuoteRequestManager;
 use DateTime;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Mime\FileinfoMimeTypeGuesser;
 use Symfony\Component\Routing\Annotation\Route;
@@ -31,19 +39,25 @@ class QuoteRequestController extends AbstractController
     /**
      * @Route("/quoteRequest", name="paprec_commercial_quoteRequest_index")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
+     * @return Response
      */
     public function indexAction()
     {
-        return $this->render('PaprecCommercialBundle:QuoteRequest:index.html.twig');
+        return $this->render('commercial/quoteRequest/index.html.twig');
     }
-
+    
     /**
      * @Route("/quoteRequest/loadList", name="paprec_commercial_quoteRequest_loadList")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
+     * @param Request       $request
+     * @param NumberManager $numberManager
+     *
+     * @return JsonResponse
      */
-    public function loadListAction(Request $request)
+    public function loadListAction(Request $request, NumberManager $numberManager)
     {
-        $numberManager = $this->get('paprec_catalog.number_manager');
         $return = [];
 
         $filters = $request->get('filters');
@@ -57,31 +71,53 @@ class QuoteRequestController extends AbstractController
         $cols['businessName'] = ['label' => 'businessName', 'id' => 'q.businessName', 'method' => ['getBusinessName']];
         $cols['totalAmount'] = ['label' => 'totalAmount', 'id' => 'q.totalAmount', 'method' => ['getTotalAmount']];
         $cols['quoteStatus'] = ['label' => 'quoteStatus', 'id' => 'q.quoteStatus', 'method' => ['getQuoteStatus']];
-        $cols['dateCreation'] = ['label' => 'dateCreation', 'id' => 'q.dateCreation', 'method' => ['getDateCreation'], 'filter' => [['name' => 'format', 'args' => ['Y-m-d H:i:s']]]];
-
+        $cols['dateCreation'] = [
+            'label' => 'dateCreation', 'id' => 'q.dateCreation', 'method' => ['getDateCreation'], 'filter' => [[
+                'name' => 'format', 'args' => ['Y-m-d H:i:s']]
+            ]
+        ];
+        
+        $em = $this->getDoctrine()->getManager();
+        
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
-
-        $queryBuilder->select(['q'])
+        $queryBuilder = $em->createQueryBuilder();
+        
+        $queryBuilder
+            ->select(['q'])
             ->from('PaprecCommercialBundle:QuoteRequest', 'q')
             ->where('q.deleted IS NULL');
 
         if (is_array($search) && isset($search['value']) && $search['value'] != '') {
-            if (substr($search['value'], 0, 1) == '#') {
-                $queryBuilder->andWhere($queryBuilder->expr()->orx(
-                    $queryBuilder->expr()->eq('q.id', '?1')
-                ))->setParameter(1, substr($search['value'], 1));
+            if (substr($search['value'], 0, 1) === '#') {
+                $queryBuilder
+                    ->andWhere(
+                        $queryBuilder
+                            ->expr()
+                            ->orx(
+                                $queryBuilder
+                                    ->expr()
+                                    ->eq('q.id', '?1')
+                                )
+                    )
+                    ->setParameter(1, substr($search['value'], 1));
             } else {
-                $queryBuilder->andWhere($queryBuilder->expr()->orx(
-                    $queryBuilder->expr()->like('q.businessName', '?1'),
-                    $queryBuilder->expr()->like('q.totalAmount', '?1'),
-                    $queryBuilder->expr()->like('q.quoteStatus', '?1'),
-                    $queryBuilder->expr()->like('q.dateCreation', '?1')
-                ))->setParameter(1, '%' . $search['value'] . '%');
+                $queryBuilder
+                    ->andWhere(
+                        $queryBuilder
+                            ->expr()
+                            ->orx(
+                                $queryBuilder->expr()->like('q.businessName', '?1'),
+                                $queryBuilder->expr()->like('q.totalAmount', '?1'),
+                                $queryBuilder->expr()->like('q.quoteStatus', '?1'),
+                                $queryBuilder->expr()->like('q.dateCreation', '?1')
+                            )
+                    )
+                    ->setParameter(1, '%' . $search['value'] . '%');
             }
         }
 
         $datatable = $this->get('goondi_tools.datatable')->generateTable($cols, $queryBuilder, $pageSize, $start, $orders, $columns, $filters);
+        
         // Reformatage de certaines données
         $tmp = [];
         foreach ($datatable['data'] as $data) {
@@ -99,49 +135,61 @@ class QuoteRequestController extends AbstractController
         $return['resultDescription'] = "success";
 
         return new JsonResponse($return);
-
     }
-
+    
     /**
      * @Route("/quoteRequest/export/{status}/{dateStart}/{dateEnd}", defaults={"status"=null, "dateStart"=null, "dateEnd"=null}, name="paprec_commercial_quoteRequest_export")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
+     * @param Request       $request
+     * @param               $dateStart
+     * @param               $dateEnd
+     * @param               $status
+     * @param NumberManager $numberManager
+     * @param Spreadsheet   $spreadsheet
+     *
+     * @return mixed
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
-    public function exportAction(Request $request, $dateStart, $dateEnd, $status)
+    public function exportAction(Request $request, $dateStart, $dateEnd, $status, NumberManager $numberManager, Spreadsheet $spreadsheet)
     {
-        /** @var NumberManager $numberManager */
-        $numberManager = $this->get('paprec_catalog.number_manager');
-    
         /** @var Translator $translator */
         $translator = $this->get('translator');
-
-        /** @var Spreadsheet $phpExcelObject */
-        $phpExcelObject = $this->container->get('phpexcel')->createPHPExcelObject();
+        
+        $em = $this->getDoctrine()->getManager();
 
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
-
-        $queryBuilder->select(['q'])
+        $queryBuilder = $em->createQueryBuilder();
+        
+        $queryBuilder
+            ->select(['q'])
             ->from('PaprecCommercialBundle:QuoteRequest', 'q')
             ->where('q.deleted IS NULL');
+        
         if ($status != null && !empty($status)) {
-            $queryBuilder->andWhere('q.quoteStatus = :status')
+            $queryBuilder
+                ->andWhere('q.quoteStatus = :status')
                 ->setParameter('status', $status);
         }
+        
         if ($dateStart != null && $dateEnd != null && !empty($dateStart) && !empty($dateEnd)) {
-            $queryBuilder->andWhere('q.dateCreation BETWEEN :dateStart AND :dateEnd')
+            $queryBuilder
+                ->andWhere('q.dateCreation BETWEEN :dateStart AND :dateEnd')
                 ->setParameter('dateStart', $dateStart)
                 ->setParameter('dateEnd', $dateEnd);
         }
 
         /** @var QuoteRequest[] $quoteRequests */
         $quoteRequests = $queryBuilder->getQuery()->getResult();
-
-        $phpExcelObject->getProperties()->setCreator("Paprec Easy Recyclage")
+    
+        $spreadsheet
+            ->getProperties()
+            ->setCreator("Paprec Easy Recyclage")
             ->setLastModifiedBy("Reisswolf Shop")
             ->setTitle("Paprec Easy Recyclage - Devis")
             ->setSubject("Extraction");
     
-        $sheet = $phpExcelObject->setActiveSheetIndex(0);
+        $sheet = $spreadsheet->setActiveSheetIndex(0);
         $sheet->setTitle('Devis');
         
         // Labels
@@ -245,18 +293,23 @@ class QuoteRequestController extends AbstractController
             $sheet->getColumnDimension($i)->setAutoSize(true);
         }
 
-        $writer = $this->container->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+        $writer = new Xlsx($spreadsheet);
 
         $fileName = 'ReisswolfShop-Extraction-Devis--' . date('Y-m-d') . '.xlsx';
-
-        // create the response
-        $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
-
-        // adding headers
+    
+        // Create a Response
+        $response =  new StreamedResponse(
+            function () use ($writer, $fileName) {
+                $writer->save($fileName);
+            }
+        );
+    
+        // Adding headers
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
             $fileName
         );
+        
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');
@@ -264,25 +317,35 @@ class QuoteRequestController extends AbstractController
 
         return $response;
     }
-
+    
     /**
      * @Route("/quoteRequest/view/{id}", name="paprec_commercial_quoteRequest_view")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
+     * @param Request             $request
+     * @param QuoteRequest        $quoteRequest
+     * @param QuoteRequestManager $quoteRequestManager
+     *
+     * @return Response
      * @throws EntityNotFoundException
      */
-    public function viewAction(Request $request, QuoteRequest $quoteRequest)
+    public function viewAction(Request $request, QuoteRequest $quoteRequest, QuoteRequestManager $quoteRequestManager)
     {
-        $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
         $quoteRequestManager->isDeleted($quoteRequest, true);
 
-        return $this->render('PaprecCommercialBundle:QuoteRequest:view.html.twig', [
+        return $this->render('commercial/quoteRequest/view.html.twig', [
             'quoteRequest' => $quoteRequest
         ]);
     }
-
+    
     /**
      * @Route("/quoteRequest/add", name="paprec_commercial_quoteRequest_add")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse|Response
+     * @throws Exception
      */
     public function addAction(Request $request)
     {
@@ -329,7 +392,6 @@ class QuoteRequestController extends AbstractController
             $quoteRequest->setAnnualBudget($numberManager->normalize($quoteRequest->getAnnualBudget()));
 
             $quoteRequest->setUserCreation($user);
-            @@
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($quoteRequest);
@@ -338,26 +400,35 @@ class QuoteRequestController extends AbstractController
             return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
                 'id' => $quoteRequest->getId()
             ]);
-
         }
 
-        return $this->render('PaprecCommercialBundle:QuoteRequest:add.html.twig', [
+        return $this->render('commercial/quoteRequest/add.html.twig', [
             'form' => $form->createView()
         ]);
     }
-
+    
     /**
      * @Route("/quoteRequest/edit/{id}", name="paprec_commercial_quoteRequest_edit")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
+     * @param Request             $request
+     * @param QuoteRequest        $quoteRequest
+     * @param NumberManager       $numberManager
+     * @param QuoteRequestManager $quoteRequestManager
+     *
+     * @return RedirectResponse|Response
      * @throws EntityNotFoundException
-     * @throws Exception
      */
-    public function editAction(Request $request, QuoteRequest $quoteRequest)
+    public function editAction(
+        Request $request,
+        QuoteRequest $quoteRequest,
+        NumberManager $numberManager,
+        QuoteRequestManager $quoteRequestManager
+    )
     {
+        /** @var User $user */
         $user = $this->getUser();
 
-        $numberManager = $this->get('paprec_catalog.number_manager');
-        $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
         $quoteRequestManager->isDeleted($quoteRequest, true);
 
         $status = [];
@@ -409,34 +480,36 @@ class QuoteRequestController extends AbstractController
             $quoteRequest->setDateUpdate(new DateTime());
             $quoteRequest->setUserUpdate($user);
 
-            /**
-             * Si le commercial en charge a changé, alors on envoie un mail au nouveau commercial
-             */
+            // Si le commercial en charge a changé, alors on envoie un mail au nouveau commercial
             if ((!$savedCommercial && $quoteRequest->getUserInCharge())
                 || ($savedCommercial && $savedCommercial->getId() !== $quoteRequest->getUserInCharge()->getId())) {
                 $quoteRequestManager->sendNewRequestEmail($quoteRequest, $quoteRequest->getUserInCharge()->getLang());
                 $this->get('session')->getFlashBag()->add('success', 'newUserInChargeWarned');
             }
-
-
+            
             $em = $this->getDoctrine()->getManager();
             $em->flush();
 
             return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
                 'id' => $quoteRequest->getId()
             ]);
-
         }
 
-        return $this->render('PaprecCommercialBundle:QuoteRequest:edit.html.twig', [
+        return $this->render('commercial/quoteRequest/edit.html.twig', [
             'form' => $form->createView(),
             'quoteRequest' => $quoteRequest
         ]);
     }
-
+    
     /**
      * @Route("/quoteRequest/remove/{id}", name="paprec_commercial_quoteRequest_remove")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
+     * @param Request      $request
+     * @param QuoteRequest $quoteRequest
+     *
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function removeAction(Request $request, QuoteRequest $quoteRequest)
     {
@@ -447,10 +520,15 @@ class QuoteRequestController extends AbstractController
 
         return $this->redirectToRoute('paprec_commercial_quoteRequest_index');
     }
-
+    
     /**
      * @Route("/quoteRequest/removeMany/{ids}", name="paprec_commercial_quoteRequest_removeMany")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function removeManyAction(Request $request)
     {
@@ -467,7 +545,7 @@ class QuoteRequestController extends AbstractController
         if (is_array($ids) && count($ids)) {
             
             /** @var QuoteRequest[] $quoteRequests */
-            $quoteRequests = $em->getRepository('PaprecCommercialBundle:QuoteRequest')->findById($ids);
+            $quoteRequests = $em->getRepository(QuoteRequest::class)->findById($ids);
             
             foreach ($quoteRequests as $quoteRequest) {
                 $quoteRequest->setDeleted(new DateTime);
@@ -478,17 +556,21 @@ class QuoteRequestController extends AbstractController
 
         return $this->redirectToRoute('paprec_commercial_quoteRequest_index');
     }
-
+    
     /**
      * @Route("/quoteRequest/{id}/addLine", name="paprec_commercial_quoteRequest_addLine")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
+     * @param Request      $request
+     * @param QuoteRequest $quoteRequest
+     *
+     * @return RedirectResponse|Response
+     * @throws Exception
      */
     public function addLineAction(Request $request, QuoteRequest $quoteRequest)
     {
-
+        /** @var User $user */
         $user = $this->getUser();
-
-        $em = $this->getDoctrine()->getManager();
 
         if ($quoteRequest->getDeleted() !== null) {
             throw new NotFoundHttpException();
@@ -497,8 +579,6 @@ class QuoteRequestController extends AbstractController
         $quoteRequestLine = new QuoteRequestLine();
 
         $form = $this->createForm(QuoteRequestLineAddType::class, $quoteRequestLine);
-
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -510,20 +590,27 @@ class QuoteRequestController extends AbstractController
             return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
                 'id' => $quoteRequest->getId()
             ]);
-
         }
 
-        return $this->render('PaprecCommercialBundle:QuoteRequestLine:add.html.twig', [
+        return $this->render('commercial/quoteRequestLine/add.html.twig', [
             'form' => $form->createView(),
             'quoteRequest' => $quoteRequest,
         ]);
     }
-
+    
     /**
      * @Route("/quoteRequest/{id}/editLine/{quoteLineId}", name="paprec_commercial_quoteRequest_editLine")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
      * @ParamConverter("quoteRequest", options={"id" = "id"})
      * @ParamConverter("quoteRequestLine", options={"id" = "quoteLineId"})
+     *
+     * @param Request          $request
+     * @param QuoteRequest     $quoteRequest
+     * @param QuoteRequestLine $quoteRequestLine
+     *
+     * @return RedirectResponse|Response
+     * @throws Exception
      */
     public function editLineAction(Request $request, QuoteRequest $quoteRequest, QuoteRequestLine $quoteRequestLine)
     {
@@ -535,15 +622,14 @@ class QuoteRequestController extends AbstractController
             throw new NotFoundHttpException();
         }
 
+        /** @var User $user */
         $user = $this->getUser();
 
         $form = $this->createForm(QuoteRequestLineEditType::class, $quoteRequestLine);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
-
             $quoteRequestManager->editLine($quoteRequest, $quoteRequestLine, $user);
 
             return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
@@ -551,18 +637,25 @@ class QuoteRequestController extends AbstractController
             ]);
         }
 
-        return $this->render('PaprecCommercialBundle:QuoteRequestLine:edit.html.twig', [
+        return $this->render('commercial/quoteRequestLine/edit.html.twig', [
             'form' => $form->createView(),
             'quoteRequest' => $quoteRequest,
             'quoteRequestLine' => $quoteRequestLine
         ]);
     }
-
+    
     /**
      * @Route("/quoteRequest/{id}/removeLine/{quoteLineId}", name="paprec_commercial_quoteRequest_removeLine")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
      * @ParamConverter("quoteRequest", options={"id" = "id"})
      * @ParamConverter("quoteRequestLine", options={"id" = "quoteLineId"})
+     *
+     * @param Request          $request
+     * @param QuoteRequest     $quoteRequest
+     * @param QuoteRequestLine $quoteRequestLine
+     *
+     * @return RedirectResponse
      */
     public function removeLineAction(Request $request, QuoteRequest $quoteRequest, QuoteRequestLine $quoteRequestLine)
     {
@@ -573,8 +666,7 @@ class QuoteRequestController extends AbstractController
         if ($quoteRequestLine->getQuoteRequest() !== $quoteRequest) {
             throw new NotFoundHttpException();
         }
-
-
+        
         $em = $this->getDoctrine()->getManager();
 
         $em->remove($quoteRequestLine);
@@ -583,23 +675,26 @@ class QuoteRequestController extends AbstractController
         $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
         $total = $quoteRequestManager->calculateTotal($quoteRequest);
         $quoteRequest->setTotalAmount($total);
+        
         $em->flush();
-
-
+        
         return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
             'id' => $quoteRequest->getId()
         ]);
     }
-
+    
     /**
      * @Route("/quoteRequest/{id}/sendGeneratedQuote", name="paprec_commercial_quoteRequest_sendGeneratedQuote")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
+     *
+     * @param QuoteRequest        $quoteRequest
+     * @param QuoteRequestManager $quoteRequestManager
+     *
+     * @return RedirectResponse
      * @throws EntityNotFoundException
-     * @throws Exception
      */
-    public function sendGeneratedQuoteAction(QuoteRequest $quoteRequest)
+    public function sendGeneratedQuoteAction(QuoteRequest $quoteRequest, QuoteRequestManager $quoteRequestManager)
     {
-        $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
         $quoteRequestManager->isDeleted($quoteRequest, true);
 
         if ($quoteRequest->getPostalCode() && $quoteRequest->getPostalCode()->getRegion()) {
@@ -615,18 +710,19 @@ class QuoteRequestController extends AbstractController
             'id' => $quoteRequest->getId()
         ]);
     }
-
+    
     /**
      * @Route("/quoteRequest/{id}/downloadQuote", name="paprec_commercial_quote_request_download")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param QuoteRequest $quoteRequest
+     *
+     * @return BinaryFileResponse
      * @throws Exception
      */
     public function downloadAssociatedInvoiceAction(QuoteRequest $quoteRequest)
     {
-
-        /**
-         * On commence par pdf générés (seulement ceux générés dans le BO  pour éviter de supprimer un PDF en cours d'envoi pour un utilisateur
-         */
+        // On commence par pdf générés (seulement ceux générés dans le BO  pour éviter de supprimer un PDF en cours d'envoi pour un utilisateur
         $pdfFolder = $this->container->getParameter('paprec_commercial.data_tmp_directory');
         $finder = new Finder();
 
@@ -643,11 +739,13 @@ class QuoteRequestController extends AbstractController
         }
 
         $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
+        
+        /** @var User $user */
         $user = $this->getUser();
+        
         $pdfTmpFolder = $pdfFolder . '/';
 
         $file = $quoteRequestManager->generatePDF($quoteRequest, $user->getLang());
-
         $filename = substr($file, strrpos($file, '/') + 1);
 
         // This should return the file to the browser as response
@@ -670,8 +768,7 @@ class QuoteRequestController extends AbstractController
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
             'Quote-' . $quoteRequest->getBusinessName() . '-' . $quoteRequest->getId() . ' .pdf'
         );
-
-
+        
         return $response;
     }
 }
