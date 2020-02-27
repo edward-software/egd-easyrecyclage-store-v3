@@ -2,17 +2,17 @@
 
 fos_user_security_login:
   path:  /admin/login
-  controller: FOSUserBundle:Security:login
+  controller: App\Controller\SecurityController::loginAction
 
 fos_user_security_check:
   path:  /admin/check
-  controller: FOSUserBundle:Security:check
+  controller: App\Controller\SecurityController::checkAction
 
 fos_user_security_logout:
   path:  /admin/logout
-  controller: FOSUserBundle:Security:logout
+  controller: App\Controller\SecurityController::logoutAction
 
-### loader
+### Load files that contains Controllers
 
 paprec_catalog:
   resource: 'routes/catalog.yaml'
