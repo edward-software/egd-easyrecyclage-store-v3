@@ -1,0 +1,15 @@
+custom_area:
+  resource: App\Controller\CustomAreaController
+  type:     annotation
+
+postal_code:
+  resource: App\Controller\PostalCodeController
+  type:     annotation
+
+product:
+  resource: App\Controller\ProductController
+  type:     annotation
+
+region:
+  resource: App\Controller\RegionController
+  type:     annotation

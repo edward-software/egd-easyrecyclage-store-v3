@@ -74,22 +74,22 @@
                             {% set loc = '/' ~ locale ~ '/'  %}
                             <li>
                                 <a href="{{ path(app.request.get('_route'),app.request.get('_route_params'))|replace({(loc): '/de/'}) }}">
-                                    <img src="/build/static/de.gif" alt="Germany" title="">
+                                    <img src="{{ asset('build/static/de.gif') }}" alt="Germany" title="">
                                 </a>
                             </li>
                             <li class="lang-active">
                                 <a href="{{ path(app.request.get('_route'),app.request.get('_route_params'))|replace({(loc): '/fr/'}) }}">
-                                    <img src="/build/static/fr.gif" alt="French" title="">
+                                    <img src="{{ asset('build/static/fr.gif') }}" alt="French" title="">
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ path(app.request.get('_route'),app.request.get('_route_params'))|replace({(loc): '/it/'}) }}">
-                                    <img src="/build/static/it.gif" alt="Italian" title="">
+                                    <img src="{{ asset('build/static/it.gif') }}" alt="Italian" title="">
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ path(app.request.get('_route'),app.request.get('_route_params'))|replace({(loc): '/en/'}) }}">
-                                    <img src="/build/static/en.gif" alt="English (UK)" title="">
+                                    <img src="{{ asset('build/static/en.gif') }}" alt="English (UK)" title="">
                                 </a>
                             </li>
                         </ul>

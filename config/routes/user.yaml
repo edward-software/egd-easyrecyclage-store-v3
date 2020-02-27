@@ -1,0 +1,3 @@
+user:
+  resource: App\Controller\UserController
+  type:     annotation

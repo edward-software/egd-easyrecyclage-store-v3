@@ -1,3 +1,35 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
+### Back Office
+
+fos_user_security_login:
+  path:  /admin/login
+  controller: FOSUserBundle:Security:login
+
+fos_user_security_check:
+  path:  /admin/check
+  controller: FOSUserBundle:Security:check
+
+fos_user_security_logout:
+  path:  /admin/logout
+  controller: FOSUserBundle:Security:logout
+
+### loader
+
+paprec_catalog:
+  resource: 'routes/catalog.yaml'
+  prefix: '/admin/catalog'
+
+paprec_commercial:
+  resource: 'routes/commercial.yaml'
+  prefix: '/admin/commercial'
+
+paprec_home:
+  resource: 'routes/home.yaml'
+  prefix: '/admin'
+
+paprec_public:
+  resource: 'routes/public.yaml'
+  prefix:
+
+paprec_user:
+  resource: 'routes/user.yaml'
+  prefix: '/admin/user'

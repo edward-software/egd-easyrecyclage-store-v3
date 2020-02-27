@@ -1,0 +1,7 @@
+quote_request:
+  resource: App\Controller\QuoteRequestController
+  type:     annotation
+
+stats:
+  resource: App\Controller\StatsController
+  type:     annotation

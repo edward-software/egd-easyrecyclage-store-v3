@@ -1,0 +1,3 @@
+subscription:
+  resource: App\Controller\SubscriptionController
+  type:     annotation
