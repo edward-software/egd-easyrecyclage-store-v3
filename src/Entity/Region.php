@@ -7,6 +7,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -29,14 +30,14 @@ class Region
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateCreation", type="datetime")
+     * @ORM\Column(name="date_creation", type="datetime")
      */
     private $dateCreation;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
+     * @ORM\Column(name="date_update", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
@@ -48,14 +49,18 @@ class Region
     private $deleted;
 
     /**
+     * @var User
+     *
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userCreationId", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="user_creation_id", referencedColumnName="id", nullable=false)
      */
     private $userCreation;
 
     /**
+     * @var User
+     *
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userUpdateId", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="user_update_id", referencedColumnName="id", nullable=true)
      */
     private $userUpdate;
 
@@ -69,23 +74,25 @@ class Region
 
     /**
      * @var string
+     *
      * @ORM\Column(name="email", type="string", length=255, nullable=true)
      * @Assert\NotBlank()
-     * @Assert\Email(
-     *      message = "email_error"
-     * )
+     * @Assert\Email(message = "email_error")
      */
     private $email;
 
     /**
+     * @var PostalCode[]
+     *
      * @ORM\OneToMany(targetEntity="PostalCode", mappedBy="region")
      */
     private $postalCodes;
     
+    
     /**
      * Region constructor.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {
@@ -93,14 +100,6 @@ class Region
         $this->postalCodes = new ArrayCollection();
     }
     
-    /**
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return $this->getName();
-    }
-
     
     /**
      * Get id.
@@ -314,5 +313,13 @@ class Region
     public function getEmail(): ?string
     {
         return $this->email;
+    }
+    
+    /**
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getName();
     }
 }

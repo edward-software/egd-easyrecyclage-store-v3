@@ -7,6 +7,7 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Exception;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -29,14 +30,14 @@ class CustomArea
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateCreation", type="datetime")
+     * @ORM\Column(name="date_creation", type="datetime")
      */
     private $dateCreation;
     
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
+     * @ORM\Column(name="date_update", type="datetime", nullable=true)
      */
     private $dateUpdate;
     
@@ -49,20 +50,20 @@ class CustomArea
     
     /**
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userCreationId", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="user_creation_id", referencedColumnName="id", nullable=false)
      */
     private $userCreation;
     
     /**
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userUpdateId", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="user_update_id", referencedColumnName="id", nullable=true)
      */
     private $userUpdate;
     
     /**
      * @var bool
      *
-     * @ORM\Column(name="isDisplayed", type="boolean")
+     * @ORM\Column(name="is_displayed", type="boolean")
      * @Assert\NotBlank()
      */
     private $isDisplayed;
@@ -70,7 +71,7 @@ class CustomArea
     /**
      * @var string
      *
-     * @ORM\Column(name="leftContent", type="text")
+     * @ORM\Column(name="left_content", type="text")
      * @Assert\NotNull()
      */
     private $leftContent;
@@ -78,7 +79,7 @@ class CustomArea
     /**
      * @var string
      *
-     * @ORM\Column(name="rightContent", type="text")
+     * @ORM\Column(name="right_content", type="text")
      * @Assert\NotNull()
      */
     private $rightContent;
@@ -99,11 +100,9 @@ class CustomArea
      */
     private $language;
     
-    /*********************************
-     * RELATIONS
-     ********************************/
-    
     /**
+     * @var Picture[]
+     *
      * @ORM\OneToMany(targetEntity="Picture", mappedBy="customArea", cascade={"all"})
      */
     private $pictures;
@@ -112,7 +111,7 @@ class CustomArea
     /**
      * CustomArea constructor.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {
@@ -343,7 +342,7 @@ class CustomArea
     {
         $leftPictures = array();
         foreach ($this->pictures as $picture) {
-            if ($picture->getType() == 'LEFT') {
+            if ($picture->getType() === 'LEFT') {
                 $leftPictures[] = $picture;
             }
         }
@@ -358,7 +357,7 @@ class CustomArea
     {
         $rightPictures = array();
         foreach ($this->pictures as $picture) {
-            if ($picture->getType() == 'RIGHT') {
+            if ($picture->getType() === 'RIGHT') {
                 $rightPictures[] = $picture;
             }
         }
@@ -382,9 +381,9 @@ class CustomArea
     /**
      * Get deleted.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDeleted() : ?\DateTime
+    public function getDeleted() : ?DateTime
     {
         return $this->deleted;
     }

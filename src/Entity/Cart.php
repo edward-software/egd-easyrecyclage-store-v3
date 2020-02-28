@@ -17,7 +17,7 @@ use Ramsey\Uuid\UuidInterface;
 class Cart
 {
     /**
-     * @var \Ramsey\Uuid\UuidInterface
+     * @var UuidInterface
      *
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
@@ -29,14 +29,14 @@ class Cart
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateCreation", type="datetime")
+     * @ORM\Column(name="date_creation", type="datetime")
      */
     private $dateCreation;
 
     /**
      * @var DateTime|null
      *
-     * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
+     * @ORM\Column(name="date_update", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
@@ -64,14 +64,14 @@ class Cart
     /**
      * @var string
      *
-     * @ORM\Column(name="frequencyTimes", type="string", length=255, nullable=true)
+     * @ORM\Column(name="frequency_times", type="string", length=255, nullable=true)
      */
     private $frequencyTimes;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="frequencyInterval", type="string", length=255, nullable=true)
+     * @ORM\Column(name="frequency_interval", type="string", length=255, nullable=true)
      */
     private $frequencyInterval;
     

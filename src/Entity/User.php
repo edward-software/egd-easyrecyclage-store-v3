@@ -44,7 +44,7 @@ class User implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="us", type="string", length=180, unique=true)
+     * @ORM\Column(name="username_canonical", type="string", length=180, unique=true)
      * @Assert\NotBlank()
      */
     private $usernameCanonical;
@@ -168,11 +168,15 @@ class User implements UserInterface
     private $lang;
 
     /**
+     * @var PostalCode[]
+     *
      * @ORM\OneToMany(targetEntity="PostalCode", mappedBy="userInCharge")
      */
     private $postalCodes;
 
     /**
+     * @var QuoteRequest[]
+     *
      * @ORM\OneToMany(targetEntity="QuoteRequest", mappedBy="userInCharge")
      */
     private $quoteRequests;

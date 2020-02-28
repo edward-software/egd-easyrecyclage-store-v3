@@ -28,14 +28,14 @@ class QuoteRequestLine
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateCreation", type="datetime")
+     * @ORM\Column(name="date_creation", type="datetime")
      */
     private $dateCreation;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
+     * @ORM\Column(name="date_update", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
@@ -49,91 +49,91 @@ class QuoteRequestLine
     /**
      * @var string
      *
-     * @ORM\Column(name="productName", type="string", length=255)
+     * @ORM\Column(name="product_name", type="string", length=255)
      */
     private $productName;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="setUpPrice", type="integer", nullable=true)
+     * @ORM\Column(name="set_up_price", type="integer", nullable=true)
      */
     private $setUpPrice;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="rentalUnitPrice", type="integer", nullable=true)
+     * @ORM\Column(name="rental_unit_price", type="integer", nullable=true)
      */
     private $rentalUnitPrice;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="transportUnitPrice", type="integer", nullable=true)
+     * @ORM\Column(name="transport_unit_price", type="integer", nullable=true)
      */
     private $transportUnitPrice;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="treatmentUnitPrice", type="integer", nullable=true)
+     * @ORM\Column(name="treatment_unit_price", type="integer", nullable=true)
      */
     private $treatmentUnitPrice;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="traceabilityUnitPrice", type="integer", nullable=true)
+     * @ORM\Column(name="traceability_unit_price", type="integer", nullable=true)
      */
     private $traceabilityUnitPrice;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="setUpRate", type="bigint")
+     * @ORM\Column(name="set_up_rate", type="bigint")
      */
     private $setUpRate;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="rentalRate", type="bigint")
+     * @ORM\Column(name="rental_rate", type="bigint")
      */
     private $rentalRate;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="transportRate", type="bigint", nullable=true)
+     * @ORM\Column(name="transport_rate", type="bigint", nullable=true)
      */
     private $transportRate;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="treatmentRate", type="bigint", nullable=true)
+     * @ORM\Column(name="treatment_rate", type="bigint", nullable=true)
      */
     private $treatmentRate;
     
     /**
      * @var int
      *
-     * @ORM\Column(name="traceabilityRate", type="bigint", nullable=true)
+     * @ORM\Column(name="traceability_rate", type="bigint", nullable=true)
      */
     private $traceabilityRate;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="accessPrice", type="integer")
+     * @ORM\Column(name="access_price", type="integer")
      */
     private $accessPrice;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="totalAmount", type="integer")
+     * @ORM\Column(name="total_amount", type="integer")
      */
     private $totalAmount;
 
@@ -142,22 +142,23 @@ class QuoteRequestLine
      *
      * @ORM\Column(name="quantity", type="integer")
      * @Assert\NotBlank()
-     * @Assert\Type(
-     *     type="integer",
-     *     message="La quantité doit être un nombre entier"
-     * )
+     * @Assert\Type(type="integer", message="La quantité doit être un nombre entier")
      */
     private $quantity;
 
     /**
+     * @var Product
+     *
      * @ORM\ManyToOne(targetEntity="Product")
-     * @ORM\JoinColumn(name="productId", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="id", nullable=false)
      */
     private $product;
     
     /**
-     * @ORM\ManyToOne(targetEntity="QuoteRequest", inversedBy="quoteRequestLines")
-     * @ORM\JoinColumn(name="quoteRequestId", referencedColumnName="id", nullable=false)
+     * @var QuoteRequest
+     *
+     * @ORM\ManyToOne(targetEntity="QuoteRequest", inversedBy="quote_request_lines")
+     * @ORM\JoinColumn(name="quote_request_id", referencedColumnName="id", nullable=false)
      */
     private $quoteRequest;
     

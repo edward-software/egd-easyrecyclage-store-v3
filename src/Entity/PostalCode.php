@@ -7,6 +7,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -31,14 +32,14 @@ class PostalCode
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateCreation", type="datetime")
+     * @ORM\Column(name="date_creation", type="datetime")
      */
     private $dateCreation;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
+     * @ORM\Column(name="date_update", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
@@ -46,7 +47,7 @@ class PostalCode
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userCreationId", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="user_creation_id", referencedColumnName="id", nullable=false)
      */
     private $userCreation;
 
@@ -54,7 +55,7 @@ class PostalCode
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userUpdateId", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="user_update_id", referencedColumnName="id", nullable=true)
      */
     private $userUpdate;
 
@@ -81,7 +82,7 @@ class PostalCode
     /**
      * @var int
      *
-     * @ORM\Column(name="setUpRate", type="bigint")
+     * @ORM\Column(name="set_up_rate", type="bigint")
      * @Assert\NotBlank()
      */
     private $setUpRate;
@@ -89,7 +90,7 @@ class PostalCode
     /**
      * @var int
      *
-     * @ORM\Column(name="rentalRate", type="bigint")
+     * @ORM\Column(name="rental_rate", type="bigint")
      * @Assert\NotBlank()
      */
     private $rentalRate;
@@ -97,7 +98,7 @@ class PostalCode
     /**
      * @var int
      *
-     * @ORM\Column(name="transportRate", type="bigint")
+     * @ORM\Column(name="transport_rate", type="bigint")
      * @Assert\NotBlank()
      */
     private $transportRate;
@@ -105,7 +106,7 @@ class PostalCode
     /**
      * @var int
      *
-     * @ORM\Column(name="treatmentRate", type="bigint")
+     * @ORM\Column(name="treatment_rate", type="bigint")
      * @Assert\NotBlank()
      */
     private $treatmentRate;
@@ -113,7 +114,7 @@ class PostalCode
     /**
      * @var int
      *
-     * @ORM\Column(name="traceabilityRate", type="bigint")
+     * @ORM\Column(name="traceability_rate", type="bigint")
      * @Assert\NotBlank()
      */
     private $traceabilityRate;
@@ -135,16 +136,22 @@ class PostalCode
     private $zone;
 
     /**
+     * @var User
+     *
      * @ORM\ManyToOne(targetEntity="User", inversedBy="postalCodes")
      */
     private $userInCharge;
 
     /**
+     * @var Region
+     *
      * @ORM\ManyToOne(targetEntity="Region", inversedBy="postalCodes")
      */
     private $region;
 
     /**
+     * @var QuoteRequest[]
+     *
      * @ORM\OneToMany(targetEntity="QuoteRequest", mappedBy="postalCode")
      */
     private $quoteRequests;
@@ -153,7 +160,7 @@ class PostalCode
     /**
      * PostalCode constructor.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {

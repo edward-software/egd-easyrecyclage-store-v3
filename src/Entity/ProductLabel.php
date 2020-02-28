@@ -34,14 +34,14 @@ class ProductLabel
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateCreation", type="datetime")
+     * @ORM\Column(name="date_creation", type="datetime")
      */
     private $dateCreation;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
+     * @ORM\Column(name="date_update", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
@@ -63,7 +63,7 @@ class ProductLabel
     /**
      * @var string
      *
-     * @ORM\Column(name="shortDescription", type="text")
+     * @ORM\Column(name="short_description", type="text")
      * @Assert\NotBlank()
      */
     private $shortDescription;
@@ -93,18 +93,24 @@ class ProductLabel
     private $language;
 
     /**
+     * @var User
+     *
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userCreationId", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="user_creation_id", referencedColumnName="id", nullable=false)
      */
     private $userCreation;
 
     /**
+     * @var User
+     *
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userUpdateId", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="user_update_id", referencedColumnName="id", nullable=true)
      */
     private $userUpdate;
 
     /**
+     * @var Product
+     *
      * @ORM\ManyToOne(targetEntity="Product", inversedBy="productLabels")
      */
     private $product;

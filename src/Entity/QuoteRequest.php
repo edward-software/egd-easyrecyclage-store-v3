@@ -6,6 +6,7 @@ namespace App\Entity;
 use DateTime;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -30,14 +31,14 @@ class QuoteRequest
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateCreation", type="datetime")
+     * @ORM\Column(name="date_creation", type="datetime")
      */
     private $dateCreation;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
+     * @ORM\Column(name="date_update", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
@@ -50,13 +51,13 @@ class QuoteRequest
     
     /**
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userCreationId", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="user_creation_id", referencedColumnName="id", nullable=true)
      */
     private $userCreation;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userUpdateId", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="user_update_id", referencedColumnName="id", nullable=true)
      */
     private $userUpdate;
 
@@ -85,7 +86,7 @@ class QuoteRequest
     /**
      * @var string
      *
-     * @ORM\Column(name="businessName", type="string", length=255, nullable=true)
+     * @ORM\Column(name="business_name", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"public"})
      */
     private $businessName;
@@ -101,7 +102,7 @@ class QuoteRequest
     /**
      * @var string
      *
-     * @ORM\Column(name="lastName", type="string", length=255, nullable=true)
+     * @ORM\Column(name="last_name", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"public"})
      */
     private $lastName;
@@ -109,7 +110,7 @@ class QuoteRequest
     /**
      * @var string
      *
-     * @ORM\Column(name="firstName", type="string", length=255, nullable=true)
+     * @ORM\Column(name="first_name", type="string", length=255, nullable=true)
      * @Assert\NotBlank(groups={"public"})
      */
     private $firstName;
@@ -142,7 +143,7 @@ class QuoteRequest
     /**
      * @var boolean
      *
-     * @ORM\Column(name="isMultisite", type="boolean")
+     * @ORM\Column(name="is_multisite", type="boolean")
      * @Assert\NotBlank(groups={"public"})
      */
     private $isMultisite;
@@ -191,21 +192,21 @@ class QuoteRequest
     /**
      * @var string
      *
-     * @ORM\Column(name="quoteStatus", type="string", length=255)
+     * @ORM\Column(name="quote_status", type="string", length=255)
      */
     private $quoteStatus;
     
     /**
      * @var int
      *
-     * @ORM\Column(name="totalAmount", type="integer", nullable=true)
+     * @ORM\Column(name="total_amount", type="integer", nullable=true)
      */
     private $totalAmount;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="overallDiscount", type="integer")
+     * @ORM\Column(name="overall_discount", type="integer")
      */
     private $overallDiscount;
 
@@ -221,7 +222,7 @@ class QuoteRequest
     /**
      * @var int
      *
-     * @ORM\Column(name="annualBudget", type="integer", nullable=true)
+     * @ORM\Column(name="annual_budget", type="integer", nullable=true)
      */
     private $annualBudget;
 
@@ -235,21 +236,21 @@ class QuoteRequest
     /**
      * @var string
      *
-     * @ORM\Column(name="frequencyTimes", type="string", length=255, nullable=true)
+     * @ORM\Column(name="frequency_times", type="string", length=255, nullable=true)
      */
     private $frequencyTimes;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="frequencyInterval", type="string", length=255, nullable=true)
+     * @ORM\Column(name="frequency_interval", type="string", length=255, nullable=true)
      */
     private $frequencyInterval;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="customerId", type="string", length=255, nullable=true)
+     * @ORM\Column(name="customer_id", type="string", length=255, nullable=true)
      */
     private $customerId;
 
@@ -261,16 +262,22 @@ class QuoteRequest
     private $reference;
 
     /**
+     * @var User
+     *
      * @ORM\ManyToOne(targetEntity="User", inversedBy="quoteRequests")
      */
     private $userInCharge;
 
     /**
+     * @var PostalCode
+     *
      * @ORM\ManyToOne(targetEntity="PostalCode", inversedBy="quoteRequests")
      */
     private $postalCode;
     
     /**
+     * @var QuoteRequestLine[]
+     *
      * @ORM\OneToMany(targetEntity="QuoteRequestLine", mappedBy="quoteRequest")
      */
     private $quoteRequestLines;
@@ -279,7 +286,7 @@ class QuoteRequest
     /**
      * QuoteRequest constructor.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {
@@ -316,9 +323,9 @@ class QuoteRequest
     /**
      * Get dateCreation.
      *
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateCreation(): \DateTime
+    public function getDateCreation(): DateTime
     {
         return $this->dateCreation;
     }
@@ -326,7 +333,7 @@ class QuoteRequest
     /**
      * Set dateUpdate.
      *
-     * @param \DateTime|null $dateUpdate
+     * @param DateTime|null $dateUpdate
      *
      * @return QuoteRequest
      */
@@ -340,9 +347,9 @@ class QuoteRequest
     /**
      * Get dateUpdate.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDateUpdate(): ?\DateTime
+    public function getDateUpdate(): ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -350,7 +357,7 @@ class QuoteRequest
     /**
      * Set deleted.
      *
-     * @param \DateTime|null $deleted
+     * @param DateTime|null $deleted
      *
      * @return QuoteRequest
      */
@@ -364,9 +371,9 @@ class QuoteRequest
     /**
      * Get deleted.
      *
-     * @return \DateTime|null
+     * @return DateTime|null
      */
-    public function getDeleted(): ?\DateTime
+    public function getDeleted(): ?DateTime
     {
         return $this->deleted;
     }

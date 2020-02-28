@@ -7,6 +7,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -29,14 +30,14 @@ class Product
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateCreation", type="datetime")
+     * @ORM\Column(name="date_creation", type="datetime")
      */
     private $dateCreation;
 
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
+     * @ORM\Column(name="date_update", type="datetime", nullable=true)
      */
     private $dateUpdate;
 
@@ -58,7 +59,7 @@ class Product
     /**
      * @var string
      * L'unité du volume du produit (litre, m²,..)
-     * @ORM\Column(name="capacityUnit", type="string", length=255)
+     * @ORM\Column(name="capacity_unit", type="string", length=255)
      * @Assert\NotBlank()
      */
     private $capacityUnit;
@@ -82,7 +83,7 @@ class Product
     /**
      * @var boolean
      *
-     * @ORM\Column(name="isEnabled", type="boolean")
+     * @ORM\Column(name="is_enabled", type="boolean")
      * @Assert\NotBlank()
      */
     private $isEnabled;
@@ -90,7 +91,7 @@ class Product
     /**
      * @var int
      *
-     * @ORM\Column(name="setUpPrice", type="integer")
+     * @ORM\Column(name="set_up_price", type="integer")
      * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern="/^\d{1,6}((\.|\,)\d{1,2})?$/",
@@ -103,7 +104,7 @@ class Product
     /**
      * @var int
      *
-     * @ORM\Column(name="rentalUnitPrice", type="integer", nullable=true)
+     * @ORM\Column(name="rental_unit_price", type="integer", nullable=true)
      * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern="/^\d{1,6}((\.|\,)\d{1,2})?$/",
@@ -116,7 +117,7 @@ class Product
     /**
      * @var int
      *
-     * @ORM\Column(name="transportUnitPrice", type="integer", nullable=true)
+     * @ORM\Column(name="transport_unit_price", type="integer", nullable=true)
      * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern="/^\d{1,6}((\.|\,)\d{1,2})?$/",
@@ -129,7 +130,7 @@ class Product
     /**
      * @var int
      *
-     * @ORM\Column(name="treatmentUnitPrice", type="integer", nullable=true)
+     * @ORM\Column(name="treatment_unit_price", type="integer", nullable=true)
      * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern="/^\d{1,6}((\.|\,)\d{1,2})?$/",
@@ -142,7 +143,7 @@ class Product
     /**
      * @var int
      *
-     * @ORM\Column(name="traceabilityUnitPrice", type="integer", nullable=true)
+     * @ORM\Column(name="traceability_unit_price", type="integer", nullable=true)
      * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern="/^\d{1,6}((\.|\,)\d{1,2})?$/",
@@ -161,23 +162,31 @@ class Product
     private $position;
 
     /**
+     * @var User
+     *
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="userCreationId", referencedColumnName="id", nullable=false)
      */
     private $userCreation;
 
     /**
+     * @var User
+     *
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="userUpdateId", referencedColumnName="id", nullable=true)
      */
     private $userUpdate;
 
     /**
+     * @var Picture[]
+     *
      * @ORM\OneToMany(targetEntity="Picture", mappedBy="product", cascade={"all"})
      */
     private $pictures;
 
     /**
+     * @var ProductLabel[]
+     *
      * @ORM\OneToMany(targetEntity="ProductLabel", mappedBy="product", cascade={"all"})
      */
     private $productLabels;
@@ -186,7 +195,7 @@ class Product
     /**
      * Product constructor.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {
