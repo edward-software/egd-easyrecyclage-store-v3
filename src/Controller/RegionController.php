@@ -228,8 +228,7 @@ class RegionController extends AbstractController
         for ($i = 'A'; $i <= $sheet->getHighestDataColumn(); $i++) {
             $sheet->getColumnDimension($i)->setAutoSize(true);
         }
-    
-    
+        
         $writer = new Xlsx($spreadsheet);
 
         $fileName = 'ReisswolfShop-Extract-Regions-' . date('Y-m-d') . '.xlsx';

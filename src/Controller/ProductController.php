@@ -33,9 +33,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\File;
 
 class ProductController extends AbstractController
 {
@@ -72,7 +72,7 @@ class ProductController extends AbstractController
         $cols['id'] = ['label' => 'id', 'id' => 'p.id', 'method' => ['getId']];
         $cols['name'] = ['label' => 'name', 'id' => 'pL.name', 'method' => [['getProductLabels', 0], 'getName']];
         $cols['dimensions'] = ['label' => 'dimensions', 'id' => 'p.dimensions', 'method' => ['getDimensions']];
-        $cols['isEnabled'] = ['label' => 'isEnabled', 'id' => 'p.isEnabled', 'method' => ['getIsEnabled']];
+        $cols['isEnabled'] = ['label' => 'isEnabled', 'id' => 'p.is_enabled', 'method' => ['getIsEnabled']];
 
         $em = $this->getDoctrine()->getManager();
         
@@ -83,7 +83,7 @@ class ProductController extends AbstractController
         $queryBuilder = $productRepository
             ->createQueryBuilder('p')
             ->select(['p', 'pL'])
-            ->leftJoin('p.productLabels', 'pL')
+            ->leftJoin('p.product_labels', 'pL')
             ->where('p.deleted IS NULL')
             ->andWhere('pL.language = :language')
             ->setParameter('language', 'EN');
@@ -109,7 +109,7 @@ class ProductController extends AbstractController
                             ->orx(
                                 $queryBuilder->expr()->like('pL.name', '?1'),
                                 $queryBuilder->expr()->like('p.dimensions', '?1'),
-                                $queryBuilder->expr()->like('pL.isEnabled', '?1')
+                                $queryBuilder->expr()->like('pL.is_enabled', '?1')
                             )
                     )
                     ->setParameter(1, '%' . $search['value'] . '%');
@@ -262,16 +262,20 @@ class ProductController extends AbstractController
         $writer = new Xlsx($spreadsheet);
 
         $fileName = 'ReisswolfShop-Extraction-Products-' . date('Y-m-d') . '.xlsx';
-
-        // create the response
-        // TODO Fix this because liuggio/ExcelBundle is deprecated since Symfony 2
-        $response = $this->container->get('phpexcel')->createStreamedResponse($writer);
-
-        // adding headers
+    
+        // Create a Response
+        $response =  new StreamedResponse(
+            function () use ($writer, $fileName) {
+                $writer->save($fileName);
+            }
+        );
+    
+        // Adding headers
         $dispositionHeader = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
             $fileName
         );
+        
         $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
         $response->headers->set('Pragma', 'public');
         $response->headers->set('Cache-Control', 'maxage=1');

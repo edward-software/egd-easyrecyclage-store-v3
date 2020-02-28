@@ -76,7 +76,7 @@ class CustomAreaController extends AbstractController
         
         $cols['id'] = ['label' => 'id', 'id' => 'r.id', 'method' => ['getId']];
         $cols['code'] = ['label' => 'code', 'id' => 'r.code', 'method' => ['getCode']];
-        $cols['isDisplayed'] = ['label' => 'isDisplayed', 'id' => 'r.isDisplayed', 'method' => ['getIsDisplayed']];
+        $cols['isDisplayed'] = ['label' => 'isDisplayed', 'id' => 'r.is_displayed', 'method' => ['getIsDisplayed']];
         $cols['language'] = ['label' => 'language', 'id' => 'r.language', 'method' => ['getLanguage']];
         
         /** @var QueryBuilder $queryBuilder */

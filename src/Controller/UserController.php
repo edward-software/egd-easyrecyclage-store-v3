@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 
 class UserController extends AbstractController
 {
@@ -61,11 +61,13 @@ class UserController extends AbstractController
 
         $cols['id'] = ['label' => 'id', 'id' => 'u.id', 'method' => ['getId']];
         $cols['username'] = ['label' => 'username', 'id' => 'u.username', 'method' => ['getUsername']];
-        $cols['firstName'] = ['label' => 'firstName', 'id' => 'u.firstName', 'method' => ['getFirstName']];
-        $cols['lastName'] = ['label' => 'lastName', 'id' => 'u.lastName', 'method' => ['getLastName']];
+        $cols['firstName'] = ['label' => 'firstName', 'id' => 'u.first_name', 'method' => ['getFirstName']];
+        $cols['lastName'] = ['label' => 'lastName', 'id' => 'u.last_nName', 'method' => ['getLastName']];
         $cols['email'] = ['label' => 'email', 'id' => 'u.email', 'method' => ['getEmail']];
         $cols['enabled'] = ['label' => 'enabled', 'id' => 'u.enabled', 'method' => ['isEnabled']];
-        $cols['dateCreation'] = ['label' => 'dateCreation', 'id' => 'u.dateCreation', 'method' => ['getDateCreation'], 'filter' => [['name' => 'format', 'args' => ['Y-m-d H:i:s']]]];
+        $cols['dateCreation'] = ['label' => 'dateCreation', 'id' => 'u.date_creation', 'method' => ['getDateCreation'], 'filter' => [
+            ['name' => 'format', 'args' => ['Y-m-d H:i:s']]]
+        ];
 
         $em = $this->getDoctrine()->getManager();
         
@@ -97,10 +99,10 @@ class UserController extends AbstractController
                             ->expr()
                             ->orx(
                                 $queryBuilder->expr()->like('u.username', '?1'),
-                                $queryBuilder->expr()->like('u.firstName', '?1'),
-                                $queryBuilder->expr()->like('u.lastName', '?1'),
+                                $queryBuilder->expr()->like('u.first_name', '?1'),
+                                $queryBuilder->expr()->like('u.last_name', '?1'),
                                 $queryBuilder->expr()->like('u.email', '?1'),
-                                $queryBuilder->expr()->like('u.dateCreation', '?1')
+                                $queryBuilder->expr()->like('u.date_creation', '?1')
                             )
                     )
                     ->setParameter(1, '%' . $search['value'] . '%');
@@ -399,14 +401,15 @@ class UserController extends AbstractController
      * @Route("/sendAccess/{id}", name="paprec_user_user_sendAccess")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
-     * @param Request      $request
-     * @param User         $user
-     * @param Swift_Mailer $mailer
+     * @param Request                 $request
+     * @param User                    $user
+     * @param Swift_Mailer            $mailer
+     * @param TokenGeneratorInterface $tokenGenerator
      *
      * @return RedirectResponse
      * @throws Exception
      */
-    public function sendAccessAction(Request $request, User $user, Swift_Mailer $mailer)
+    public function sendAccessAction(Request $request, User $user, Swift_Mailer $mailer, TokenGeneratorInterface $tokenGenerator)
     {
         if (!$user->isEnabled()) {
             $this
@@ -419,10 +422,9 @@ class UserController extends AbstractController
             ]);
         }
 
-        $tokenGenerator = $this->container->get('fos_user.util.token_generator');
         $password = substr($tokenGenerator->generateToken(), 0, 8);
 
-        $user->setPlainPassword($password);
+        $user->setPassword($password);
         $user->setDateUpdate(new DateTime);
         
         $em = $this->getDoctrine()->getManager();
@@ -463,13 +465,14 @@ class UserController extends AbstractController
      * @Route("/sendAccessMany/{ids}", name="paprec_user_user_sendAccessMany")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
-     * @param Request      $request
-     * @param Swift_Mailer $mailer
+     * @param Request                 $request
+     * @param Swift_Mailer            $mailer
+     * @param TokenGeneratorInterface $tokenGenerator
      *
      * @return RedirectResponse
      * @throws Exception
      */
-    public function sendAccessManyAction(Request $request, Swift_Mailer $mailer)
+    public function sendAccessManyAction(Request $request, Swift_Mailer $mailer, TokenGeneratorInterface $tokenGenerator)
     {
         $em = $this->getDoctrine()->getManager();
         
@@ -488,10 +491,9 @@ class UserController extends AbstractController
             
             foreach ($users as $user) {
                 if ($user->isEnabled()) {
-                    $tokenGenerator = $this->container->get('fos_user.util.token_generator');
                     $password = substr($tokenGenerator->generateToken(), 0, 8);
 
-                    $user->setPlainPassword($password);
+                    $user->setPassword($password);
                     $user->setDateUpdate(new DateTime);
                     $em->flush();
     

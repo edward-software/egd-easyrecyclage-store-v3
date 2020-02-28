@@ -16,25 +16,25 @@ class UserRepository extends EntityRepository
 
     public function isMailUnique($params)
     {
-        return $this->findBy(array(
+        return $this->findBy([
             'email' => $params['email'],
             'deleted' => null
-        ));
+        ]);
     }
 
     public function isUsernameUnique($params)
     {
-        return $this->findBy(array(
+        return $this->findBy([
             'username' => $params['username'],
             'deleted' => null
-        ));
+        ]);
     }
 
     public function isUsernameCanonicalUnique($params)
     {
-        return $this->findBy(array(
-            'usernameCanonical' => $params['usernameCanonical'],
+        return $this->findBy([
+            'usernameCanonical' => $params['username_canonical'],
             'deleted' => null
-        ));
+        ]);
     }
 }

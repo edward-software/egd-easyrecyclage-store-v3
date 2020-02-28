@@ -22,7 +22,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,11 +67,11 @@ class QuoteRequestController extends AbstractController
         $columns = $request->get('columns');
 
         $cols['id'] = ['label' => 'id', 'id' => 'q.id', 'method' => ['getId']];
-        $cols['businessName'] = ['label' => 'businessName', 'id' => 'q.businessName', 'method' => ['getBusinessName']];
-        $cols['totalAmount'] = ['label' => 'totalAmount', 'id' => 'q.totalAmount', 'method' => ['getTotalAmount']];
-        $cols['quoteStatus'] = ['label' => 'quoteStatus', 'id' => 'q.quoteStatus', 'method' => ['getQuoteStatus']];
+        $cols['businessName'] = ['label' => 'businessName', 'id' => 'q.business_name', 'method' => ['getBusinessName']];
+        $cols['totalAmount'] = ['label' => 'totalAmount', 'id' => 'q.total_amount', 'method' => ['getTotalAmount']];
+        $cols['quoteStatus'] = ['label' => 'quoteStatus', 'id' => 'q.quote_status', 'method' => ['getQuoteStatus']];
         $cols['dateCreation'] = [
-            'label' => 'dateCreation', 'id' => 'q.dateCreation', 'method' => ['getDateCreation'], 'filter' => [[
+            'label' => 'dateCreation', 'id' => 'q.date_creation', 'method' => ['getDateCreation'], 'filter' => [[
                 'name' => 'format', 'args' => ['Y-m-d H:i:s']]
             ]
         ];
@@ -106,10 +105,10 @@ class QuoteRequestController extends AbstractController
                         $queryBuilder
                             ->expr()
                             ->orx(
-                                $queryBuilder->expr()->like('q.businessName', '?1'),
-                                $queryBuilder->expr()->like('q.totalAmount', '?1'),
-                                $queryBuilder->expr()->like('q.quoteStatus', '?1'),
-                                $queryBuilder->expr()->like('q.dateCreation', '?1')
+                                $queryBuilder->expr()->like('q.business_nName', '?1'),
+                                $queryBuilder->expr()->like('q.total_amount', '?1'),
+                                $queryBuilder->expr()->like('q.quote_status', '?1'),
+                                $queryBuilder->expr()->like('q.date_creation', '?1')
                             )
                     )
                     ->setParameter(1, '%' . $search['value'] . '%');
