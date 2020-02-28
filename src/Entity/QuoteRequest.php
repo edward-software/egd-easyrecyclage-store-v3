@@ -215,7 +215,7 @@ class QuoteRequest
      *
      * "Commentaire client" rempli par le commercial dans le back-office
      *
-     * @ORM\Column(name="salesmanComment", type="text", nullable=true)
+     * @ORM\Column(name="salesman_comment", type="text", nullable=true)
      */
     private $salesmanComment;
 
@@ -278,7 +278,7 @@ class QuoteRequest
     /**
      * @var QuoteRequestLine[]
      *
-     * @ORM\OneToMany(targetEntity="QuoteRequestLine", mappedBy="quoteRequest")
+     * @ORM\OneToMany(targetEntity="QuoteRequestLine", mappedBy="quote_request")
      */
     private $quoteRequestLines;
     

@@ -9,10 +9,12 @@ use App\Form\CustomAreaType;
 use App\Form\PictureProductType;
 use App\Service\CustomAreaManager;
 use App\Service\PictureManager;
+use App\Tools\DataTable;
 use DateTime;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
+use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -33,18 +35,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class CustomAreaController extends AbstractController
 {
     /**
-     * @Route("/custom/area", name="custom_area")
-     *
-     * @return Response
-     */
-    public function index()
-    {
-        return $this->render('custom_area/index.html.twig', [
-            'controller_name' => 'CustomAreaController',
-        ]);
-    }
-    
-    /**
      * @Route("/customarea", name="paprec_catalog_custom_area_index")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
@@ -59,11 +49,13 @@ class CustomAreaController extends AbstractController
      * @Route("/customarea/loadList", name="paprec_catalog_custom_area_loadList")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
-     * @param Request $request
+     * @param Request            $request
+     * @param DataTable          $dataTable
+     * @param PaginatorInterface $paginator
      *
      * @return JsonResponse
      */
-    public function loadListAction(Request $request)
+    public function loadListAction(Request $request, DataTable $dataTable, PaginatorInterface $paginator)
     {
         $return = [];
         
@@ -99,22 +91,23 @@ class CustomAreaController extends AbstractController
                 ))->setParameter(1, '%' . $search['value'] . '%');
             }
         }
-        
-        $datatable = $this->get('goondi_tools.datatable')->generateTable($cols, $queryBuilder, $pageSize, $start, $orders, $columns, $filters);
+    
+        $dt = $dataTable->generateTable($queryBuilder, $paginator, $cols, $pageSize, $start, $orders, $columns, $filters);
         
         // Reformatage de certaines données
         $tmp = [];
-        foreach ($datatable['data'] as $data) {
+        
+        foreach ($dt['data'] as $data) {
             $line = $data;
             $line['isDisplayed'] = $data['isDisplayed'] ? $this->get('translator')->trans('General.1') : $this->get('translator')->trans('General.0');
             $tmp[] = $line;
         }
+    
+        $dt['data'] = $tmp;
         
-        $datatable['data'] = $tmp;
-        
-        $return['recordsTotal'] = $datatable['recordsTotal'];
-        $return['recordsFiltered'] = $datatable['recordsTotal'];
-        $return['data'] = $datatable['data'];
+        $return['recordsTotal'] = $dt['recordsTotal'];
+        $return['recordsFiltered'] = $dt['recordsTotal'];
+        $return['data'] = $dt['data'];
         $return['resultCode'] = 1;
         $return['resultDescription'] = "success";
         

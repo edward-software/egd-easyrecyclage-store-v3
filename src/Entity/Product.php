@@ -165,7 +165,7 @@ class Product
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userCreationId", referencedColumnName="id", nullable=false)
+     * @ORM\JoinColumn(name="user_creation_id", referencedColumnName="id", nullable=false)
      */
     private $userCreation;
 
@@ -173,7 +173,7 @@ class Product
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="userUpdateId", referencedColumnName="id", nullable=true)
+     * @ORM\JoinColumn(name="user_update_id", referencedColumnName="id", nullable=true)
      */
     private $userUpdate;
 

@@ -110,42 +110,44 @@ class ProductManager
         $postalCode = $options['postalCode'];
 
         // TODO class ProductCategory doesn't exists (maybe delete this part ?)
-        try {
-            /** @var QueryBuilder $query */
-            $query = $this->em
-                ->getRepository(Product::class)
-                ->createQueryBuilder('p')
-                ->innerJoin('PaprecCatalogBundle:ProductCategory', 'pc', Join::WITH, 'p.id = pc.product')
-                ->where('pc.category = :category')
-                ->orderBy('pc.position', 'ASC')
-                ->setParameter("category", $categoryId);
-
-            $products = $query->getQuery()->getResult();
-
-
-            $productsPostalCodeMatch = [];
-
-
-            // On parcourt tous les produits DI pour récupérer ceux  qui possèdent le postalCode
-            /** @var Product $product */
-            foreach ($products as $product) {
-                $postalCodes = str_replace(' ', '', $product->getAvailablePostalCodes());
-                $postalCodesArray = explode(',', $postalCodes);
-                foreach ($postalCodesArray as $pC) {
-                    //on teste juste les deux premiers caractères pour avoir le code du département
-                    if (substr($pC, 0, 2) == substr($postalCode, 0, 2)) {
-                        $productsPostalCodeMatch[] = $product;
-                    }
-                }
-            }
-
-            return $productsPostalCodeMatch;
-
-        } catch (ORMException $e) {
-            throw new Exception('unableToGetProducts', 500);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
-        }
+//        try {
+//            /** @var QueryBuilder $query */
+//            $query = $this->em
+//                ->getRepository(Product::class)
+//                ->createQueryBuilder('p')
+//                ->innerJoin(ProductCategory::class, 'pc', Join::WITH, 'p.id = pc.product')
+//                ->where('pc.category = :category')
+//                ->orderBy('pc.position', 'ASC')
+//                ->setParameter("category", $categoryId);
+//
+//            $products = $query->getQuery()->getResult();
+//
+//
+//            $productsPostalCodeMatch = [];
+//
+//
+//            // On parcourt tous les produits DI pour récupérer ceux  qui possèdent le postalCode
+//            /** @var Product $product */
+//            foreach ($products as $product) {
+//                $postalCodes = str_replace(' ', '', $product->getAvailablePostalCodes());
+//                $postalCodesArray = explode(',', $postalCodes);
+//                foreach ($postalCodesArray as $pC) {
+//                    //on teste juste les deux premiers caractères pour avoir le code du département
+//                    if (substr($pC, 0, 2) == substr($postalCode, 0, 2)) {
+//                        $productsPostalCodeMatch[] = $product;
+//                    }
+//                }
+//            }
+//
+//            return $productsPostalCodeMatch;
+//
+//        } catch (ORMException $e) {
+//            throw new Exception('unableToGetProducts', 500);
+//        } catch (Exception $e) {
+//            throw new Exception($e->getMessage(), $e->getCode());
+//        }
+        
+        return [];
     }
 
     /**
@@ -159,10 +161,9 @@ class ProductManager
      * @return float|int
      * @throws Exception
      */
-    public function calculatePrice(QuoteRequestLine $quoteRequestLine)
+    public function calculatePrice(QuoteRequestLine $quoteRequestLine, NumberManager $numberManager)
     {
-        $numberManager = $this->container->get('paprec_catalog.number_manager');
-
+        
         return ($numberManager->denormalize($quoteRequestLine->getSetUpPrice()) * $numberManager->denormalize15($quoteRequestLine->getSetUpRate())
                 + $numberManager->denormalize($quoteRequestLine->getRentalUnitPrice()) * $numberManager->denormalize15($quoteRequestLine->getRentalRate())
                 + $numberManager->denormalize($quoteRequestLine->getTransportUnitPrice()) * $numberManager->denormalize15($quoteRequestLine->getTransportRate())
@@ -324,7 +325,7 @@ class ProductManager
 
         $queryBuilder->select(['p'])
             ->where('p.deleted IS NULL')
-            ->andWhere('p.isEnabled = 1')
+            ->andWhere('p.is_enabled = 1')
             ->orderBy('p.position');
 
         return $queryBuilder->getQuery()->getResult();

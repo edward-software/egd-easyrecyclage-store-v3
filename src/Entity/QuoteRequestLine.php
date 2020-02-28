@@ -157,7 +157,7 @@ class QuoteRequestLine
     /**
      * @var QuoteRequest
      *
-     * @ORM\ManyToOne(targetEntity="QuoteRequest", inversedBy="quote_request_lines")
+     * @ORM\ManyToOne(targetEntity="QuoteRequest", inversedBy="quoteRequestLines")
      * @ORM\JoinColumn(name="quote_request_id", referencedColumnName="id", nullable=false)
      */
     private $quoteRequest;

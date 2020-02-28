@@ -141,7 +141,7 @@ class QuoteRequestType extends AbstractType
                 'query_builder' => static function (UserRepository $er) {
                     return $er->createQueryBuilder('u')
                         ->where('u.deleted IS NULL')
-                        ->orderBy('u.firstName');
+                        ->orderBy('u.first_name');
                 },
             ])
         ;

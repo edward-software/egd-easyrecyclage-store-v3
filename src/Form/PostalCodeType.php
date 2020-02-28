@@ -74,7 +74,7 @@ class PostalCodeType extends AbstractType
                     return $ur->createQueryBuilder('u')
                         ->where('u.deleted IS NULL')
                         ->andWhere('u.roles LIKE \'%ROLE_COMMERCIAL%\'')
-                        ->orderBy('u.firstName');
+                        ->orderBy('u.first_name');
                 },
             ])
         ;

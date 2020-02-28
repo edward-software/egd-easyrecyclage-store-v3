@@ -8,38 +8,41 @@ use App\Entity\QuoteRequestLine;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use iio\libmergepdf\Merger;
 use Knp\Snappy\Pdf;
+use Swift_Attachment;
+use Swift_Mailer;
+use Swift_Message;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Templating\PhpEngine;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class QuoteRequestManager
 {
 
     private $em;
-    private $container;
-    
     
     /**
      * QuoteRequestManager constructor.
      *
      * @param EntityManagerInterface $em
-     * @param ContainerInterface $container
      */
-    public function __construct(EntityManagerInterface $em, ContainerInterface $container)
+    public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->container = $container;
     }
     
     
     /**
-     * @param $quoteRequest
+     * @param      $quoteRequest
      * @param bool $throwException
      *
-     * @return object|null
+     * @return QuoteRequest|null
      * @throws Exception
      */
     public function get($quoteRequest, $throwException = true)
@@ -51,13 +54,10 @@ class QuoteRequestManager
         }
         
         try {
-            
             /** @var QuoteRequest $quoteRequest */
             $quoteRequest = $this->em->getRepository(QuoteRequest::class)->find($id);
 
-            /**
-             * Vérification que le quoteRequest existe ou ne soit pas supprimé
-             */
+            // Vérification que le quoteRequest existe ou ne soit pas supprimé
             if ($quoteRequest === null || $this->isDeleted($quoteRequest)) {
                 throw new EntityNotFoundException('quoteRequestNotFound');
             }
@@ -77,11 +77,14 @@ class QuoteRequestManager
      * @param $reference
      *
      * @return int
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     public function getCountByReference($reference)
     {
         /** @var QueryBuilder $qb */
-        $qb = $this->em->getRepository(QuoteRequest::class)->createQueryBuilder('qr')
+        $qb = $this->em->getRepository(QuoteRequest::class)
+            ->createQueryBuilder('qr')
             ->select('count(qr)')
             ->where('qr.reference LIKE :ref')
             ->andWhere('qr.deleted IS NULL')
@@ -95,15 +98,13 @@ class QuoteRequestManager
     
         return 1;
     }
-
+    
     /**
-     * Vérifie qu'à ce jour, le quoteRequest ce soit pas supprimé
+     * @param QuoteRequest $quoteRequest
+     * @param bool         $throwException
      *
-     * @param QuoteRequest $quoteRequestl
-     * @param bool $throwException
      * @return bool
      * @throws EntityNotFoundException
-     * @throws Exception
      */
     public function isDeleted(QuoteRequest $quoteRequest, $throwException = false)
     {
@@ -111,7 +112,6 @@ class QuoteRequestManager
         $deleted = $quoteRequest->getDeleted();
 
         if ($quoteRequest->getDeleted() !== null && $deleted instanceof DateTime && $deleted < $now) {
-
             if ($throwException) {
                 throw new EntityNotFoundException('quoteRequestNotFound');
             }
@@ -123,19 +123,24 @@ class QuoteRequestManager
     }
     
     /**
-     * Ajoute une quoteRequestLine à un quoteRequest
-     * @param QuoteRequest $quoteRequest
+     * @param QuoteRequest     $quoteRequest
      * @param QuoteRequestLine $quoteRequestLine
-     * @param null $user
+     * @param NumberManager    $numberManager
+     * @param ProductManager   $productManager
+     * @param null             $user
+     * @param bool             $doFlush
+     *
      * @throws Exception
      */
-    public function addLine(QuoteRequest $quoteRequest, QuoteRequestLine $quoteRequestLine, $user = null, $doFlush = true)
+    public function addLine(
+        QuoteRequest $quoteRequest,
+        QuoteRequestLine $quoteRequestLine,
+        NumberManager $numberManager,
+        ProductManager $productManager,
+        $user = null,
+        $doFlush = true
+    )
     {
-        $numberManager = $this->container->get('paprec_catalog.number_manager');
-        
-        /** @var ProductManager $productManager */
-        $productManager = $this->container->get('paprec_catalog.product_manager');
-
         // On check s'il existe déjà une ligne pour ce produit, pour l'incrémenter
         /** @var QuoteRequestLine $currentQuoteLine */
         $currentQuoteLine = $this->em->getRepository(QuoteRequestLine::class)->findOneBy([
@@ -147,10 +152,8 @@ class QuoteRequestManager
             $quantity = $quoteRequestLine->getQuantity() + $currentQuoteLine->getQuantity();
             $currentQuoteLine->setQuantity($quantity);
 
-            /**
-             * On recalcule le montant total de la ligne ainsi que celui du devis complet
-             */
-            $totalLine = $this->calculateTotalLine($currentQuoteLine);
+            // On recalcule le montant total de la ligne ainsi que celui du devis complet
+            $totalLine = $this->calculateTotalLine($currentQuoteLine, $numberManager, $productManager);
             $currentQuoteLine->setTotalAmount($totalLine);
             $this->em->flush();
         } else {
@@ -164,9 +167,7 @@ class QuoteRequestManager
             $quoteRequestLine->setTraceabilityUnitPrice($quoteRequestLine->getProduct()->getTraceabilityUnitPrice());
             $quoteRequestLine->setProductName($quoteRequestLine->getProduct()->getId());
 
-            /**
-             * Si codePostal, on récupère tous les coefs de celui-ci et on les affecte au quoteRequestLine
-             */
+            // Si codePostal, on récupère tous les coefs de celui-ci et on les affecte au quoteRequestLine
             if ($quoteRequest->getPostalCode()) {
                 $quoteRequestLine->setSetUpRate($quoteRequest->getPostalCode()->getSetUpRate());
                 $quoteRequestLine->setRentalRate($quoteRequest->getPostalCode()->getRentalRate());
@@ -174,9 +175,8 @@ class QuoteRequestManager
                 $quoteRequestLine->setTreatmentRate($quoteRequest->getPostalCode()->getTreatmentRate());
                 $quoteRequestLine->setTraceabilityRate($quoteRequest->getPostalCode()->getTraceabilityRate());
             } else {
-                /**
-                 * Si pas de code postal, on met tous les coefs à 1 par défaut
-                 */
+                
+                // Si pas de code postal, on met tous les coefs à 1 par défaut
                 $quoteRequestLine->setSetUpRate($numberManager->normalize15(1));
                 $quoteRequestLine->setRentalRate($numberManager->normalize15(1));
                 $quoteRequestLine->setTransportRate($numberManager->normalize15(1));
@@ -184,24 +184,19 @@ class QuoteRequestManager
                 $quoteRequestLine->setTraceabilityRate($numberManager->normalize15(1));
             }
 
-            /**
-             * Si il y a une condition d'accès, on l'affecte au quoteRequestLine
-             */
+            //Si il y a une condition d'accès, on l'affecte au quoteRequestLine
             if ($quoteRequest->getAccess()) {
                 $quoteRequestLine->setAccessPrice($numberManager->normalize($productManager->getAccesPrice($quoteRequest)));
             } else {
-                /**
-                 * Sinon on lui met à 0 par défaut
-                 */
+                
+                //Sinon on lui met à 0 par défaut
                 $quoteRequestLine->setAccessPrice(0);
             }
 
             $this->em->persist($quoteRequestLine);
 
-            /**
-             * On recalcule le montant total de la ligne ainsi que celui du devis complet
-             */
-            $totalLine = 0 + $this->calculateTotalLine($quoteRequestLine);
+            // On recalcule le montant total de la ligne ainsi que celui du devis complet
+            $totalLine = 0 + $this->calculateTotalLine($quoteRequestLine, $numberManager, $productManager);
             $quoteRequestLine->setTotalAmount($totalLine);
             $this->em->flush();
         }
@@ -216,48 +211,62 @@ class QuoteRequestManager
     }
     
     /**
-     * Pour ajouter une QuoteRequestLine depuis le Cart, il faut d'abord retrouver le Product
-     * @param $productId
-     * @param $qtty
+     * @param QuoteRequest   $quoteRequest
+     * @param NumberManager  $numberManager
+     * @param ProductManager $productManager
+     * @param                $productId
+     * @param                $qtty
+     * @param bool           $doFlush
+     *
      * @throws Exception
      */
-    public function addLineFromCart(QuoteRequest $quoteRequest, $productId, $qtty, $doFlush = true)
+    public function addLineFromCart(
+        QuoteRequest $quoteRequest,
+        NumberManager $numberManager,
+        ProductManager $productManager,
+        $productId,
+        $qtty,
+        $doFlush = true
+    )
     {
-        /** @var ProductManager $productManager */
-        $productManager = $this->container->get('paprec_catalog.product_manager');
-
         try {
             $product = $productManager->get($productId);
             $quoteRequestLine = new QuoteRequestLine();
 
             $quoteRequestLine->setProduct($product);
             $quoteRequestLine->setQuantity($qtty);
-            $this->addLine($quoteRequest, $quoteRequestLine, null, $doFlush);
+            $this->addLine($quoteRequest, $quoteRequestLine, $numberManager, $productManager, null, $doFlush);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode());
         }
 
 
     }
-
+    
     /**
-     * Met à jour les montants totaux après l'édition d'une ligne
-     * @param QuoteRequest $quoteRequest
+     * @param QuoteRequest     $quoteRequest
      * @param QuoteRequestLine $quoteRequestLine
-     * @param $user
-     * @param bool $doFlush
+     * @param NumberManager    $numberManager
+     * @param ProductManager   $productManager
+     * @param                  $user
+     * @param bool             $doFlush
+     * @param bool             $editQuoteRequest
+     *
      * @throws Exception
      */
-    public function editLine(QuoteRequest $quoteRequest, QuoteRequestLine $quoteRequestLine, $user, $doFlush = true, $editQuoteRequest = true)
+    public function editLine(
+        QuoteRequest $quoteRequest,
+        QuoteRequestLine $quoteRequestLine,
+        NumberManager $numberManager,
+        ProductManager $productManager,
+        $user,
+        $doFlush = true,
+        $editQuoteRequest = true
+    )
     {
-        $numberManager = $this->container->get('paprec_catalog.number_manager');
-        
-        /** @var ProductManager $productManager */
-        $productManager = $this->container->get('paprec_catalog.product_manager');
-
         $now = new DateTime();
 
-        $totalLine = 0 + $this->calculateTotalLine($quoteRequestLine);
+        $totalLine = 0 + $this->calculateTotalLine($quoteRequestLine, $numberManager, $productManager);
         $quoteRequestLine->setTotalAmount($totalLine);
         $quoteRequestLine->setDateUpdate($now);
 
@@ -268,15 +277,12 @@ class QuoteRequestManager
             $quoteRequest->setUserUpdate($user);
         }
 
-        /**
-         * Si il y a une condition d'accès, on l'affecte au quoteRequestLine
-         */
+        // Si il y a une condition d'accès, on l'affecte au quoteRequestLine
         if ($quoteRequest->getAccess()) {
             $quoteRequestLine->setAccessPrice($numberManager->normalize($productManager->getAccesPrice($quoteRequest)));
         } else {
-            /**
-             * Sinon on lui met à 0 par défaut
-             */
+            
+            // Sinon on lui met à 0 par défaut
             $quoteRequestLine->setAccessPrice(0);
         }
 
@@ -284,32 +290,33 @@ class QuoteRequestManager
             $this->em->flush();
         }
     }
-
+    
     /**
-     * Retourne le montant total d'une QuoteRequestLine
      * @param QuoteRequestLine $quoteRequestLine
-     * @return float|int
+     * @param NumberManager    $numberManager
+     * @param ProductManager   $productManager
+     *
+     * @return number
      * @throws Exception
      */
-    public function calculateTotalLine(QuoteRequestLine $quoteRequestLine)
+    public function calculateTotalLine(
+        QuoteRequestLine $quoteRequestLine,
+        NumberManager $numberManager,
+        ProductManager $productManager
+    )
     {
-        $numberManager = $this->container->get('paprec_catalog.number_manager');
-        $productManager = $this->container->get('paprec_catalog.product_manager');
-
         return $numberManager->normalize(
-            round($productManager->calculatePrice($quoteRequestLine))
+            round($productManager->calculatePrice($quoteRequestLine, $numberManager))
         );
     }
-
+    
     /**
-     * Calcule le montant total d'un QuoteRequest
      * @param QuoteRequest $quoteRequest
-     * @return float|int
+     *
+     * @return int
      */
     public function calculateTotal(QuoteRequest $quoteRequest)
     {
-        $numberManager = $this->container->get('paprec_catalog.number_manager');
-
         $totalAmount = 0;
         if ($quoteRequest->getQuoteRequestLines() && count($quoteRequest->getQuoteRequestLines())) {
 
@@ -322,37 +329,47 @@ class QuoteRequestManager
     }
     
     /**
-     * Envoie un mail à la personne ayant fait une demande de devis
+     * @param QuoteRequest        $quoteRequest
+     * @param Swift_Mailer        $mailer
+     * @param TranslatorInterface $translator
+     * @param PhpEngine           $phpEngine
+     * @param                     $locale
+     *
+     * @return bool
      * @throws Exception
      */
-    public function sendConfirmRequestEmail(QuoteRequest $quoteRequest, $locale)
+    public function sendConfirmRequestEmail(
+        QuoteRequest $quoteRequest,
+        Swift_Mailer $mailer,
+        TranslatorInterface $translator,
+        PhpEngine $phpEngine,
+        $locale
+    )
     {
 
         try {
-            $from = $this->container->getParameter('paprec_email_sender');
             $this->get($quoteRequest);
-
             $rcptTo = $quoteRequest->getEmail();
 
             if ($rcptTo == null || $rcptTo == '') {
                 return false;
             }
-            $translator = $this->container->get('translator');
-
-            $message = \Swift_Message::newInstance()
-                ->setSubject('Reisswolf E-shop :' . $translator->trans('Commercial.ConfirmEmail.Object'))
-                ->setFrom($from)
+    
+            $message = (new Swift_Message('Reisswolf E-shop :' . $translator->trans('Commercial.ConfirmEmail.Object')))
+                ->setFrom($_ENV['MAILER_PAPREC_SENDER'])
                 ->setTo($rcptTo)
                 ->setBody(
-                    $this->container->get('templating')->render(
-                        '@PaprecCommercial/QuoteRequest/emails/confirmQuoteEmail.html.twig', [
+                    $phpEngine->render(
+                        'commercial/quoteRequest/emails/confirmQuoteEmail.html.twig', [
                             'quoteRequest' => $quoteRequest,
                             'locale' => $locale
                         ]
                     ),
                     'text/html'
-                );
-            if ($this->container->get('mailer')->send($message)) {
+                )
+            ;
+
+            if ($mailer->send($message)) {
                 return true;
             }
             
@@ -366,56 +383,71 @@ class QuoteRequestManager
     }
     
     /**
-     * Envoie un mail au commercial associé lui indiquant la nouvelle demande de devis créée
+     * @param QuoteRequest $quoteRequest
+     * @param Swift_Mailer $mailer
+     * @param PhpEngine    $phpEngine
+     * @param              $locale
+     *
+     * @return bool
      * @throws Exception
      */
-    public function sendNewRequestEmail(QuoteRequest $quoteRequest, $locale)
+    public function sendNewRequestEmail(
+        QuoteRequest $quoteRequest,
+        Swift_Mailer $mailer,
+        PhpEngine $phpEngine,
+        ProductManager $productManager,
+        $locale
+    )
     {
-
         try {
-            $from = $this->container->getParameter('paprec_email_sender');
             $this->get($quoteRequest);
 
             /**
              * Si la quoteRequest est associé à un commercial, on lui envoie le mail d'information de la création d'une nouvelle demande
              * Sinon,
-             *      si la demande est multisite alors on envoie au mail générique des demandes multisites
-             *          sinon on envoie au mail générique de la région associée au code postal de la demande
+             *     si la demande est multisite alors on envoie au mail générique des demandes multisites
+             *     sinon on envoie au mail générique de la région associée au code postal de la demande
              */
-            $rcptTo = $quoteRequest->getUserInCharge() !== null ? $quoteRequest->getUserInCharge()->getEmail() :
-                (($quoteRequest->getIsMultisite()) ? $this->container->getParameter('reisswolf_salesman_multisite_email') : $quoteRequest->getPostalCode()->getRegion()->getEmail());
-
+            if ($quoteRequest->getUserInCharge() !== null) {
+                $rcptTo = $quoteRequest->getUserInCharge()->getEmail();
+            } else {
+                if ($quoteRequest->getIsMultisite()) {
+                    $rcptTo = $_ENV['REISSWOLF_SALESMAN_MULTISITE_EMAIL'];
+                } else {
+                    $rcptTo = $quoteRequest->getPostalCode()->getRegion()->getEmail();
+                }
+            }
+            
+//            $rcptTo = $quoteRequest->getUserInCharge() !== null ? $quoteRequest->getUserInCharge()->getEmail() :
+//                (($quoteRequest->getIsMultisite()) ? $this->container->getParameter('reisswolf_salesman_multisite_email') : $quoteRequest->getPostalCode()->getRegion()->getEmail());
 
             if ($rcptTo == null || $rcptTo == '') {
                 return false;
             }
 
             $pdfFilename = date('Y-m-d') . '-Reisswolf-Devis-' . $quoteRequest->getNumber() . '.pdf';
-
-            $pdfFile = $this->generatePDF($quoteRequest, $locale);
-
+            $pdfFile = $this->generatePDF($quoteRequest, $phpEngine, $productManager, $locale);
+    
             if (!$pdfFile) {
                 return false;
             }
-
-            $attachment = \Swift_Attachment::newInstance(file_get_contents($pdfFile), $pdfFilename, 'application/pdf');
-            
-            $message = \Swift_Message::newInstance()
-                ->setSubject('Reisswolf E-shop : Nouvelle demande de devis' . ' N°' . $quoteRequest->getId())
-                ->setFrom($from)
+    
+            $message = (new Swift_Message('Reisswolf E-shop : Nouvelle demande de devis' . ' N°' . $quoteRequest->getId()))
+                ->setFrom($_ENV['MAILER_PAPREC_SENDER'])
                 ->setTo($rcptTo)
                 ->setBody(
-                    $this->container->get('templating')->render(
-                        '@PaprecCommercial/QuoteRequest/emails/newQuoteEmail.html.twig', [
+                    $phpEngine->render(
+                        'commercial/quoteRequest/emails/newQuoteEmail.html.twig', [
                             'quoteRequest' => $quoteRequest,
                             'locale' => $locale
                         ]
                     ),
                     'text/html'
                 )
-                ->attach($attachment);
+                ->attach(Swift_Attachment::fromPath('/data/tmp/' . $pdfFilename, 'application/pdf'))
+            ;
 
-            if ($this->container->get('mailer')->send($message)) {
+            if ($mailer->send($message)) {
                 if (file_exists($pdfFile)) {
                     unlink($pdfFile);
                 }
@@ -431,25 +463,30 @@ class QuoteRequestManager
             throw new Exception($e->getMessage(), $e->getCode());
         }
     }
-
+    
     /**
-     * Génération du numéro de l'offre
-     * @param QuoteRequest $quoteRequest
      * @return int
      */
-    public function generateNumber(QuoteRequest $quoteRequest)
+    public function generateNumber()
     {
         return time();
     }
     
     /**
-     * Envoi de l'offre contrat généré au client
-     *
      * @param QuoteRequest $quoteRequest
+     * @param Swift_Mailer $mailer
+     * @param PhpEngine    $phpEngine
+     * @param              $locale
+     *
      * @return bool
      * @throws Exception
      */
-    public function sendGeneratedQuoteEmail(QuoteRequest $quoteRequest, $locale)
+    public function sendGeneratedQuoteEmail(
+        QuoteRequest $quoteRequest,
+        Swift_Mailer $mailer,
+        PhpEngine $phpEngine,
+        $locale
+    )
     {
         try {
             
@@ -468,25 +505,23 @@ class QuoteRequestManager
             if (!$pdfFile) {
                 return false;
             }
-
-            $attachment = \Swift_Attachment::newInstance(file_get_contents($pdfFile), $pdfFilename, 'application/pdf');
-            
-            $message = \Swift_Message::newInstance()
-                ->setSubject('Reisswolf : Votre devis')
-                ->setFrom($from)
+    
+            $message = (new Swift_Message('Reisswolf : Votre devis'))
+                ->setFrom($_ENV['MAILER_PAPREC_SENDER'])
                 ->setTo($rcptTo)
                 ->setBody(
-                    $this->container->get('templating')->render(
-                        '@PaprecCommercial/QuoteRequest/emails/generatedQuoteEmail.html.twig', [
+                    $phpEngine->render(
+                        'commercial/quoteRequest/emails/generatedQuoteEmail.html.twig', [
                             'quoteRequest' => $quoteRequest,
                             'locale' => $locale
                         ]
                     ),
                     'text/html'
                 )
-                ->attach($attachment);
-
-            if ($this->container->get('mailer')->send($message)) {
+                ->attach(Swift_Attachment::fromPath('/data/tmp/' . $pdfFilename, 'application/pdf'))
+            ;
+            
+            if ($mailer->send($message)) {
                 if (file_exists($pdfFile)) {
                     unlink($pdfFile);
                 }
@@ -502,20 +537,23 @@ class QuoteRequestManager
             throw new Exception($e->getMessage(), $e->getCode());
         }
     }
-
+    
     /**
-     * Génère le devis au format PDF et retoune le nom du fichier généré (placé dans /data/tmp)
-     *
      * @param QuoteRequest $quoteRequest
+     * @param              $locale
+     *
      * @return bool|string
      * @throws Exception
      */
-    public function generatePDF(QuoteRequest $quoteRequest, $locale)
+    public function generatePDF(
+        QuoteRequest $quoteRequest,
+        PhpEngine $phpEngine,
+        ProductManager $productManager,
+        $locale
+    )
     {
-
         try {
-
-            $pdfTmpFolder = $this->container->getParameter('paprec_commercial.data_tmp_directory');
+            $pdfTmpFolder = $_ENV['TMP_FOLDER'];
 
             if (!is_dir($pdfTmpFolder)) {
                 mkdir($pdfTmpFolder, 0755, true);
@@ -532,7 +570,7 @@ class QuoteRequestManager
 //            $snappy->setOption('footer-html', $this->container->get('templating')->render('@PaprecCommercial/QuoteRequest/PDF/fr/_footer.html.twig'));
 
             if ($quoteRequest->getPostalCode() && $quoteRequest->getPostalCode()->getRegion()) {
-                $templateDir = '@PaprecCommercial/QuoteRequest/PDF/';
+                $templateDir = '/templates/commercial/quoteRequest/pdf/';
                 switch (strtolower($quoteRequest->getPostalCode()->getRegion())) {
                     case 'basel':
                         $templateDir .= 'basel';
@@ -554,11 +592,9 @@ class QuoteRequestManager
                 return false;
             }
 
-            /**
-             * On génère la page d'offre
-             */
+            // On génère la page d'offre
             $snappy->generateFromHtml([
-                $this->container->get('templating')->render(
+                $phpEngine->render(
                     $templateDir . '/printQuoteOffer.html.twig', [
                         'quoteRequest' => $quoteRequest,
                         'date' => $today,
@@ -567,15 +603,11 @@ class QuoteRequestManager
                 )
             ], $filenameOffer);
 
-            /** @var ProductManager $productManager */
-            $productManager = $this->container->get('paprec_catalog.product_manager');
             $products = $productManager->getAvailableProducts();
 
-            /**
-             * On génère la page d'offre
-             */
+            // On génère la page d'offre
             $snappy->generateFromHtml([
-                $this->container->get('templating')->render(
+                $phpEngine->render(
                     $templateDir . '/printQuoteContract.html.twig', [
                         'quoteRequest' => $quoteRequest,
                         'date' => $today,
@@ -583,11 +615,8 @@ class QuoteRequestManager
                     ]
                 )
             ], $filename);
-
-
-            /**
-             * Concaténation des notices
-             */
+            
+            // Concaténation des notices
             $pdfArray = [];
             $pdfArray[] = $filenameOffer;
             $pdfArray[] = $filename;

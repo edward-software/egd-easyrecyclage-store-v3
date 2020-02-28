@@ -9,10 +9,12 @@ use App\Form\RegionType;
 use App\Repository\RegionRepository;
 use App\Service\RegionManager;
 use App\Service\UserManager;
+use App\Tools\DataTable;
 use DateTime;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
+use Knp\Component\Pager\PaginatorInterface;
 use PhpOffice\PhpSpreadsheet\Exception as PSException;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -44,11 +46,13 @@ class RegionController extends AbstractController
      * @Route("/region/loadList", name="paprec_catalog_region_loadList")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
-     * @param Request $request
+     * @param Request            $request
+     * @param DataTable          $dataTable
+     * @param PaginatorInterface $paginator
      *
      * @return JsonResponse
      */
-    public function loadListAction(Request $request)
+    public function loadListAction(Request $request, DataTable $dataTable, PaginatorInterface $paginator)
     {
         $return = [];
 
@@ -105,12 +109,12 @@ class RegionController extends AbstractController
                     ->setParameter(1, '%' . $search['value'] . '%');
             }
         }
+    
+        $dt = $dataTable->generateTable($queryBuilder, $paginator, $cols, $pageSize, $start, $orders, $columns, $filters);
 
-        $datatable = $this->get('goondi_tools.datatable')->generateTable($cols, $queryBuilder, $pageSize, $start, $orders, $columns, $filters);
-
-        $return['recordsTotal'] = $datatable['recordsTotal'];
-        $return['recordsFiltered'] = $datatable['recordsTotal'];
-        $return['data'] = $datatable['data'];
+        $return['recordsTotal'] = $dt['recordsTotal'];
+        $return['recordsFiltered'] = $dt['recordsTotal'];
+        $return['data'] = $dt['data'];
         $return['resultCode'] = 1;
         $return['resultDescription'] = "success";
 
@@ -273,15 +277,23 @@ class RegionController extends AbstractController
             'region' => $region
         ]);
     }
-
+    
     /**
      * @Route("/region/add", name="paprec_catalog_region_add")
      * @Security("has_role('ROLE_COMMERCIAL')")
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse|Response
+     * @throws Exception
      */
-    public function addAction(Request $request, Region $region)
+    public function addAction(Request $request)
     {
         /** @var User $user */
         $user = $this->getUser();
+        
+        /** @var Region $region */
+        $region = new Region();
 
         $form = $this->createForm(RegionType::class, $region);
         $form->handleRequest($request);

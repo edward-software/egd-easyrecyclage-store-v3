@@ -16,10 +16,12 @@ use App\Service\NumberManager;
 use App\Service\PictureManager;
 use App\Service\ProductLabelManager;
 use App\Service\ProductManager;
+use App\Tools\DataTable;
 use DateTime;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
+use Knp\Component\Pager\PaginatorInterface;
 use PhpOffice\PhpSpreadsheet\Exception as PSException;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -54,11 +56,13 @@ class ProductController extends AbstractController
      * @Route("/product/loadList", name="paprec_catalog_product_loadList")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
-     * @param Request $request
+     * @param Request            $request
+     * @param DataTable          $dataTable
+     * @param PaginatorInterface $paginator
      *
      * @return JsonResponse
      */
-    public function loadListAction(Request $request)
+    public function loadListAction(Request $request, DataTable $dataTable, PaginatorInterface $paginator)
     {
         $return = [];
 
@@ -83,7 +87,7 @@ class ProductController extends AbstractController
         $queryBuilder = $productRepository
             ->createQueryBuilder('p')
             ->select(['p', 'pL'])
-            ->leftJoin('p.product_labels', 'pL')
+            ->leftJoin('p.productLabels', 'pL')
             ->where('p.deleted IS NULL')
             ->andWhere('pL.language = :language')
             ->setParameter('language', 'EN');
@@ -116,23 +120,21 @@ class ProductController extends AbstractController
             }
         }
 
-        $datatable = $this
-            ->get('goondi_tools.datatable')
-            ->generateTable($cols, $queryBuilder, $pageSize, $start, $orders, $columns, $filters);
+        $dt = $dataTable->generateTable($queryBuilder, $paginator, $cols, $pageSize, $start, $orders, $columns, $filters);
 
         // Reformatage de certaines données
         $tmp = [];
-        foreach ($datatable['data'] as $data) {
+        foreach ($dt['data'] as $data) {
             $line = $data;
             $line['isEnabled'] = $data['isEnabled'] ? $this->get('translator')->trans('General.1') : $this->get('translator')->trans('General.0');
             $tmp[] = $line;
         }
+    
+        $dt['data'] = $tmp;
 
-        $datatable['data'] = $tmp;
-
-        $return['recordsTotal'] = $datatable['recordsTotal'];
-        $return['recordsFiltered'] = $datatable['recordsTotal'];
-        $return['data'] = $datatable['data'];
+        $return['recordsTotal'] = $dt['recordsTotal'];
+        $return['recordsFiltered'] = $dt['recordsTotal'];
+        $return['data'] = $dt['data'];
         $return['resultCode'] = 1;
         $return['resultDescription'] = "success";
 

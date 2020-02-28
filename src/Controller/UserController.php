@@ -6,9 +6,11 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserMyProfileType;
 use App\Form\UserType;
+use App\Tools\DataTable;
 use DateTime;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
+use Knp\Component\Pager\PaginatorInterface;
 use PhpOffice\PhpSpreadsheet\Exception as PSException;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -44,11 +46,13 @@ class UserController extends AbstractController
      * @Route("/loadList", name="paprec_user_user_loadList")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
-     * @param Request $request
+     * @param Request            $request
+     * @param DataTable          $dataTable
+     * @param PaginatorInterface $paginator
      *
      * @return JsonResponse
      */
-    public function loadListAction(Request $request)
+    public function loadListAction(Request $request, DataTable $dataTable, PaginatorInterface $paginator)
     {
         $return = [];
 
@@ -108,12 +112,12 @@ class UserController extends AbstractController
                     ->setParameter(1, '%' . $search['value'] . '%');
             }
         }
+    
+        $dt = $dataTable->generateTable($queryBuilder, $paginator, $cols, $pageSize, $start, $orders, $columns, $filters);
 
-        $datatable = $this->get('goondi_tools.datatable')->generateTable($cols, $queryBuilder, $pageSize, $start, $orders, $columns, $filters);
-
-        $return['recordsTotal'] = $datatable['recordsTotal'];
-        $return['recordsFiltered'] = $datatable['recordsTotal'];
-        $return['data'] = $datatable['data'];
+        $return['recordsTotal'] = $dt['recordsTotal'];
+        $return['recordsFiltered'] = $dt['recordsTotal'];
+        $return['data'] = $dt['data'];
         $return['resultCode'] = 1;
         $return['resultDescription'] = "success";
 

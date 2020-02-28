@@ -9,10 +9,12 @@ use App\Form\PostalCodeType;
 use App\Repository\PostalCodeRepository;
 use App\Service\NumberManager;
 use App\Service\PostalCodeManager;
+use App\Tools\DataTable;
 use DateTime;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
+use Knp\Component\Pager\PaginatorInterface;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -48,11 +50,13 @@ class PostalCodeController extends AbstractController
      * @Route("/postalCode/loadList", name="paprec_catalog_postalCode_loadList")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
-     * @param Request $request
+     * @param Request            $request
+     * @param DataTable          $dataTable
+     * @param PaginatorInterface $paginator
      *
      * @return JsonResponse
      */
-    public function loadListAction(Request $request)
+    public function loadListAction(Request $request, DataTable $dataTable, PaginatorInterface $paginator)
     {
         $return = [];
 
@@ -108,12 +112,12 @@ class PostalCodeController extends AbstractController
                     ->setParameter(1, '%' . $search['value'] . '%');
             }
         }
-
-        $datatable = $this->get('goondi_tools.datatable')->generateTable($cols, $queryBuilder, $pageSize, $start, $orders, $columns, $filters);
+    
+        $dt = $dataTable->generateTable($queryBuilder, $paginator, $cols, $pageSize, $start, $orders, $columns, $filters);
         
-        $return['recordsTotal'] = $datatable['recordsTotal'];
-        $return['recordsFiltered'] = $datatable['recordsTotal'];
-        $return['data'] = $datatable['data'];
+        $return['recordsTotal'] = $dt['recordsTotal'];
+        $return['recordsFiltered'] = $dt['recordsTotal'];
+        $return['data'] = $dt['data'];
         $return['resultCode'] = 1;
         $return['resultDescription'] = "success";
 

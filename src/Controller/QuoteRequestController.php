@@ -11,10 +11,12 @@ use App\Form\QuoteRequestLineEditType;
 use App\Form\QuoteRequestType;
 use App\Service\NumberManager;
 use App\Service\QuoteRequestManager;
+use App\Tools\DataTable;
 use DateTime;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
+use Knp\Component\Pager\PaginatorInterface;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -50,12 +52,14 @@ class QuoteRequestController extends AbstractController
      * @Route("/quoteRequest/loadList", name="paprec_commercial_quoteRequest_loadList")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
      *
-     * @param Request       $request
-     * @param NumberManager $numberManager
+     * @param Request            $request
+     * @param NumberManager      $numberManager
+     * @param DataTable          $dataTable
+     * @param PaginatorInterface $paginator
      *
      * @return JsonResponse
      */
-    public function loadListAction(Request $request, NumberManager $numberManager)
+    public function loadListAction(Request $request, NumberManager $numberManager, DataTable $dataTable, PaginatorInterface $paginator)
     {
         $return = [];
 
@@ -83,7 +87,7 @@ class QuoteRequestController extends AbstractController
         
         $queryBuilder
             ->select(['q'])
-            ->from('PaprecCommercialBundle:QuoteRequest', 'q')
+            ->from(QuoteRequest::class, 'q')
             ->where('q.deleted IS NULL');
 
         if (is_array($search) && isset($search['value']) && $search['value'] != '') {
@@ -114,22 +118,23 @@ class QuoteRequestController extends AbstractController
                     ->setParameter(1, '%' . $search['value'] . '%');
             }
         }
-
-        $datatable = $this->get('goondi_tools.datatable')->generateTable($cols, $queryBuilder, $pageSize, $start, $orders, $columns, $filters);
+    
+        $dt = $dataTable->generateTable($queryBuilder, $paginator, $cols, $pageSize, $start, $orders, $columns, $filters);
         
         // Reformatage de certaines données
         $tmp = [];
-        foreach ($datatable['data'] as $data) {
+        foreach ($dt['data'] as $data) {
             $line = $data;
             $line['totalAmount'] = $numberManager->formatAmount($data['totalAmount'], 'EUR', $request->getLocale());
             $line['quoteStatus'] = $this->container->get('translator')->trans("Commercial.QuoteStatusList." . $data['quoteStatus']);
             $tmp[] = $line;
         }
-        $datatable['data'] = $tmp;
+    
+        $dt['data'] = $tmp;
 
-        $return['recordsTotal'] = $datatable['recordsTotal'];
-        $return['recordsFiltered'] = $datatable['recordsTotal'];
-        $return['data'] = $datatable['data'];
+        $return['recordsTotal'] = $dt['recordsTotal'];
+        $return['recordsFiltered'] = $dt['recordsTotal'];
+        $return['data'] = $dt['data'];
         $return['resultCode'] = 1;
         $return['resultDescription'] = "success";
 
@@ -162,18 +167,18 @@ class QuoteRequestController extends AbstractController
         
         $queryBuilder
             ->select(['q'])
-            ->from('PaprecCommercialBundle:QuoteRequest', 'q')
+            ->from(QuoteRequest::class , 'q')
             ->where('q.deleted IS NULL');
         
         if ($status != null && !empty($status)) {
             $queryBuilder
-                ->andWhere('q.quoteStatus = :status')
+                ->andWhere('q.quote_status = :status')
                 ->setParameter('status', $status);
         }
         
         if ($dateStart != null && $dateEnd != null && !empty($dateStart) && !empty($dateEnd)) {
             $queryBuilder
-                ->andWhere('q.dateCreation BETWEEN :dateStart AND :dateEnd')
+                ->andWhere('q.date_creation BETWEEN :dateStart AND :dateEnd')
                 ->setParameter('dateStart', $dateStart)
                 ->setParameter('dateEnd', $dateEnd);
         }
@@ -346,13 +351,10 @@ class QuoteRequestController extends AbstractController
      * @return RedirectResponse|Response
      * @throws Exception
      */
-    public function addAction(Request $request)
+    public function addAction(Request $request, NumberManager $numberManager)
     {
+        /** @var User $user */
         $user = $this->getUser();
-
-        $numberManager = $this->get('paprec_catalog.number_manager');
-
-        $quoteRequest = new QuoteRequest();
 
         $status = [];
         foreach ($this->getParameter('paprec_quote_status') as $s) {
@@ -373,7 +375,10 @@ class QuoteRequestController extends AbstractController
         foreach ($this->getParameter('paprec_quote_staff') as $s) {
             $staff[$s] = $s;
         }
-
+    
+        /** @var QuoteRequest $quoteRequest */
+        $quoteRequest = new QuoteRequest();
+        
         $form = $this->createForm(QuoteRequestType::class, $quoteRequest, [
             'status' => $status,
             'locales' => $locales,

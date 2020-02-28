@@ -124,23 +124,19 @@ class Region
 
         return $this;
     }
-
+    
     /**
-     * Get name.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
-
+    
     /**
-     * Set dateCreation.
+     * @param $dateCreation
      *
-     * @param DateTime $dateCreation
-     *
-     * @return Region
+     * @return $this
      */
     public function setDateCreation($dateCreation): self
     {
@@ -150,8 +146,6 @@ class Region
     }
 
     /**
-     * Get dateCreation.
-     *
      * @return DateTime
      */
     public function getDateCreation(): DateTime
@@ -160,8 +154,6 @@ class Region
     }
 
     /**
-     * Set dateUpdate.
-     *
      * @param DateTime|null $dateUpdate
      *
      * @return Region
@@ -174,8 +166,6 @@ class Region
     }
 
     /**
-     * Get dateUpdate.
-     *
      * @return DateTime|null
      */
     public function getDateUpdate(): ?DateTime
@@ -184,8 +174,6 @@ class Region
     }
 
     /**
-     * Set userCreation.
-     *
      * @param User $userCreation
      *
      * @return Region
@@ -198,8 +186,6 @@ class Region
     }
 
     /**
-     * Get userCreation.
-     *
      * @return User
      */
     public function getUserCreation(): User
@@ -208,8 +194,6 @@ class Region
     }
 
     /**
-     * Set userUpdate.
-     *
      * @param User|null $userUpdate
      *
      * @return Region
@@ -222,8 +206,6 @@ class Region
     }
 
     /**
-     * Get userUpdate.
-     *
      * @return User|null
      */
     public function getUserUpdate(): ?User
@@ -232,8 +214,6 @@ class Region
     }
 
     /**
-     * Add postalCode.
-     *
      * @param PostalCode $postalCode
      *
      * @return Region
@@ -246,8 +226,6 @@ class Region
     }
 
     /**
-     * Remove postalCode.
-     *
      * @param PostalCode $postalCode
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
@@ -258,8 +236,6 @@ class Region
     }
 
     /**
-     * Get postalCodes.
-     *
      * @return Collection
      */
     public function getPostalCodes(): Collection
@@ -268,8 +244,6 @@ class Region
     }
 
     /**
-     * Set deleted.
-     *
      * @param DateTime|null $deleted
      *
      * @return Region
@@ -282,8 +256,6 @@ class Region
     }
 
     /**
-     * Get deleted.
-     *
      * @return DateTime|null
      */
     public function getDeleted(): ?DateTime
@@ -292,8 +264,6 @@ class Region
     }
 
     /**
-     * Set email.
-     *
      * @param string|null $email
      *
      * @return Region
@@ -306,8 +276,6 @@ class Region
     }
 
     /**
-     * Get email.
-     *
      * @return string|null
      */
     public function getEmail(): ?string
@@ -316,6 +284,7 @@ class Region
     }
     
     /**
+     * // TODO maybe fix it later it will trigger an error
      * @return string
      */
     public function __toString(): string

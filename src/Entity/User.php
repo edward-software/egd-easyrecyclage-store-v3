@@ -18,7 +18,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"}, repositoryMethod="isMailUnique")
  * @UniqueEntity(fields={"username"}, repositoryMethod="isUsernameUnique")
- * @UniqueEntity(fields={"usernameCanonical"}, repositoryMethod="isUsernameCanonicalUnique")
+ * @UniqueEntity(fields={"username_canonical"}, repositoryMethod="isUsernameCanonicalUnique")
  *
  * @package App\Entity
  */

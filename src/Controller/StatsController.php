@@ -194,11 +194,11 @@ class StatsController extends AbstractController
         $sql = "SELECT COUNT(*) as nbOrder FROM product" . $division . "Orders p WHERE p.deleted IS NULL";
         
         if ($status != null) {
-            $sql .= " AND p.orderStatus = '" . $status . "'";
+            $sql .= " AND p.order_status = '" . $status . "'";
         }
         
         if ($dateStart && !empty($dateStart) && $dateEnd && !empty($dateEnd)) {
-            $sql .= " AND p.dateCreation BETWEEN '" . $dateStart . "' AND '" . $dateEnd . "'";
+            $sql .= " AND p.date_creation BETWEEN '" . $dateStart . "' AND '" . $dateEnd . "'";
         }
         
         $result = $this->executeSQL($sql);
@@ -208,11 +208,11 @@ class StatsController extends AbstractController
         $sql = "SELECT SUM(COALESCE(p.totalAmount, 0)) as totalAmount FROM product" . $division . "Orders p WHERE p.deleted IS NULL";
         
         if ($status != null) {
-            $sql .= " AND p.orderStatus = '" . $status . "'";
+            $sql .= " AND p.order_status = '" . $status . "'";
         }
         
         if ($dateStart && !empty($dateStart) && $dateEnd && !empty($dateEnd)) {
-            $sql .= " AND p.dateCreation BETWEEN '" . $dateStart . "' AND '" . $dateEnd . "'";
+            $sql .= " AND p.date_creation BETWEEN '" . $dateStart . "' AND '" . $dateEnd . "'";
         }
         
         $result = $this->executeSQL($sql);

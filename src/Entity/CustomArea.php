@@ -103,14 +103,12 @@ class CustomArea
     /**
      * @var Picture[]
      *
-     * @ORM\OneToMany(targetEntity="Picture", mappedBy="customArea", cascade={"all"})
+     * @ORM\OneToMany(targetEntity="Picture", mappedBy="custom_area", cascade={"all"})
      */
     private $pictures;
     
     
     /**
-     * CustomArea constructor.
-     *
      * @throws Exception
      */
     public function __construct()
@@ -121,8 +119,6 @@ class CustomArea
     
     
     /**
-     * Get id.
-     *
      * @return int
      */
     public function getId():int
@@ -131,8 +127,6 @@ class CustomArea
     }
     
     /**
-     * Set dateCreation.
-     *
      * @param DateTime $dateCreation
      *
      * @return CustomArea
@@ -145,8 +139,6 @@ class CustomArea
     }
     
     /**
-     * Get dateCreation.
-     *
      * @return DateTime
      */
     public function getDateCreation():DateTime
@@ -155,8 +147,6 @@ class CustomArea
     }
     
     /**
-     * Set dateUpdate.
-     *
      * @param DateTime|null $dateUpdate
      *
      * @return CustomArea
@@ -169,8 +159,6 @@ class CustomArea
     }
     
     /**
-     * Get dateUpdate.
-     *
      * @return DateTime|null
      */
     public function getDateUpdate(): ?DateTime
@@ -179,8 +167,6 @@ class CustomArea
     }
     
     /**
-     * Set leftContent.
-     *
      * @param string $leftContent
      *
      * @return CustomArea
@@ -193,21 +179,17 @@ class CustomArea
     }
     
     /**
-     * Get leftContent.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getLeftContent(): string
+    public function getLeftContent(): ?string
     {
         return $this->leftContent;
     }
     
     /**
-     * Set rightContent.
+     * @param $rightContent
      *
-     * @param string $rightContent
-     *
-     * @return CustomArea
+     * @return $this
      */
     public function setRightContent($rightContent): self
     {
@@ -217,18 +199,14 @@ class CustomArea
     }
     
     /**
-     * Get rightContent.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getRightContent(): string
+    public function getRightContent(): ?string
     {
         return $this->rightContent;
     }
     
     /**
-     * Set code.
-     *
      * @param string $code
      *
      * @return CustomArea
@@ -241,18 +219,14 @@ class CustomArea
     }
     
     /**
-     * Get code.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getCode(): string
+    public function getCode(): ?string
     {
         return $this->code;
     }
     
     /**
-     * Set language.
-     *
      * @param string $language
      *
      * @return CustomArea
@@ -265,18 +239,14 @@ class CustomArea
     }
     
     /**
-     * Get language.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getLanguage(): string
+    public function getLanguage(): ?string
     {
         return $this->language;
     }
     
     /**
-     * Set userCreation.
-     *
      * @param User $userCreation
      *
      * @return CustomArea
@@ -289,8 +259,6 @@ class CustomArea
     }
     
     /**
-     * Get userCreation.
-     *
      * @return User
      */
     public function getUserCreation() : User
@@ -299,8 +267,6 @@ class CustomArea
     }
     
     /**
-     * Add picture.
-     *
      * @param Picture $picture
      *
      * @return CustomArea
@@ -313,8 +279,6 @@ class CustomArea
     }
     
     /**
-     * Remove picture.
-     *
      * @param Picture $picture
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
@@ -325,8 +289,6 @@ class CustomArea
     }
     
     /**
-     * Get pictures.
-     *
      * @return Collection
      */
     public function getPictures() : Collection
@@ -365,8 +327,6 @@ class CustomArea
     }
     
     /**
-     * Set deleted.
-     *
      * @param DateTime|null $deleted
      *
      * @return CustomArea
@@ -379,8 +339,6 @@ class CustomArea
     }
     
     /**
-     * Get deleted.
-     *
      * @return DateTime|null
      */
     public function getDeleted() : ?DateTime
@@ -389,8 +347,6 @@ class CustomArea
     }
     
     /**
-     * Set isDisplayed.
-     *
      * @param bool $isDisplayed
      *
      * @return CustomArea
@@ -403,18 +359,14 @@ class CustomArea
     }
     
     /**
-     * Get isDisplayed.
-     *
-     * @return bool
+     * @return bool|null
      */
-    public function getIsDisplayed() : bool
+    public function getIsDisplayed() : ?bool
     {
         return $this->isDisplayed;
     }
     
     /**
-     * Set userUpdate.
-     *
      * @param User|null $userUpdate
      *
      * @return CustomArea
@@ -427,8 +379,6 @@ class CustomArea
     }
     
     /**
-     * Get userUpdate.
-     *
      * @return User|null
      */
     public function getUserUpdate() : ?User
