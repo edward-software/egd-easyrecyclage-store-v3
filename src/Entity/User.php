@@ -211,9 +211,9 @@ class User implements UserInterface
     }
     
     /**
-     * @return string
+     * @return string|null
      */
-    public function getUsername(): string
+    public function getUsername(): ?string
     {
         return $this->username;
     }
@@ -243,9 +243,9 @@ class User implements UserInterface
     }
     
     /**
-     * @return string
+     * @return string|null
      */
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
@@ -275,9 +275,9 @@ class User implements UserInterface
     }
     
     /**
-     * @return bool
+     * @return bool|null
      */
-    public function isEnabled(): bool
+    public function isEnabled(): ?bool
     {
         return $this->enabled;
     }
@@ -291,9 +291,9 @@ class User implements UserInterface
     }
     
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
@@ -419,9 +419,9 @@ class User implements UserInterface
     }
     
     /**
-     * @return string
+     * @return string|null
      */
-    public function getCompanyName(): string
+    public function getCompanyName(): ?string
     {
         return $this->companyName;
     }
@@ -435,9 +435,9 @@ class User implements UserInterface
     }
     
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLastName(): string
+    public function getLastName(): ?string
     {
         return $this->lastName;
     }
@@ -451,9 +451,9 @@ class User implements UserInterface
     }
     
     /**
-     * @return string
+     * @return string|null
      */
-    public function getFirstName(): string
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
@@ -467,9 +467,9 @@ class User implements UserInterface
     }
     
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLang(): string
+    public function getLang(): ?string
     {
         return $this->lang;
     }

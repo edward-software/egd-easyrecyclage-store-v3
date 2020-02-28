@@ -6,6 +6,7 @@ namespace App\Entity;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -114,10 +115,12 @@ class ProductLabel
      * @ORM\ManyToOne(targetEntity="Product", inversedBy="productLabels")
      */
     private $product;
-
+    
     
     /**
-     * Constructor
+     * ProductLabel constructor.
+     *
+     * @throws Exception
      */
     public function __construct()
     {
@@ -126,8 +129,6 @@ class ProductLabel
     
 
     /**
-     * Get id.
-     *
      * @return int
      */
     public function getId(): int
@@ -136,8 +137,6 @@ class ProductLabel
     }
 
     /**
-     * Set name.
-     *
      * @param string $name
      *
      * @return ProductLabel
@@ -148,20 +147,16 @@ class ProductLabel
 
         return $this;
     }
-
+    
     /**
-     * Get name.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
     /**
-     * Set shortDescription.
-     *
      * @param string $shortDescription
      *
      * @return ProductLabel
@@ -172,20 +167,16 @@ class ProductLabel
 
         return $this;
     }
-
+    
     /**
-     * Get shortDescription.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getShortDescription(): string
+    public function getShortDescription(): ?string
     {
         return $this->shortDescription;
     }
 
     /**
-     * Set language.
-     *
      * @param string $language
      *
      * @return ProductLabel
@@ -196,20 +187,16 @@ class ProductLabel
 
         return $this;
     }
-
+    
     /**
-     * Get language.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getLanguage(): string
+    public function getLanguage(): ?string
     {
         return $this->language;
     }
 
     /**
-     * Set dateCreation.
-     *
      * @param DateTime $dateCreation
      *
      * @return ProductLabel
@@ -222,8 +209,6 @@ class ProductLabel
     }
 
     /**
-     * Get dateCreation.
-     *
      * @return DateTime
      */
     public function getDateCreation(): DateTime
@@ -232,8 +217,6 @@ class ProductLabel
     }
 
     /**
-     * Set dateUpdate.
-     *
      * @param DateTime|null $dateUpdate
      *
      * @return ProductLabel
@@ -246,8 +229,6 @@ class ProductLabel
     }
 
     /**
-     * Get dateUpdate.
-     *
      * @return DateTime|null
      */
     public function getDateUpdate(): ?DateTime
@@ -256,8 +237,6 @@ class ProductLabel
     }
 
     /**
-     * Set deleted.
-     *
      * @param DateTime|null $deleted
      *
      * @return ProductLabel
@@ -270,8 +249,6 @@ class ProductLabel
     }
 
     /**
-     * Get deleted.
-     *
      * @return DateTime|null
      */
     public function getDeleted() : ?DateTime
@@ -280,8 +257,6 @@ class ProductLabel
     }
 
     /**
-     * Set userCreation
-     *
      * @param User $userCreation
      *
      * @return ProductLabel
@@ -294,8 +269,6 @@ class ProductLabel
     }
 
     /**
-     * Get userCreation
-     *
      * @return User
      */
     public function getUserCreation() : User
@@ -304,8 +277,6 @@ class ProductLabel
     }
 
     /**
-     * Set userUpdate
-     *
      * @param User $userUpdate
      *
      * @return ProductLabel
@@ -318,8 +289,6 @@ class ProductLabel
     }
 
     /**
-     * Get userUpdate
-     *
      * @return User
      */
     public function getUserUpdate() : User
@@ -328,8 +297,6 @@ class ProductLabel
     }
 
     /**
-     * Set product.
-     *
      * @param Product|null $product
      *
      * @return ProductLabel
@@ -342,8 +309,6 @@ class ProductLabel
     }
 
     /**
-     * Get product.
-     *
      * @return Product|null
      */
     public function getProduct() : ?Product
@@ -352,8 +317,6 @@ class ProductLabel
     }
 
     /**
-     * Set version.
-     *
      * @param string $version
      *
      * @return ProductLabel
@@ -364,20 +327,16 @@ class ProductLabel
 
         return $this;
     }
-
+    
     /**
-     * Get version.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getVersion() : string
+    public function getVersion() : ?string
     {
         return $this->version;
     }
 
     /**
-     * Set lockType.
-     *
      * @param string|null $lockType
      *
      * @return ProductLabel
@@ -390,8 +349,6 @@ class ProductLabel
     }
 
     /**
-     * Get lockType.
-     *
      * @return string|null
      */
     public function getLockType() : ?string

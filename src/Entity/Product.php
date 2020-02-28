@@ -193,8 +193,6 @@ class Product
     
     
     /**
-     * Product constructor.
-     *
      * @throws Exception
      */
     public function __construct()
@@ -206,8 +204,6 @@ class Product
 
     
     /**
-     * Get id.
-     *
      * @return int
      */
     public function getId(): int
@@ -216,8 +212,6 @@ class Product
     }
 
     /**
-     * Set dimensions.
-     *
      * @param string $dimensions
      *
      * @return Product
@@ -228,20 +222,16 @@ class Product
 
         return $this;
     }
-
+    
     /**
-     * Get dimensions.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getDimensions(): string
+    public function getDimensions(): ?string
     {
         return $this->dimensions;
     }
 
     /**
-     * Set capacityUnit.
-     *
      * @param string $capacityUnit
      *
      * @return Product
@@ -252,20 +242,16 @@ class Product
 
         return $this;
     }
-
+    
     /**
-     * Get capacityUnit.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getCapacityUnit(): string
+    public function getCapacityUnit(): ?string
     {
         return $this->capacityUnit;
     }
 
     /**
-     * Set dateCreation.
-     *
      * @param DateTime $dateCreation
      *
      * @return Product
@@ -278,8 +264,6 @@ class Product
     }
 
     /**
-     * Get dateCreation.
-     *
      * @return DateTime
      */
     public function getDateCreation(): DateTime
@@ -288,8 +272,6 @@ class Product
     }
 
     /**
-     * Set dateUpdate.
-     *
      * @param DateTime|null $dateUpdate
      *
      * @return Product
@@ -302,8 +284,6 @@ class Product
     }
 
     /**
-     * Get dateUpdate.
-     *
      * @return DateTime|null
      */
     public function getDateUpdate(): ?DateTime
@@ -312,8 +292,6 @@ class Product
     }
 
     /**
-     * Set deleted.
-     *
      * @param DateTime|null $deleted
      *
      * @return Product
@@ -326,8 +304,6 @@ class Product
     }
 
     /**
-     * Get deleted.
-     *
      * @return DateTime|null
      */
     public function getDeleted(): ?DateTime
@@ -336,8 +312,6 @@ class Product
     }
 
     /**
-     * Set IsEnabled.
-     *
      * @param bool IsEnabled
      *
      * @return Product
@@ -348,20 +322,16 @@ class Product
 
         return $this;
     }
-
+    
     /**
-     * Get isEnabled.
-     *
-     * @return bool
+     * @return bool|null
      */
-    public function getIsEnabled(): bool
+    public function getIsEnabled(): ?bool
     {
         return $this->isEnabled;
     }
 
     /**
-     * Set userCreation
-     *
      * @param User $userCreation
      *
      * @return Product
@@ -374,8 +344,6 @@ class Product
     }
 
     /**
-     * Get userCreation
-     *
      * @return User
      */
     public function getUserCreation() : User
@@ -384,8 +352,6 @@ class Product
     }
 
     /**
-     * Set userUpdate
-     *
      * @param User $userUpdate
      *
      * @return Product
@@ -398,8 +364,6 @@ class Product
     }
 
     /**
-     * Get userUpdate
-     *
      * @return User
      */
     public function getUserUpdate() : User
@@ -408,8 +372,6 @@ class Product
     }
 
     /**
-     * Add picture.
-     *
      * @param Picture $picture
      *
      * @return Product
@@ -422,8 +384,6 @@ class Product
     }
 
     /**
-     * Remove picture.
-     *
      * @param Picture $picture
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
@@ -434,8 +394,6 @@ class Product
     }
 
     /**
-     * Get pictures.
-     *
      * @return Collection
      */
     public function getPictures() : Collection
@@ -450,7 +408,7 @@ class Product
     {
         $pilotPictures = [];
         foreach ($this->pictures as $picture) {
-            if ($picture->getType() == 'PILOTPICTURE') {
+            if ($picture->getType() === 'PILOTPICTURE') {
                 $pilotPictures[] = $picture;
             }
         }
@@ -464,7 +422,7 @@ class Product
     {
         $pictos = [];
         foreach ($this->pictures as $picture) {
-            if ($picture->getType() == 'PICTO') {
+            if ($picture->getType() === 'PICTO') {
                 $pictos[] = $picture;
             }
         }
@@ -478,7 +436,7 @@ class Product
     {
         $pictures = [];
         foreach ($this->pictures as $picture) {
-            if ($picture->getType() == 'PICTURE') {
+            if ($picture->getType() === 'PICTURE') {
                 $pictures[] = $picture;
             }
         }
@@ -487,8 +445,6 @@ class Product
 
 
     /**
-     * Add productLabel.
-     *
      * @param ProductLabel $productLabel
      *
      * @return Product
@@ -501,8 +457,6 @@ class Product
     }
 
     /**
-     * Remove productLabel.
-     *
      * @param ProductLabel $productLabel
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
@@ -513,8 +467,6 @@ class Product
     }
 
     /**
-     * Get productLabels.
-     *
      * @return Collection
      */
     public function getProductLabels() : Collection
@@ -524,8 +476,6 @@ class Product
 
 
     /**
-     * Set capacity.
-     *
      * @param string $capacity
      *
      * @return Product
@@ -536,20 +486,16 @@ class Product
 
         return $this;
     }
-
+    
     /**
-     * Get capacity.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getCapacity() : string
+    public function getCapacity() : ?string
     {
         return $this->capacity;
     }
 
     /**
-     * Set rentalUnitPrice.
-     *
      * @param int|null $rentalUnitPrice
      *
      * @return Product
@@ -562,8 +508,6 @@ class Product
     }
 
     /**
-     * Get rentalUnitPrice.
-     *
      * @return int|null
      */
     public function getRentalUnitPrice() : ?int
@@ -572,8 +516,6 @@ class Product
     }
 
     /**
-     * Set transportUnitPrice.
-     *
      * @param int|null $transportUnitPrice
      *
      * @return Product
@@ -586,8 +528,6 @@ class Product
     }
 
     /**
-     * Get transportUnitPrice.
-     *
      * @return int|null
      */
     public function getTransportUnitPrice() : ?int
@@ -596,8 +536,6 @@ class Product
     }
 
     /**
-     * Set treatmentUnitPrice.
-     *
      * @param int|null $treatmentUnitPrice
      *
      * @return Product
@@ -610,8 +548,6 @@ class Product
     }
 
     /**
-     * Get treatmentUnitPrice.
-     *
      * @return int|null
      */
     public function getTreatmentUnitPrice() : ?int
@@ -620,8 +556,6 @@ class Product
     }
 
     /**
-     * Set traceabilityUnitPrice.
-     *
      * @param int|null $traceabilityUnitPrice
      *
      * @return Product
@@ -634,8 +568,6 @@ class Product
     }
 
     /**
-     * Get traceabilityUnitPrice.
-     *
      * @return int|null
      */
     public function getTraceabilityUnitPrice() : ?int
@@ -644,8 +576,6 @@ class Product
     }
 
     /**
-     * Set position.
-     *
      * @param int $position
      *
      * @return Product
@@ -656,21 +586,17 @@ class Product
 
         return $this;
     }
-
+    
     /**
-     * Get position.
-     *
-     * @return int
+     * @return int|null
      */
-    public function getPosition() : int
+    public function getPosition() : ?int
     {
         return $this->position;
     }
 
 
     /**
-     * Set folderNumber.
-     *
      * @param string $folderNumber
      *
      * @return Product
@@ -681,20 +607,16 @@ class Product
 
         return $this;
     }
-
+    
     /**
-     * Get folderNumber.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getFolderNumber() : string
+    public function getFolderNumber() : ?string
     {
         return $this->folderNumber;
     }
 
     /**
-     * Set setUpPrice.
-     *
      * @param int $setUpPrice
      *
      * @return Product
@@ -705,13 +627,11 @@ class Product
 
         return $this;
     }
-
+    
     /**
-     * Get setUpPrice.
-     *
-     * @return int
+     * @return int|null
      */
-    public function getSetUpPrice() : int
+    public function getSetUpPrice() : ?int
     {
         return $this->setUpPrice;
     }

@@ -278,7 +278,7 @@ class QuoteRequest
     /**
      * @var QuoteRequestLine[]
      *
-     * @ORM\OneToMany(targetEntity="QuoteRequestLine", mappedBy="quote_request")
+     * @ORM\OneToMany(targetEntity="QuoteRequestLine", mappedBy="quoteRequest")
      */
     private $quoteRequestLines;
     
@@ -297,8 +297,6 @@ class QuoteRequest
 
     
     /**
-     * Get id.
-     *
      * @return int
      */
     public function getId(): int
@@ -307,8 +305,6 @@ class QuoteRequest
     }
 
     /**
-     * Set dateCreation.
-     *
      * @param DateTime $dateCreation
      *
      * @return QuoteRequest
@@ -321,8 +317,6 @@ class QuoteRequest
     }
 
     /**
-     * Get dateCreation.
-     *
      * @return DateTime
      */
     public function getDateCreation(): DateTime
@@ -331,8 +325,6 @@ class QuoteRequest
     }
 
     /**
-     * Set dateUpdate.
-     *
      * @param DateTime|null $dateUpdate
      *
      * @return QuoteRequest
@@ -345,8 +337,6 @@ class QuoteRequest
     }
 
     /**
-     * Get dateUpdate.
-     *
      * @return DateTime|null
      */
     public function getDateUpdate(): ?DateTime
@@ -355,8 +345,6 @@ class QuoteRequest
     }
 
     /**
-     * Set deleted.
-     *
      * @param DateTime|null $deleted
      *
      * @return QuoteRequest
@@ -369,8 +357,6 @@ class QuoteRequest
     }
 
     /**
-     * Get deleted.
-     *
      * @return DateTime|null
      */
     public function getDeleted(): ?DateTime
@@ -379,8 +365,6 @@ class QuoteRequest
     }
 
     /**
-     * Set canton.
-     *
      * @param string|null $canton
      *
      * @return QuoteRequest
@@ -393,8 +377,6 @@ class QuoteRequest
     }
 
     /**
-     * Get canton.
-     *
      * @return string|null
      */
     public function getCanton(): ?string
@@ -403,8 +385,6 @@ class QuoteRequest
     }
 
     /**
-     * Set businessName.
-     *
      * @param string|null $businessName
      *
      * @return QuoteRequest
@@ -417,8 +397,6 @@ class QuoteRequest
     }
 
     /**
-     * Get businessName.
-     *
      * @return string|null
      */
     public function getBusinessName() : ?string
@@ -427,8 +405,6 @@ class QuoteRequest
     }
 
     /**
-     * Set civility.
-     *
      * @param string|null $civility
      *
      * @return QuoteRequest
@@ -441,8 +417,6 @@ class QuoteRequest
     }
 
     /**
-     * Get civility.
-     *
      * @return string|null
      */
     public function getCivility() : ?string
@@ -451,8 +425,6 @@ class QuoteRequest
     }
 
     /**
-     * Set lastName.
-     *
      * @param string|null $lastName
      *
      * @return QuoteRequest
@@ -465,8 +437,6 @@ class QuoteRequest
     }
 
     /**
-     * Get lastName.
-     *
      * @return string|null
      */
     public function getLastName() : ?string
@@ -475,8 +445,6 @@ class QuoteRequest
     }
 
     /**
-     * Set firstName.
-     *
      * @param string|null $firstName
      *
      * @return QuoteRequest
@@ -489,8 +457,6 @@ class QuoteRequest
     }
 
     /**
-     * Get firstName.
-     *
      * @return string|null
      */
     public function getFirstName() : ?string
@@ -499,8 +465,6 @@ class QuoteRequest
     }
 
     /**
-     * Set email.
-     *
      * @param string|null $email
      *
      * @return QuoteRequest
@@ -513,8 +477,6 @@ class QuoteRequest
     }
 
     /**
-     * Get email.
-     *
      * @return string|null
      */
     public function getEmail() : ?string
@@ -523,8 +485,6 @@ class QuoteRequest
     }
 
     /**
-     * Set phone.
-     *
      * @param string|null $phone
      *
      * @return QuoteRequest
@@ -537,8 +497,6 @@ class QuoteRequest
     }
 
     /**
-     * Get phone.
-     *
      * @return string|null
      */
     public function getPhone() : ?string
@@ -547,8 +505,6 @@ class QuoteRequest
     }
 
     /**
-     * Set isMultisite.
-     *
      * @param bool $isMultisite
      *
      * @return QuoteRequest
@@ -561,8 +517,6 @@ class QuoteRequest
     }
 
     /**
-     * Get isMultisite.
-     *
      * @return bool|null
      */
     public function getIsMultisite() : ?bool
@@ -571,8 +525,6 @@ class QuoteRequest
     }
 
     /**
-     * Set address.
-     *
      * @param string|null $address
      *
      * @return QuoteRequest
@@ -585,8 +537,6 @@ class QuoteRequest
     }
 
     /**
-     * Get address.
-     *
      * @return string|null
      */
     public function getAddress() : ?string
@@ -595,8 +545,6 @@ class QuoteRequest
     }
 
     /**
-     * Set city.
-     *
      * @param string|null $city
      *
      * @return QuoteRequest
@@ -609,8 +557,6 @@ class QuoteRequest
     }
 
     /**
-     * Get city.
-     *
      * @return string|null
      */
     public function getCity() : ?string
@@ -619,8 +565,6 @@ class QuoteRequest
     }
 
     /**
-     * Set comment.
-     *
      * @param string|null $comment
      *
      * @return QuoteRequest
@@ -633,8 +577,6 @@ class QuoteRequest
     }
 
     /**
-     * Get comment.
-     *
      * @return string|null
      */
     public function getComment() : ?string
@@ -643,8 +585,6 @@ class QuoteRequest
     }
 
     /**
-     * Set quoteStatus.
-     *
      * @param string $quoteStatus
      *
      * @return QuoteRequest
@@ -655,20 +595,16 @@ class QuoteRequest
 
         return $this;
     }
-
+    
     /**
-     * Get quoteStatus.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getQuoteStatus() : string
+    public function getQuoteStatus() : ?string
     {
         return $this->quoteStatus;
     }
 
     /**
-     * Set overallDiscount.
-     *
      * @param int|null $overallDiscount
      *
      * @return QuoteRequest
@@ -681,8 +617,6 @@ class QuoteRequest
     }
 
     /**
-     * Get overallDiscount.
-     *
      * @return int|null
      */
     public function getOverallDiscount() : ?int
@@ -691,8 +625,6 @@ class QuoteRequest
     }
 
     /**
-     * Set salesmanComment.
-     *
      * @param string|null $salesmanComment
      *
      * @return QuoteRequest
@@ -705,8 +637,6 @@ class QuoteRequest
     }
 
     /**
-     * Get salesmanComment.
-     *
      * @return string|null
      */
     public function getSalesmanComment() : ?string
@@ -715,8 +645,6 @@ class QuoteRequest
     }
 
     /**
-     * Set frequency.
-     *
      * @param string|null $frequency
      *
      * @return QuoteRequest
@@ -729,8 +657,6 @@ class QuoteRequest
     }
 
     /**
-     * Get frequency.
-     *
      * @return string|null
      */
     public function getFrequency(): ?string
@@ -739,8 +665,6 @@ class QuoteRequest
     }
 
     /**
-     * Set userCreation.
-     *
      * @param User|null $userCreation
      *
      * @return QuoteRequest
@@ -753,8 +677,6 @@ class QuoteRequest
     }
 
     /**
-     * Get userCreation.
-     *
      * @return User|null
      */
     public function getUserCreation() : ?User
@@ -763,8 +685,6 @@ class QuoteRequest
     }
 
     /**
-     * Set userUpdate.
-     *
      * @param User|null $userUpdate
      *
      * @return QuoteRequest
@@ -777,8 +697,6 @@ class QuoteRequest
     }
 
     /**
-     * Get userUpdate.
-     *
      * @return User|null
      */
     public function getUserUpdate() : ?User
@@ -787,8 +705,6 @@ class QuoteRequest
     }
 
     /**
-     * Set userInCharge.
-     *
      * @param User|null $userInCharge
      *
      * @return QuoteRequest
@@ -801,8 +717,6 @@ class QuoteRequest
     }
 
     /**
-     * Get userInCharge.
-     *
      * @return User|null
      */
     public function getUserInCharge() : ?User
@@ -811,8 +725,6 @@ class QuoteRequest
     }
 
     /**
-     * Add quoteRequestLine.
-     *
      * @param QuoteRequestLine $quoteRequestLine
      *
      * @return QuoteRequest
@@ -825,8 +737,6 @@ class QuoteRequest
     }
 
     /**
-     * Remove quoteRequestLine.
-     *
      * @param QuoteRequestLine $quoteRequestLine
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
@@ -837,8 +747,6 @@ class QuoteRequest
     }
 
     /**
-     * Get quoteRequestLines.
-     *
      * @return Collection
      */
     public function getQuoteRequestLines() : Collection
@@ -847,8 +755,6 @@ class QuoteRequest
     }
 
     /**
-     * Set totalAmount.
-     *
      * @param int|null $totalAmount
      *
      * @return QuoteRequest
@@ -861,8 +767,6 @@ class QuoteRequest
     }
 
     /**
-     * Get totalAmount.
-     *
      * @return int|null
      */
     public function getTotalAmount() : ?int
@@ -871,8 +775,6 @@ class QuoteRequest
     }
 
     /**
-     * Set frequencyTimes.
-     *
      * @param string|null $frequencyTimes
      *
      * @return QuoteRequest
@@ -885,8 +787,6 @@ class QuoteRequest
     }
 
     /**
-     * Get frequencyTimes.
-     *
      * @return string|null
      */
     public function getFrequencyTimes() : ?string
@@ -895,8 +795,6 @@ class QuoteRequest
     }
 
     /**
-     * Set frequencyInterval.
-     *
      * @param string|null $frequencyInterval
      *
      * @return QuoteRequest
@@ -909,8 +807,6 @@ class QuoteRequest
     }
 
     /**
-     * Get frequencyInterval.
-     *
      * @return string|null
      */
     public function getFrequencyInterval() : ?string
@@ -919,8 +815,6 @@ class QuoteRequest
     }
 
     /**
-     * Set locale.
-     *
      * @param string|null $locale
      *
      * @return QuoteRequest
@@ -933,8 +827,6 @@ class QuoteRequest
     }
 
     /**
-     * Get locale.
-     *
      * @return string|null
      */
     public function getLocale() : ?string
@@ -943,8 +835,6 @@ class QuoteRequest
     }
 
     /**
-     * Set staff.
-     *
      * @param string $staff
      *
      * @return QuoteRequest
@@ -957,8 +847,6 @@ class QuoteRequest
     }
 
     /**
-     * Get staff.
-     *
      * @return string|null
      */
     public function getStaff() : ?string
@@ -967,8 +855,6 @@ class QuoteRequest
     }
 
     /**
-     * Set access.
-     *
      * @param string $access
      *
      * @return QuoteRequest
@@ -981,8 +867,6 @@ class QuoteRequest
     }
 
     /**
-     * Get access.
-     *
      * @return string|null
      */
     public function getAccess() : ?string
@@ -991,8 +875,6 @@ class QuoteRequest
     }
 
     /**
-     * Set postalCode.
-     *
      * @param PostalCode|null $postalCode
      *
      * @return QuoteRequest
@@ -1005,8 +887,6 @@ class QuoteRequest
     }
 
     /**
-     * Get postalCode.
-     *
      * @return PostalCode|null
      */
     public function getPostalCode() : ?PostalCode
@@ -1015,8 +895,6 @@ class QuoteRequest
     }
 
     /**
-     * Set number.
-     *
      * @param string|null $number
      *
      * @return QuoteRequest
@@ -1029,8 +907,6 @@ class QuoteRequest
     }
 
     /**
-     * Get number.
-     *
      * @return string|null
      */
     public function getNumber() : ?string
@@ -1039,8 +915,6 @@ class QuoteRequest
     }
 
     /**
-     * Set customerId.
-     *
      * @param string|null $customerId
      *
      * @return QuoteRequest
@@ -1053,8 +927,6 @@ class QuoteRequest
     }
 
     /**
-     * Get customerId.
-     *
      * @return string|null
      */
     public function getCustomerId() : ?string
@@ -1063,8 +935,6 @@ class QuoteRequest
     }
 
     /**
-     * Set annualBudget.
-     *
      * @param int|null $annualBudget
      *
      * @return QuoteRequest
@@ -1077,8 +947,6 @@ class QuoteRequest
     }
 
     /**
-     * Get annualBudget.
-     *
      * @return int|null
      */
     public function getAnnualBudget() : ?int
@@ -1087,8 +955,6 @@ class QuoteRequest
     }
 
     /**
-     * Set reference.
-     *
      * @param string|null $reference
      *
      * @return QuoteRequest
@@ -1101,8 +967,6 @@ class QuoteRequest
     }
 
     /**
-     * Get reference.
-     *
      * @return string|null
      */
     public function getReference() : ?string

@@ -56,7 +56,8 @@ class UserType extends AbstractType
                     'No' => 0,
                     'Yes' => 1
                 ],
-                'expanded' => true
+                'expanded' => true,
+                'data' => 0
             ])
             ->add('roles', ChoiceType::class, [
                 'choices' => $options['roles'],

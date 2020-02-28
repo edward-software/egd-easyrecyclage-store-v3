@@ -80,7 +80,7 @@ class UserController extends AbstractController
 
         $queryBuilder
             ->select(['u'])
-            ->from('PaprecUserBundle:User', 'u')
+            ->from(User::class, 'u')
             ->where('u.deleted IS NULL');
 
         if (is_array($search) && isset($search['value']) && $search['value'] != '') {
@@ -144,7 +144,7 @@ class UserController extends AbstractController
 
         $queryBuilder
             ->select(['u'])
-            ->from('PaprecUserBundle:User', 'u')
+            ->from(User::class, 'u')
             ->where('u.deleted is NULL');
 
         /** @var User[] $users */
@@ -491,7 +491,7 @@ class UserController extends AbstractController
         if (is_array($ids) && count($ids)) {
             
             /** @var User[] $users */
-            $users = $em->getRepository('PaprecUserBundle:User')->findById($ids);
+            $users = $em->getRepository(User::class)->findById($ids);
             
             foreach ($users as $user) {
                 if ($user->isEnabled()) {
@@ -596,7 +596,7 @@ class UserController extends AbstractController
         if (is_array($ids) && count($ids)) {
             
             /** @var User[] $users */
-            $users = $em->getRepository('PaprecUserBundle:User')->findById($ids);
+            $users = $em->getRepository(User::class)->findById($ids);
             
             foreach ($users as $user) {
                 /**
