@@ -126,7 +126,7 @@ class CustomArea
      *
      * @return int
      */
-    public function getId() : int
+    public function getId():int
     {
         return $this->id;
     }
@@ -138,7 +138,7 @@ class CustomArea
      *
      * @return CustomArea
      */
-    public function setDateCreation($dateCreation) : self
+    public function setDateCreation($dateCreation):self
     {
         $this->dateCreation = $dateCreation;
         
@@ -150,7 +150,7 @@ class CustomArea
      *
      * @return DateTime
      */
-    public function getDateCreation() : DateTime
+    public function getDateCreation():DateTime
     {
         return $this->dateCreation;
     }
@@ -162,7 +162,7 @@ class CustomArea
      *
      * @return CustomArea
      */
-    public function setDateUpdate($dateUpdate = null) : self
+    public function setDateUpdate($dateUpdate = null):self
     {
         $this->dateUpdate = $dateUpdate;
         
@@ -174,7 +174,7 @@ class CustomArea
      *
      * @return DateTime|null
      */
-    public function getDateUpdate() : ?DateTime
+    public function getDateUpdate(): ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -186,7 +186,7 @@ class CustomArea
      *
      * @return CustomArea
      */
-    public function setLeftContent($leftContent) : self
+    public function setLeftContent($leftContent): self
     {
         $this->leftContent = $leftContent;
         
@@ -198,7 +198,7 @@ class CustomArea
      *
      * @return string
      */
-    public function getLeftContent() : string
+    public function getLeftContent(): string
     {
         return $this->leftContent;
     }
@@ -210,7 +210,7 @@ class CustomArea
      *
      * @return CustomArea
      */
-    public function setRightContent($rightContent) : self
+    public function setRightContent($rightContent): self
     {
         $this->rightContent = $rightContent;
         
@@ -222,7 +222,7 @@ class CustomArea
      *
      * @return string
      */
-    public function getRightContent() : string
+    public function getRightContent(): string
     {
         return $this->rightContent;
     }
@@ -234,7 +234,7 @@ class CustomArea
      *
      * @return CustomArea
      */
-    public function setCode($code) : self
+    public function setCode($code): self
     {
         $this->code = $code;
         
@@ -246,7 +246,7 @@ class CustomArea
      *
      * @return string
      */
-    public function getCode() : string
+    public function getCode(): string
     {
         return $this->code;
     }
@@ -258,7 +258,7 @@ class CustomArea
      *
      * @return CustomArea
      */
-    public function setLanguage($language) : self
+    public function setLanguage($language): self
     {
         $this->language = $language;
         
@@ -270,7 +270,7 @@ class CustomArea
      *
      * @return string
      */
-    public function getLanguage() : string
+    public function getLanguage(): string
     {
         return $this->language;
     }
@@ -282,7 +282,7 @@ class CustomArea
      *
      * @return CustomArea
      */
-    public function setUserCreation(User $userCreation) : self
+    public function setUserCreation(User $userCreation): self
     {
         $this->userCreation = $userCreation;
         

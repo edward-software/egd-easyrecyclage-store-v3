@@ -178,7 +178,7 @@ class QuoteRequestLine
      *
      * @return int
      */
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -190,7 +190,7 @@ class QuoteRequestLine
      *
      * @return QuoteRequestLine
      */
-    public function setDateCreation($dateCreation) : self
+    public function setDateCreation($dateCreation): self
     {
         $this->dateCreation = $dateCreation;
 

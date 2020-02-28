@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Twig\Extension;
+namespace App\Twig;
 
 use App\Entity\CustomArea;
 use App\Service\CustomAreaManager;

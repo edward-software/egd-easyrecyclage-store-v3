@@ -167,7 +167,7 @@ class PostalCode
      *
      * @return int
      */
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -179,7 +179,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setDateCreation($dateCreation) : self
+    public function setDateCreation($dateCreation): self
     {
         $this->dateCreation = $dateCreation;
 
@@ -191,7 +191,7 @@ class PostalCode
      *
      * @return DateTime
      */
-    public function getDateCreation() : DateTime
+    public function getDateCreation(): DateTime
     {
         return $this->dateCreation;
     }
@@ -203,7 +203,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setDateUpdate($dateUpdate = null) : self
+    public function setDateUpdate($dateUpdate = null): self
     {
         $this->dateUpdate = $dateUpdate;
 
@@ -215,7 +215,7 @@ class PostalCode
      *
      * @return DateTime|null
      */
-    public function getDateUpdate() : ?DateTime
+    public function getDateUpdate(): ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -227,7 +227,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setDeleted($deleted = null) : self
+    public function setDeleted($deleted = null): self
     {
         $this->deleted = $deleted;
 
@@ -239,7 +239,7 @@ class PostalCode
      *
      * @return DateTime|null
      */
-    public function getDeleted() : ?DateTime
+    public function getDeleted(): ?DateTime
     {
         return $this->deleted;
     }
@@ -251,7 +251,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setCode($code) : self
+    public function setCode($code): self
     {
         $this->code = $code;
 
@@ -263,7 +263,7 @@ class PostalCode
      *
      * @return string
      */
-    public function getCode() : string
+    public function getCode(): string
     {
         return $this->code;
     }
@@ -275,7 +275,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setTransportRate($transportRate) : self
+    public function setTransportRate($transportRate): self
     {
         $this->transportRate = $transportRate;
 
@@ -287,7 +287,7 @@ class PostalCode
      *
      * @return int
      */
-    public function getTransportRate() : int
+    public function getTransportRate(): int
     {
         return $this->transportRate;
     }
@@ -299,7 +299,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setTreatmentRate($treatmentRate) : self
+    public function setTreatmentRate($treatmentRate): self
     {
         $this->treatmentRate = $treatmentRate;
 
@@ -311,7 +311,7 @@ class PostalCode
      *
      * @return int
      */
-    public function getTreatmentRate() : int
+    public function getTreatmentRate(): int
     {
         return $this->treatmentRate;
     }
@@ -323,7 +323,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setTraceabilityRate($traceabilityRate) : self
+    public function setTraceabilityRate($traceabilityRate): self
     {
         $this->traceabilityRate = $traceabilityRate;
 
@@ -335,7 +335,7 @@ class PostalCode
      *
      * @return int
      */
-    public function getTraceabilityRate() : int
+    public function getTraceabilityRate(): int
     {
         return $this->traceabilityRate;
     }
@@ -347,7 +347,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setUserCreation(User $userCreation) : self
+    public function setUserCreation(User $userCreation): self
     {
         $this->userCreation = $userCreation;
 
@@ -359,7 +359,7 @@ class PostalCode
      *
      * @return User
      */
-    public function getUserCreation() : User
+    public function getUserCreation(): User
     {
         return $this->userCreation;
     }
@@ -371,7 +371,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setUserUpdate(User $userUpdate = null) : self
+    public function setUserUpdate(User $userUpdate = null): self
     {
         $this->userUpdate = $userUpdate;
 
@@ -383,7 +383,7 @@ class PostalCode
      *
      * @return User|null
      */
-    public function getUserUpdate() : ?User
+    public function getUserUpdate(): ?User
     {
         return $this->userUpdate;
     }
@@ -395,7 +395,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setUserInCharge(User $userInCharge = null) : self
+    public function setUserInCharge(User $userInCharge = null): self
     {
         $this->userInCharge = $userInCharge;
 
@@ -407,7 +407,7 @@ class PostalCode
      *
      * @return User|null
      */
-    public function getUserInCharge() : ?User
+    public function getUserInCharge(): ?User
     {
         return $this->userInCharge;
     }

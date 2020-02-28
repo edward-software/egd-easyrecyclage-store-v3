@@ -51,7 +51,7 @@ class Picture
      *
      * @return int
      */
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -63,7 +63,7 @@ class Picture
      *
      * @return Picture
      */
-    public function setPath($path) : self
+    public function setPath($path): self
     {
         $this->path = $path;
 
@@ -75,7 +75,7 @@ class Picture
      *
      * @return string|null
      */
-    public function getPath() : ?string
+    public function getPath(): ?string
     {
         return $this->path;
     }
@@ -87,7 +87,7 @@ class Picture
      *
      * @return Picture
      */
-    public function setType($type) : self
+    public function setType($type): self
     {
         $this->type = $type;
 
@@ -99,7 +99,7 @@ class Picture
      *
      * @return string
      */
-    public function getType() : string
+    public function getType(): string
     {
         return $this->type;
     }
@@ -111,7 +111,7 @@ class Picture
      *
      * @return Picture
      */
-    public function setProduct(Product $product = null) : self
+    public function setProduct(Product $product = null): self
     {
         $this->product = $product;
 

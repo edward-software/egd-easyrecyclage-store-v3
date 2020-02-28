@@ -102,9 +102,6 @@
             "ref": "8eb1cd0962ded6a6d6e1e5a9b6d3e888f9f94ff6"
         }
     },
-    "friendsofsymfony/user-bundle": {
-        "version": "v2.1.2"
-    },
     "iio/libmergepdf": {
         "version": "4.0.3"
     },

@@ -143,7 +143,7 @@
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownAdmin">
                         <a class="dropdown-item" href="{{ path('paprec_user_user_editMyProfile') }}"><i
                                     class="fa fa-user"></i> {{ 'General.Menu.My-profile'|trans }}</a>
-                        <a class="dropdown-item" href="{{ path('fos_user_security_logout') }}"><i
+                        <a class="dropdown-item" href="{{ path('app_logout') }}"><i
                                     class="fa fa-power-off"></i> {{ 'General.Menu.Logout'|trans }}</a>
                     </div>
                 </li>
@@ -157,12 +157,12 @@
     </div>
 
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@7.1.0/dist/promise.min.js"></script>
 
 <script src="{{ asset('build/app.js') }}"></script>
-{#<script src="{{ asset('build/manifest.json') }}"></script>#}
-{% block javascripts %}
 
-{% endblock %}
+{% block javascripts %}{% endblock %}
+
 </body>
 </html>

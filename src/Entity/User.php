@@ -5,22 +5,24 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
- * User
+ * Class User
  *
  * @ORM\Table(name="users")
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"}, repositoryMethod="isMailUnique")
  * @UniqueEntity(fields={"username"}, repositoryMethod="isUsernameUnique")
  * @UniqueEntity(fields={"usernameCanonical"}, repositoryMethod="isUsernameCanonicalUnique")
+ *
+ * @package App\Entity
  */
-class User extends BaseUser
+class User implements UserInterface
 {
     /**
      * @var int
@@ -29,45 +31,107 @@ class User extends BaseUser
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    protected $id;
+    private $id;
 
     /**
      * @var string
+     *
+     * @ORM\Column(name="username", type="string", length=180, unique=true)
      * @Assert\NotBlank()
      */
-    protected $username;
-
-    /**
-     * Plain password. Used for model validation. Must not be persisted.
-     * @Assert\NotBlank()
-     * @var string
-     */
-    protected $plainPassword;
+    private $username;
     
     /**
      * @var string
+     *
+     * @ORM\Column(name="us", type="string", length=180, unique=true)
      * @Assert\NotBlank()
-     * @Assert\Email(
-     *      message = "email_error",
-     *      checkMX = true
-     * )
      */
-    protected $email;
-
+    private $usernameCanonical;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=100, unique=true)
+     *
+     * @Assert\NotBlank()
+     * @Assert\Email(message = "email_error")
+     */
+    private $email;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email_canonical", type="string", length=100, unique=true)
+     *
+     * @Assert\NotBlank()
+     * @Assert\Email(message = "email_error")
+     */
+    private $emailCanonical;
+    
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="enabled", type="boolean")
+     */
+    private $enabled;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="salt", type="string", nullable=true)
+     */
+    private $salt;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="password", type="string")
+     */
+    private $password;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="last_login", type="string", nullable=true)
+     */
+    private $lastLogin;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="confirmation_token", type="string", length=180, nullable=true)
+     */
+    private $confirmationToken;
+    
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateCreation", type="datetime")
+     * @ORM\Column(name="password_requested_at", type="datetime", nullable=true)
+     */
+    private $passwordRequestedAt;
+    
+    /**
+     * @var array
+     *
+     * @ORM\Column(name="roles", type="json")
+     */
+    private $roles = [];
+    
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(name="date_creation", type="datetime")
      */
     private $dateCreation;
-
+    
     /**
      * @var DateTime
      *
-     * @ORM\Column(name="dateUpdate", type="datetime", nullable=true)
+     * @ORM\Column(name="date_update", type="datetime", nullable=true)
      */
     private $dateUpdate;
-
+    
     /**
      * @var DateTime
      *
@@ -78,21 +142,21 @@ class User extends BaseUser
     /**
      * @var string
      *
-     * @ORM\Column(name="companyName", type="string", length=255, nullable=true)
+     * @ORM\Column(name="company_name", type="string", length=255, nullable=true)
      */
     private $companyName;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="lastName", type="string", length=255, nullable=true)
+     * @ORM\Column(name="last_name", type="string", length=255, nullable=true)
      */
     private $lastName;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="firstName", type="string", length=255, nullable=true)
+     * @ORM\Column(name="first_name", type="string", length=255, nullable=true)
      */
     private $firstName;
 
@@ -112,265 +176,351 @@ class User extends BaseUser
      * @ORM\OneToMany(targetEntity="QuoteRequest", mappedBy="userInCharge")
      */
     private $quoteRequests;
-
-
+    
+    
+    /**
+     * User constructor.
+     *
+     * @throws Exception
+     */
     public function __construct()
     {
-        parent::__construct();
-
         $this->dateCreation = new DateTime();
         $this->quoteRequests = new ArrayCollection();
         $this->postalCodes = new ArrayCollection();
     }
-
-
+    
     /**
-     * Get id.
-     *
      * @return int
      */
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
-
+    
     /**
-     * Set companyName.
-     *
-     * @param string|null $companyName
-     *
-     * @return User
+     * @param int $id
      */
-    public function setCompanyName($companyName = null) : User
+    public function setId(int $id): void
     {
-        $this->companyName = $companyName;
-
-        return $this;
+        $this->id = $id;
     }
-
+    
     /**
-     * Get companyName.
-     *
-     * @return string|null
+     * @return string
      */
-    public function getCompanyName() : ?string
+    public function getUsername(): string
     {
-        return $this->companyName;
+        return $this->username;
     }
-
+    
     /**
-     * Set lastName.
-     *
-     * @param string|null $lastName
-     *
-     * @return User
+     * @param string $username
      */
-    public function setLastName($lastName = null) : User
+    public function setUsername(string $username): void
     {
-        $this->lastName = $lastName;
-
-        return $this;
+        $this->username = $username;
     }
-
+    
     /**
-     * Get lastName.
-     *
-     * @return string|null
+     * @return string
      */
-    public function getLastName() : ?string
+    public function getUsernameCanonical(): string
     {
-        return $this->lastName;
+        return $this->usernameCanonical;
     }
-
+    
     /**
-     * Set firstName.
-     *
-     * @param string|null $firstName
-     *
-     * @return User
+     * @param string $usernameCanonical
      */
-    public function setFirstName($firstName = null) : User
+    public function setUsernameCanonical(string $usernameCanonical): void
     {
-        $this->firstName = $firstName;
-
-        return $this;
+        $this->usernameCanonical = $usernameCanonical;
     }
-
+    
     /**
-     * Get firstName.
-     *
-     * @return string|null
+     * @return string
      */
-    public function getFirstName() : ?string
+    public function getEmail(): string
     {
-        return $this->firstName;
+        return $this->email;
     }
-
+    
     /**
-     * Set dateCreation.
-     *
-     * @param DateTime $dateCreation
-     *
-     * @return User
+     * @param string $email
      */
-    public function setDateCreation($dateCreation) : User
+    public function setEmail(string $email): void
     {
-        $this->dateCreation = $dateCreation;
-
-        return $this;
+        $this->email = $email;
     }
-
+    
     /**
-     * Get dateCreation.
-     *
+     * @return string
+     */
+    public function getEmailCanonical(): string
+    {
+        return $this->emailCanonical;
+    }
+    
+    /**
+     * @param string $emailCanonical
+     */
+    public function setEmailCanonical(string $emailCanonical): void
+    {
+        $this->emailCanonical = $emailCanonical;
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+    
+    /**
+     * @param bool $enabled
+     */
+    public function setEnabled(bool $enabled): void
+    {
+        $this->enabled = $enabled;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+    
+    /**
+     * @param string $password
+     */
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getLastLogin(): string
+    {
+        return $this->lastLogin;
+    }
+    
+    /**
+     * @param string $lastLogin
+     */
+    public function setLastLogin(string $lastLogin): void
+    {
+        $this->lastLogin = $lastLogin;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getConfirmationToken(): string
+    {
+        return $this->confirmationToken;
+    }
+    
+    /**
+     * @param string $confirmationToken
+     */
+    public function setConfirmationToken(string $confirmationToken): void
+    {
+        $this->confirmationToken = $confirmationToken;
+    }
+    
+    /**
      * @return DateTime
      */
-    public function getDateCreation() : DateTime
+    public function getPasswordRequestedAt(): DateTime
+    {
+        return $this->passwordRequestedAt;
+    }
+    
+    /**
+     * @param DateTime $passwordRequestedAt
+     */
+    public function setPasswordRequestedAt(DateTime $passwordRequestedAt): void
+    {
+        $this->passwordRequestedAt = $passwordRequestedAt;
+    }
+    
+    /**
+     * @return array
+     */
+    public function getRoles(): array
+    {
+        return $this->roles;
+    }
+    
+    /**
+     * @param array $roles
+     */
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
+    }
+    
+    /**
+     * @return DateTime
+     */
+    public function getDateCreation(): DateTime
     {
         return $this->dateCreation;
     }
-
+    
     /**
-     * Set dateUpdate.
-     *
-     * @param DateTime|null $dateUpdate
-     *
-     * @return User
+     * @param DateTime $dateCreation
      */
-    public function setDateUpdate($dateUpdate = null) : User
+    public function setDateCreation(DateTime $dateCreation): void
     {
-        $this->dateUpdate = $dateUpdate;
-
-        return $this;
+        $this->dateCreation = $dateCreation;
     }
-
+    
     /**
-     * Get dateUpdate.
-     *
-     * @return DateTime|null
+     * @return DateTime
      */
-    public function getDateUpdate() : ?DateTime
+    public function getDateUpdate(): DateTime
     {
         return $this->dateUpdate;
     }
-
+    
     /**
-     * Set deleted.
-     *
-     * @param DateTime|null $deleted
-     *
-     * @return User
+     * @param DateTime $dateUpdate
      */
-    public function setDeleted($deleted = null) : User
+    public function setDateUpdate(DateTime $dateUpdate): void
     {
-        $this->deleted = $deleted;
-
-        return $this;
+        $this->dateUpdate = $dateUpdate;
     }
-
+    
     /**
-     * Get deleted.
-     *
-     * @return DateTime|null
+     * @return DateTime
      */
-    public function getDeleted() : ?\DateTime
+    public function getDeleted(): DateTime
     {
         return $this->deleted;
     }
-
+    
     /**
-     * Add postalCode.
-     *
-     * @param PostalCode $postalCode
-     *
-     * @return User
+     * @param DateTime $deleted
      */
-    public function addPostalCode(PostalCode $postalCode) : User
+    public function setDeleted(DateTime $deleted): void
     {
-        $this->postalCodes[] = $postalCode;
-
-        return $this;
+        $this->deleted = $deleted;
     }
-
+    
     /**
-     * Remove postalCode.
-     *
-     * @param PostalCode $postalCode
-     *
-     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
+     * @return string
      */
-    public function removePostalCode(PostalCode $postalCode) : bool
+    public function getCompanyName(): string
     {
-        return $this->postalCodes->removeElement($postalCode);
+        return $this->companyName;
     }
-
+    
     /**
-     * Get postalCodes.
-     *
-     * @return Collection
+     * @param string $companyName
      */
-    public function getPostalCodes() : Collection
+    public function setCompanyName(string $companyName): void
+    {
+        $this->companyName = $companyName;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getLastName(): string
+    {
+        return $this->lastName;
+    }
+    
+    /**
+     * @param string $lastName
+     */
+    public function setLastName(string $lastName): void
+    {
+        $this->lastName = $lastName;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+    
+    /**
+     * @param string $firstName
+     */
+    public function setFirstName(string $firstName): void
+    {
+        $this->firstName = $firstName;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getLang(): string
+    {
+        return $this->lang;
+    }
+    
+    /**
+     * @param string $lang
+     */
+    public function setLang(string $lang): void
+    {
+        $this->lang = $lang;
+    }
+    
+    /**
+     * @return ArrayCollection
+     */
+    public function getPostalCodes(): ArrayCollection
     {
         return $this->postalCodes;
     }
-
+    
     /**
-     * Add quoteRequest.
-     *
-     * @param QuoteRequest $quoteRequest
-     *
-     * @return User
+     * @param ArrayCollection $postalCodes
      */
-    public function addQuoteRequest(QuoteRequest $quoteRequest) : User
+    public function setPostalCodes(ArrayCollection $postalCodes): void
     {
-        $this->quoteRequests[] = $quoteRequest;
-
-        return $this;
+        $this->postalCodes = $postalCodes;
     }
-
+    
     /**
-     * Remove quoteRequest.
-     *
-     * @param QuoteRequest $quoteRequest
-     *
-     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
+     * @return ArrayCollection
      */
-    public function removeQuoteRequest(QuoteRequest $quoteRequest) : bool
-    {
-        return $this->quoteRequests->removeElement($quoteRequest);
-    }
-
-    /**
-     * Get quoteRequests.
-     *
-     * @return Collection
-     */
-    public function getQuoteRequests() : Collection
+    public function getQuoteRequests(): ArrayCollection
     {
         return $this->quoteRequests;
     }
-
+    
     /**
-     * Set lang.
-     *
-     * @param string|null $lang
-     *
-     * @return User
+     * @param ArrayCollection $quoteRequests
      */
-    public function setLang($lang = null) : User
+    public function setQuoteRequests(ArrayCollection $quoteRequests): void
     {
-        $this->lang = $lang;
-
-        return $this;
+        $this->quoteRequests = $quoteRequests;
     }
-
+    
     /**
-     * Get lang.
-     *
-     * @return string|null
+     * @return string|void|null
      */
-    public function getLang() : ?string
+    public function getSalt()
     {
-        return $this->lang;
+        // not needed when using the "bcrypt" algorithm in security.yaml
+    }
+    
+    public function eraseCredentials()
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->password = null;
     }
 }

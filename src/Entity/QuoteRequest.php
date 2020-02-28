@@ -294,7 +294,7 @@ class QuoteRequest
      *
      * @return int
      */
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -306,7 +306,7 @@ class QuoteRequest
      *
      * @return QuoteRequest
      */
-    public function setDateCreation($dateCreation) : self
+    public function setDateCreation($dateCreation): self
     {
         $this->dateCreation = $dateCreation;
 
@@ -318,7 +318,7 @@ class QuoteRequest
      *
      * @return \DateTime
      */
-    public function getDateCreation() : \DateTime
+    public function getDateCreation(): \DateTime
     {
         return $this->dateCreation;
     }
@@ -330,7 +330,7 @@ class QuoteRequest
      *
      * @return QuoteRequest
      */
-    public function setDateUpdate($dateUpdate = null) : self
+    public function setDateUpdate($dateUpdate = null): self
     {
         $this->dateUpdate = $dateUpdate;
 
@@ -342,7 +342,7 @@ class QuoteRequest
      *
      * @return \DateTime|null
      */
-    public function getDateUpdate() : ?\DateTime
+    public function getDateUpdate(): ?\DateTime
     {
         return $this->dateUpdate;
     }
@@ -354,7 +354,7 @@ class QuoteRequest
      *
      * @return QuoteRequest
      */
-    public function setDeleted($deleted = null) : self
+    public function setDeleted($deleted = null): self
     {
         $this->deleted = $deleted;
 
@@ -366,7 +366,7 @@ class QuoteRequest
      *
      * @return \DateTime|null
      */
-    public function getDeleted() : ?\DateTime
+    public function getDeleted(): ?\DateTime
     {
         return $this->deleted;
     }
@@ -378,7 +378,7 @@ class QuoteRequest
      *
      * @return QuoteRequest
      */
-    public function setCanton($canton = null) : self
+    public function setCanton($canton = null): self
     {
         $this->canton = $canton;
 

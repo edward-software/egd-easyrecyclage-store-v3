@@ -100,7 +100,7 @@ class Cart
      *
      * @return UuidInterface
      */
-    public function getId() : UuidInterface
+    public function getId(): UuidInterface
     {
         return $this->id;
     }
@@ -112,7 +112,7 @@ class Cart
      *
      * @return Cart
      */
-    public function setDateCreation($dateCreation) : self
+    public function setDateCreation($dateCreation): self
     {
         $this->dateCreation = $dateCreation;
 
@@ -124,7 +124,7 @@ class Cart
      *
      * @return DateTime
      */
-    public function getDateCreation() : DateTime
+    public function getDateCreation(): DateTime
     {
         return $this->dateCreation;
     }
@@ -136,7 +136,7 @@ class Cart
      *
      * @return Cart
      */
-    public function setDateUpdate($dateUpdate = null) : self
+    public function setDateUpdate($dateUpdate = null): self
     {
         $this->dateUpdate = $dateUpdate;
 
@@ -148,7 +148,7 @@ class Cart
      *
      * @return DateTime|null
      */
-    public function getDateUpdate() : ?DateTime
+    public function getDateUpdate(): ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -160,7 +160,7 @@ class Cart
      *
      * @return Cart
      */
-    public function setDisabled($disabled = null) : self
+    public function setDisabled($disabled = null): self
     {
         $this->disabled = $disabled;
 
@@ -172,7 +172,7 @@ class Cart
      *
      * @return DateTime|null
      */
-    public function getDisabled() : ?DateTime
+    public function getDisabled(): ?DateTime
     {
         return $this->disabled;
     }
@@ -184,7 +184,7 @@ class Cart
      *
      * @return Cart
      */
-    public function setCity($city = null) : self
+    public function setCity($city = null): self
     {
         $this->city = $city;
 
@@ -196,7 +196,7 @@ class Cart
      *
      * @return string|null
      */
-    public function getCity() : ?string
+    public function getCity(): ?string
     {
         return $this->city;
     }
@@ -208,7 +208,7 @@ class Cart
      *
      * @return Cart
      */
-    public function setFrequency($frequency = null) : self
+    public function setFrequency($frequency = null): self
     {
         $this->frequency = $frequency;
 
@@ -220,7 +220,7 @@ class Cart
      *
      * @return string|null
      */
-    public function getFrequency() : ?string
+    public function getFrequency(): ?string
     {
         return $this->frequency;
     }

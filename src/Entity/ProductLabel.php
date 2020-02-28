@@ -124,7 +124,7 @@ class ProductLabel
      *
      * @return int
      */
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -136,7 +136,7 @@ class ProductLabel
      *
      * @return ProductLabel
      */
-    public function setName($name) : self
+    public function setName($name): self
     {
         $this->name = $name;
 
@@ -148,7 +148,7 @@ class ProductLabel
      *
      * @return string
      */
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -160,7 +160,7 @@ class ProductLabel
      *
      * @return ProductLabel
      */
-    public function setShortDescription($shortDescription) : self
+    public function setShortDescription($shortDescription): self
     {
         $this->shortDescription = $shortDescription;
 
@@ -172,7 +172,7 @@ class ProductLabel
      *
      * @return string
      */
-    public function getShortDescription() : string
+    public function getShortDescription(): string
     {
         return $this->shortDescription;
     }
@@ -184,7 +184,7 @@ class ProductLabel
      *
      * @return ProductLabel
      */
-    public function setLanguage($language) : self
+    public function setLanguage($language): self
     {
         $this->language = $language;
 
@@ -196,7 +196,7 @@ class ProductLabel
      *
      * @return string
      */
-    public function getLanguage() : string
+    public function getLanguage(): string
     {
         return $this->language;
     }
@@ -208,7 +208,7 @@ class ProductLabel
      *
      * @return ProductLabel
      */
-    public function setDateCreation($dateCreation) : self
+    public function setDateCreation($dateCreation): self
     {
         $this->dateCreation = $dateCreation;
 
@@ -220,7 +220,7 @@ class ProductLabel
      *
      * @return DateTime
      */
-    public function getDateCreation() : DateTime
+    public function getDateCreation(): DateTime
     {
         return $this->dateCreation;
     }
@@ -232,7 +232,7 @@ class ProductLabel
      *
      * @return ProductLabel
      */
-    public function setDateUpdate($dateUpdate = null) : self
+    public function setDateUpdate($dateUpdate = null): self
     {
         $this->dateUpdate = $dateUpdate;
 
@@ -244,7 +244,7 @@ class ProductLabel
      *
      * @return DateTime|null
      */
-    public function getDateUpdate() : ?DateTime
+    public function getDateUpdate(): ?DateTime
     {
         return $this->dateUpdate;
     }

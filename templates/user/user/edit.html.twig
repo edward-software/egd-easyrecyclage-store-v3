@@ -1,4 +1,4 @@
-{% extends "::base_admin.html.twig" %}
+{% extends "base_admin.html.twig" %}
 
 {% block title %}
     {{ 'User.User.Edit'|trans }}
@@ -86,14 +86,14 @@
                                     {% if is_granted('ROLE_ADMIN') %}
 
                                         <div class="form-group ">
-                                            {{ form_label(form.plainPassword.first) }}
-                                            {{ form_widget(form.plainPassword.first, {'attr': {'class': 'form-control'}}) }}
-                                            {{ form_errors(form.plainPassword.first) }}
+                                            {{ form_label(form.password.first) }}
+                                            {{ form_widget(form.password.first, {'attr': {'class': 'form-control'}}) }}
+                                            {{ form_errors(form.password.first) }}
                                         </div>
                                         <div class="form-group">
-                                            {{ form_label(form.plainPassword.second) }}
-                                            {{ form_widget(form.plainPassword.second, {'attr': {'class': 'form-control'}}) }}
-                                            {{ form_errors(form.plainPassword.second) }}
+                                            {{ form_label(form.password.second) }}
+                                            {{ form_widget(form.password.second, {'attr': {'class': 'form-control'}}) }}
+                                            {{ form_errors(form.password.second) }}
                                         </div>
                                     {% endif %}
 
@@ -138,7 +138,7 @@
                         </div>
                     </div>
                     {# On render le password car si un manager modifie un admin, le cham ppassword ne s'affichera pas #}
-                    {% do form.plainPassword.setRendered() %}
+                    {% do form.password.setRendered() %}
                     {{ form_rest(form) }}
                 </div>
             </div>

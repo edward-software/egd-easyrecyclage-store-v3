@@ -201,7 +201,7 @@ class Product
      *
      * @return int
      */
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -213,7 +213,7 @@ class Product
      *
      * @return Product
      */
-    public function setDimensions($dimensions) : self
+    public function setDimensions($dimensions): self
     {
         $this->dimensions = $dimensions;
 
@@ -225,7 +225,7 @@ class Product
      *
      * @return string
      */
-    public function getDimensions() : string
+    public function getDimensions(): string
     {
         return $this->dimensions;
     }
@@ -237,7 +237,7 @@ class Product
      *
      * @return Product
      */
-    public function setCapacityUnit($capacityUnit) : self
+    public function setCapacityUnit($capacityUnit): self
     {
         $this->capacityUnit = $capacityUnit;
 
@@ -249,7 +249,7 @@ class Product
      *
      * @return string
      */
-    public function getCapacityUnit() : string
+    public function getCapacityUnit(): string
     {
         return $this->capacityUnit;
     }
@@ -261,7 +261,7 @@ class Product
      *
      * @return Product
      */
-    public function setDateCreation($dateCreation) : self
+    public function setDateCreation($dateCreation): self
     {
         $this->dateCreation = $dateCreation;
 
@@ -273,7 +273,7 @@ class Product
      *
      * @return DateTime
      */
-    public function getDateCreation() : DateTime
+    public function getDateCreation(): DateTime
     {
         return $this->dateCreation;
     }
@@ -285,7 +285,7 @@ class Product
      *
      * @return Product
      */
-    public function setDateUpdate($dateUpdate = null) : self
+    public function setDateUpdate($dateUpdate = null): self
     {
         $this->dateUpdate = $dateUpdate;
 
@@ -297,7 +297,7 @@ class Product
      *
      * @return DateTime|null
      */
-    public function getDateUpdate() : ?DateTime
+    public function getDateUpdate(): ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -309,7 +309,7 @@ class Product
      *
      * @return Product
      */
-    public function setDeleted($deleted = null) : self
+    public function setDeleted($deleted = null): self
     {
         $this->deleted = $deleted;
 
@@ -321,7 +321,7 @@ class Product
      *
      * @return DateTime|null
      */
-    public function getDeleted() : ?DateTime
+    public function getDeleted(): ?DateTime
     {
         return $this->deleted;
     }
@@ -333,7 +333,7 @@ class Product
      *
      * @return Product
      */
-    public function setIsEnabled($isEnabled) : self
+    public function setIsEnabled($isEnabled): self
     {
         $this->isEnabled = $isEnabled;
 
@@ -345,7 +345,7 @@ class Product
      *
      * @return bool
      */
-    public function getIsEnabled() : bool
+    public function getIsEnabled(): bool
     {
         return $this->isEnabled;
     }
@@ -357,7 +357,7 @@ class Product
      *
      * @return Product
      */
-    public function setUserCreation(User $userCreation) : self
+    public function setUserCreation(User $userCreation): self
     {
         $this->userCreation = $userCreation;
 

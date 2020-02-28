@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Twig\Extension;
+namespace App\Twig;
 
 use App\Service\NumberManager;
 use Twig\Extension\AbstractExtension;

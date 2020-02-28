@@ -96,7 +96,7 @@ class Region
     /**
      * @return string
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->getName();
     }
@@ -107,7 +107,7 @@ class Region
      *
      * @return int
      */
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -119,7 +119,7 @@ class Region
      *
      * @return Region
      */
-    public function setName($name) : self
+    public function setName($name): self
     {
         $this->name = $name;
 
@@ -131,7 +131,7 @@ class Region
      *
      * @return string
      */
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -143,7 +143,7 @@ class Region
      *
      * @return Region
      */
-    public function setDateCreation($dateCreation) : self
+    public function setDateCreation($dateCreation): self
     {
         $this->dateCreation = $dateCreation;
 
@@ -155,7 +155,7 @@ class Region
      *
      * @return DateTime
      */
-    public function getDateCreation() : DateTime
+    public function getDateCreation(): DateTime
     {
         return $this->dateCreation;
     }
@@ -167,7 +167,7 @@ class Region
      *
      * @return Region
      */
-    public function setDateUpdate($dateUpdate = null) : self
+    public function setDateUpdate($dateUpdate = null): self
     {
         $this->dateUpdate = $dateUpdate;
 
@@ -179,7 +179,7 @@ class Region
      *
      * @return DateTime|null
      */
-    public function getDateUpdate() : ?DateTime
+    public function getDateUpdate(): ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -191,7 +191,7 @@ class Region
      *
      * @return Region
      */
-    public function setUserCreation(User $userCreation) : self
+    public function setUserCreation(User $userCreation): self
     {
         $this->userCreation = $userCreation;
 
@@ -203,7 +203,7 @@ class Region
      *
      * @return User
      */
-    public function getUserCreation() : User
+    public function getUserCreation(): User
     {
         return $this->userCreation;
     }
@@ -215,7 +215,7 @@ class Region
      *
      * @return Region
      */
-    public function setUserUpdate(User $userUpdate = null) : self
+    public function setUserUpdate(User $userUpdate = null): self
     {
         $this->userUpdate = $userUpdate;
 
@@ -227,7 +227,7 @@ class Region
      *
      * @return User|null
      */
-    public function getUserUpdate() : ?User
+    public function getUserUpdate(): ?User
     {
         return $this->userUpdate;
     }
@@ -239,7 +239,7 @@ class Region
      *
      * @return Region
      */
-    public function addPostalCode(PostalCode $postalCode) : self
+    public function addPostalCode(PostalCode $postalCode): self
     {
         $this->postalCodes[] = $postalCode;
 
@@ -253,7 +253,7 @@ class Region
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
      */
-    public function removePostalCode(PostalCode $postalCode) : bool
+    public function removePostalCode(PostalCode $postalCode): bool
     {
         return $this->postalCodes->removeElement($postalCode);
     }
@@ -263,7 +263,7 @@ class Region
      *
      * @return Collection
      */
-    public function getPostalCodes() : Collection
+    public function getPostalCodes(): Collection
     {
         return $this->postalCodes;
     }
@@ -275,7 +275,7 @@ class Region
      *
      * @return Region
      */
-    public function setDeleted($deleted = null) : self
+    public function setDeleted($deleted = null): self
     {
         $this->deleted = $deleted;
 
@@ -287,7 +287,7 @@ class Region
      *
      * @return DateTime|null
      */
-    public function getDeleted() : ?\DateTime
+    public function getDeleted(): ?DateTime
     {
         return $this->deleted;
     }
@@ -299,7 +299,7 @@ class Region
      *
      * @return Region
      */
-    public function setEmail($email = null) : self
+    public function setEmail($email = null): self
     {
         $this->email = $email;
 
@@ -311,7 +311,7 @@ class Region
      *
      * @return string|null
      */
-    public function getEmail() : ?string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
