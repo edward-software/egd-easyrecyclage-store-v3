@@ -38,7 +38,7 @@ class DataTable
     )
     {
         // Convert $columns workshopciate array to numeric array
-        $cols = array();
+        $cols = [];
         foreach ($columns as $column) {
             $cols[] = $column;
         }
@@ -109,9 +109,9 @@ class DataTable
         }
 
         // Format Datas
-        $data = array();
+        $data = [];
         foreach ($records as $record) {
-            $tmp = array();
+            $tmp = [];
             if (is_array($record)) {
                 $tmp['DT_RowId'] = $rowPrefix . $record['id'];
                 $tmp['DT_RowData']['pkey'] = $record['id'];
@@ -161,10 +161,10 @@ class DataTable
             $data[] = $tmp;
         }
 
-        return array(
+        return [
             'recordsTotal' => $recordsTotal,
             'data' => $data
-        );
+        ];
     }
 
 }

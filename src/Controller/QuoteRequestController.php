@@ -385,13 +385,13 @@ class QuoteRequestController extends AbstractController
             'access' => $access,
             'staff' => $staff
         ]);
-
+        
         if ($form->isSubmitted() && $form->isValid()) {
-
-            $quoteRequest = $form->getData();
             
+            $quoteRequest = $form->getData();
+    
             dd($quoteRequest);
-
+            
             $quoteRequest->setOverallDiscount($numberManager->normalize($quoteRequest->getOverallDiscount()));
             $quoteRequest->setAnnualBudget($numberManager->normalize($quoteRequest->getAnnualBudget()));
 

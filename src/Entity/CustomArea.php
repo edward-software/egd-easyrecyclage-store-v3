@@ -302,7 +302,7 @@ class CustomArea
      */
     public function getLeftPictures() : array
     {
-        $leftPictures = array();
+        $leftPictures = [];
         foreach ($this->pictures as $picture) {
             if ($picture->getType() === 'LEFT') {
                 $leftPictures[] = $picture;
@@ -317,7 +317,7 @@ class CustomArea
      */
     public function getRightPictures() : array
     {
-        $rightPictures = array();
+        $rightPictures = [];
         foreach ($this->pictures as $picture) {
             if ($picture->getType() === 'RIGHT') {
                 $rightPictures[] = $picture;

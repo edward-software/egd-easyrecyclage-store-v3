@@ -104,9 +104,9 @@ class UserManager
             }
 
             /** @var PostalCode $postalCode */
-            $postalCode = $this->em->getRepository(PostalCode::class)->findOneBy(array(
+            $postalCode = $this->em->getRepository(PostalCode::class)->findOneBy([
                 'code' => $pc->getCode()
-            ));
+            ]);
 
             $user = null;
             if ($postalCode != null) {

@@ -25,9 +25,9 @@ class FormatAmountExtension extends AbstractExtension
      */
     public function getFilters()
     {
-        return array(
+        return [
             new TwigFilter('formatAmount', [$this, 'formatAmount']),
-        );
+        ];
     }
     
     /**

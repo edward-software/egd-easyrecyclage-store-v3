@@ -34,9 +34,9 @@ class PostalCodeRepository extends EntityRepository
      */
     public function isCodeUnique($params)
     {
-        return $this->findBy(array(
+        return $this->findBy([
             'code' => $params['code'],
             'deleted' => null
-        ));
+        ]);
     }
 }

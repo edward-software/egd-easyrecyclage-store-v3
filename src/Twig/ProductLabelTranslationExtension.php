@@ -27,9 +27,9 @@ class ProductLabelTranslationExtension extends AbstractExtension
      */
     public function getFilters()
     {
-        return array(
+        return [
             new TwigFilter('productLabelTranslation', [$this, 'productLabelTranslation']),
-        );
+        ];
     }
     
     /**

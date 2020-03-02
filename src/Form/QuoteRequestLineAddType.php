@@ -24,8 +24,9 @@ class QuoteRequestLineAddType extends AbstractType
             ->add('product', EntityType::class, [
                 'class' => Product::class,
                 'query_builder' => static function (ProductRepository $er) {
-                    return $er->createQueryBuilder('p')
-                        ->select(array('p', 'pL'))
+                    return $er
+                        ->createQueryBuilder('p')
+                        ->select(['p', 'pL'])
                         ->leftJoin('p.productLabels', 'pL')
                         ->where('p.deleted IS NULL')
                         ->andWhere('pL.language = :language')

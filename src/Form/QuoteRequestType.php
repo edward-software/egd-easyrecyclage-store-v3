@@ -139,7 +139,8 @@ class QuoteRequestType extends AbstractType
                     return $user->getFirstName() . ' ' . $user->getLastName();
                 },
                 'query_builder' => static function (UserRepository $er) {
-                    return $er->createQueryBuilder('u')
+                    return $er
+                        ->createQueryBuilder('u')
                         ->where('u.deleted IS NULL')
                         ->orderBy('u.firstName');
                 },
