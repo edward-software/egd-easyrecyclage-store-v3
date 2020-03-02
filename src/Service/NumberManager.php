@@ -5,7 +5,6 @@ namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use NumberFormatter;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class NumberManager
@@ -16,19 +15,16 @@ class NumberManager
 {
     
     private $em;
-    private $container;
     
     
     /**
      * NumberManager constructor.
      *
      * @param EntityManagerInterface $em
-     * @param ContainerInterface $container
      */
-    public function __construct(EntityManagerInterface $em, ContainerInterface $container)
+    public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->container = $container;
     }
     
     
@@ -92,7 +88,6 @@ class NumberManager
         
         return $value / 100;
     }
-    
     
     /**
      * Prend un string en paramètre, le transforme en nombre et le multplie par 100

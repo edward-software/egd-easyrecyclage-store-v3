@@ -80,7 +80,7 @@ class PostalCode
     private $code;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="set_up_rate", type="bigint")
      * @Assert\NotBlank()
@@ -88,7 +88,7 @@ class PostalCode
     private $setUpRate;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="rental_rate", type="bigint")
      * @Assert\NotBlank()
@@ -96,7 +96,7 @@ class PostalCode
     private $rentalRate;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="transport_rate", type="bigint")
      * @Assert\NotBlank()
@@ -104,7 +104,7 @@ class PostalCode
     private $transportRate;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="treatment_rate", type="bigint")
      * @Assert\NotBlank()
@@ -112,7 +112,7 @@ class PostalCode
     private $treatmentRate;
     
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="traceability_rate", type="bigint")
      * @Assert\NotBlank()
@@ -268,11 +268,11 @@ class PostalCode
     }
     
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getTransportRate(): ?int
+    public function getTransportRate(): ?float
     {
-        return $this->transportRate;
+        return (float)$this->transportRate;
     }
 
     /**
@@ -288,11 +288,11 @@ class PostalCode
     }
     
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getTreatmentRate(): ?int
+    public function getTreatmentRate(): ?float
     {
-        return $this->treatmentRate;
+        return (float)$this->treatmentRate;
     }
 
     /**
@@ -308,11 +308,11 @@ class PostalCode
     }
     
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getTraceabilityRate(): ?int
+    public function getTraceabilityRate(): ?float
     {
-        return $this->traceabilityRate;
+        return (float)$this->traceabilityRate;
     }
 
     /**
@@ -380,7 +380,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setRegion(Region $region = null) : self
+    public function setRegion(Region $region = null): self
     {
         $this->region = $region;
 
@@ -390,7 +390,7 @@ class PostalCode
     /**
      * @return Region|null
      */
-    public function getRegion() : ?Region
+    public function getRegion(): ?Region
     {
         return $this->region;
     }
@@ -400,7 +400,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setCity($city) : self
+    public function setCity($city): self
     {
         $this->city = $city;
 
@@ -410,7 +410,7 @@ class PostalCode
     /**
      * @return string|null
      */
-    public function getCity() : ?string
+    public function getCity(): ?string
     {
         return $this->city;
     }
@@ -420,7 +420,7 @@ class PostalCode
      *
      * @return $this
      */
-    public function setZone($zone) : self
+    public function setZone($zone): self
     {
         $this->zone = $zone;
 
@@ -430,7 +430,7 @@ class PostalCode
     /**
      * @return string|null
      */
-    public function getZone() : ?string
+    public function getZone(): ?string
     {
         return $this->zone;
     }
@@ -440,7 +440,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function addQuoteRequest(QuoteRequest $quoteRequest) : self
+    public function addQuoteRequest(QuoteRequest $quoteRequest): self
     {
         $this->quoteRequests[] = $quoteRequest;
 
@@ -452,7 +452,7 @@ class PostalCode
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
      */
-    public function removeQuoteRequest(QuoteRequest $quoteRequest) : bool
+    public function removeQuoteRequest(QuoteRequest $quoteRequest): bool
     {
         return $this->quoteRequests->removeElement($quoteRequest);
     }
@@ -460,7 +460,7 @@ class PostalCode
     /**
      * @return Collection
      */
-    public function getQuoteRequests() : Collection
+    public function getQuoteRequests(): Collection
     {
         return $this->quoteRequests;
     }
@@ -470,7 +470,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setSetUpRate($setUpRate) : self
+    public function setSetUpRate($setUpRate): self
     {
         $this->setUpRate = $setUpRate;
 
@@ -478,11 +478,11 @@ class PostalCode
     }
     
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getSetUpRate() : ?int
+    public function getSetUpRate(): ?float
     {
-        return $this->setUpRate;
+        return (float)$this->setUpRate;
     }
 
     /**
@@ -490,7 +490,7 @@ class PostalCode
      *
      * @return PostalCode
      */
-    public function setRentalRate($rentalRate) : self
+    public function setRentalRate($rentalRate): self
     {
         $this->rentalRate = $rentalRate;
 
@@ -498,10 +498,10 @@ class PostalCode
     }
     
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getRentalRate() : ?int
+    public function getRentalRate(): ?float
     {
-        return $this->rentalRate;
+        return (float)$this->rentalRate;
     }
 }

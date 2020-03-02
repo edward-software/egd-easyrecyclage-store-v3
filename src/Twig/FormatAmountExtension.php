@@ -40,6 +40,7 @@ class FormatAmountExtension extends AbstractExtension
      */
     public function formatAmount($amount, $locale, $currency = null, $type = null)
     {
+        
         if ($type === 'PERCENTAGE') {
             $currency = 'PERCENTAGE';
         }

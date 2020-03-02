@@ -81,7 +81,8 @@ class PostalCodeController extends AbstractController
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $postalCodeRepository->createQueryBuilder('pC');
         
-        $queryBuilder->select(['pC'])
+        $queryBuilder
+            ->select(['pC'])
             ->leftJoin('pC.region', 'r')
             ->where('pC.deleted IS NULL');
 

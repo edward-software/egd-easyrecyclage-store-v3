@@ -331,6 +331,7 @@ class ProductController extends AbstractController
             $types[$type] = $type;
         }
 
+        /** @var Picture $picture */
         $picture = new Picture();
 
         $formAddPicture = $this->createForm(PictureProductType::class, $picture, [
@@ -387,8 +388,6 @@ class ProductController extends AbstractController
  
         if ($form1->isSubmitted() && $form1->isValid() && $form2->isSubmitted() && $form2->isValid()) {
     
-            //dd($form1);
-            
             $em = $this->getDoctrine()->getManager();
             $product = $form1->getData();
             

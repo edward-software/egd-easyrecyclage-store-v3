@@ -10,7 +10,7 @@ use App\Repository\RegionRepository;
 use App\Repository\UserRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -33,19 +33,19 @@ class PostalCodeType extends AbstractType
             ->add('zone', TextType::class, [
                 'required' => true,
             ])
-            ->add('setUpRate', IntegerType::class, [
+            ->add('setUpRate', NumberType::class, [
                 'required' => true,
             ])
-            ->add('rentalRate', IntegerType::class, [
+            ->add('rentalRate', NumberType::class, [
                 'required' => true,
             ])
-            ->add('transportRate', IntegerType::class, [
+            ->add('transportRate', NumberType::class, [
                 'required' => true,
             ])
-            ->add('treatmentRate', IntegerType::class, [
+            ->add('treatmentRate', NumberType::class, [
                 'required' => true,
             ])
-            ->add('traceabilityRate', IntegerType::class, [
+            ->add('traceabilityRate', NumberType::class, [
                 'required' => true,
             ])
             ->add('region', EntityType::class, [
