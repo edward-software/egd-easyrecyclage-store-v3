@@ -553,17 +553,11 @@ class UserController extends AbstractController
     {
         $em = $this->getDoctrine()->getManager();
 
-        /**
-         * On modifie l'email et l'username qui sont uniques dans FOSUser
-         * Ainsi on pourra de nouveau ajouté qqun avec le même username
-         */
-        $deletedUsername = substr($user->getUsernameCanonical() .  uniqid(), 0, 255);
+        $deletedUsername = substr($user->getUsername() .  uniqid(), 0, 255);
         $deletedEmail = substr($user->getEmail() .  uniqid(), 0, 255);
         
         $user->setUsername($deletedUsername);
-        $user->setUsernameCanonical($deletedUsername);
         $user->setEmail($deletedEmail);
-        $user->setEmailCanonical($deletedEmail);
 
         $user->setDeleted(new DateTime);
         $user->setEnabled(false);
@@ -603,12 +597,10 @@ class UserController extends AbstractController
                  * On modifie l'email et l'username qui sont uniques dans FOSUser
                  * Ainsi on pourra de nouveau ajouté qqun avec le même username
                  */
-                $deletedUsername = substr($user->getUsernameCanonical() . uniqid(), 0, 255);
+                $deletedUsername = substr($user->getUsername() . uniqid(), 0, 255);
                 $deletedEmail = substr($user->getEmail() .  uniqid(), 0, 255);
                 $user->setUsername($deletedUsername);
-                $user->setUsernameCanonical($deletedUsername);
                 $user->setEmail($deletedEmail);
-                $user->setEmailCanonical($deletedEmail);
 
                 $user->setDeleted(new DateTime);
                 $user->setEnabled(false);

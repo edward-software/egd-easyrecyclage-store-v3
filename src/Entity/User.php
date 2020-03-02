@@ -6,6 +6,7 @@ namespace App\Entity;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 use Exception;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -18,7 +19,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(fields={"email"}, repositoryMethod="isMailUnique")
  * @UniqueEntity(fields={"username"}, repositoryMethod="isUsernameUnique")
- * @UniqueEntity(fields={"username_canonical"}, repositoryMethod="isUsernameCanonicalUnique")
  *
  * @package App\Entity
  */
@@ -44,30 +44,12 @@ class User implements UserInterface
     /**
      * @var string
      *
-     * @ORM\Column(name="username_canonical", type="string", length=180, unique=true)
-     * @Assert\NotBlank()
-     */
-    private $usernameCanonical;
-    
-    /**
-     * @var string
-     *
      * @ORM\Column(name="email", type="string", length=100, unique=true)
      *
      * @Assert\NotBlank()
      * @Assert\Email(message = "email_error")
      */
     private $email;
-    
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="email_canonical", type="string", length=100, unique=true)
-     *
-     * @Assert\NotBlank()
-     * @Assert\Email(message = "email_error")
-     */
-    private $emailCanonical;
     
     /**
      * @var boolean
@@ -92,7 +74,7 @@ class User implements UserInterface
     
     /**
      * @var string
-     *
+     *getDateUpdate
      * @ORM\Column(name="last_login", type="string", nullable=true)
      */
     private $lastLogin;
@@ -191,7 +173,7 @@ class User implements UserInterface
     {
         $this->dateCreation = new DateTime();
         $this->quoteRequests = new ArrayCollection();
-        $this->postalCodes = new ArrayCollection();
+        $this->postalCodes = new PersistentCollection;
     }
     
     /**
@@ -227,22 +209,6 @@ class User implements UserInterface
     }
     
     /**
-     * @return string
-     */
-    public function getUsernameCanonical(): string
-    {
-        return $this->usernameCanonical;
-    }
-    
-    /**
-     * @param string $usernameCanonical
-     */
-    public function setUsernameCanonical(string $usernameCanonical): void
-    {
-        $this->usernameCanonical = $usernameCanonical;
-    }
-    
-    /**
      * @return string|null
      */
     public function getEmail(): ?string
@@ -256,22 +222,6 @@ class User implements UserInterface
     public function setEmail(string $email): void
     {
         $this->email = $email;
-    }
-    
-    /**
-     * @return string
-     */
-    public function getEmailCanonical(): string
-    {
-        return $this->emailCanonical;
-    }
-    
-    /**
-     * @param string $emailCanonical
-     */
-    public function setEmailCanonical(string $emailCanonical): void
-    {
-        $this->emailCanonical = $emailCanonical;
     }
     
     /**
@@ -387,9 +337,9 @@ class User implements UserInterface
     }
     
     /**
-     * @return DateTime
+     * @return DateTime|null
      */
-    public function getDateUpdate(): DateTime
+    public function getDateUpdate(): ?DateTime
     {
         return $this->dateUpdate;
     }
@@ -403,9 +353,9 @@ class User implements UserInterface
     }
     
     /**
-     * @return DateTime
+     * @return DateTime|null
      */
-    public function getDeleted(): DateTime
+    public function getDeleted(): ?DateTime
     {
         return $this->deleted;
     }
@@ -483,9 +433,9 @@ class User implements UserInterface
     }
     
     /**
-     * @return ArrayCollection
+     * @return PersistentCollection
      */
-    public function getPostalCodes(): ArrayCollection
+    public function getPostalCodes(): PersistentCollection
     {
         return $this->postalCodes;
     }
