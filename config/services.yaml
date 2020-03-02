@@ -65,44 +65,6 @@ services:
 
     ## Declaration des services en plus de l'autowiring
 
-    ##> Catalog ##
-
-    paprec_catalog.postal_code_manager:
-        class: App\Service\PostalCodeManager
-        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
-
-    paprec_catalog.region_manager:
-        class: App\Service\RegionManager
-        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
-
-    paprec_catalog.custom_area_manager:
-        class: App\Service\CustomAreaManager
-        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
-
-    paprec_catalog.product_manager:
-        class: App\Service\ProductManager
-        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
-
-    paprec_catalog.product_label_manager:
-        class: App\Service\ProductLabelManager
-        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
-
-    paprec_catalog.picture_manager:
-        class: App\Service\PictureManager
-        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
-
-    paprec_catalog.number_manager:
-        class: App\Service\NumberManager
-        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
-
-    ##< Catalog ##
-
-    ##> Commercial ##
-
-    paprec_commercial.quote_request_manager:
-        class: App\Service\QuoteRequestManager
-        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
-
     paprec_commercial.postal_code_transformer:
         class: App\Form\DataTransformer\PostalCodeToStringTransformer
         arguments:
@@ -122,24 +84,8 @@ services:
         arguments:
             ['@paprec_commercial.postal_code_transformer']
 
-    ##< Commercial ##
-
-    ##> Home ##
-
-    ##< Home ##
-
-    ##> Public ##
-
-    paprec.cart_manager:
-        class: App\Service\CartManager
-        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
-
-    ##< Public ##
-
-    ##> User ##
-
-    paprec.user_manager:
-        class: App\Service\UserManager
-        arguments: ["@doctrine.orm.entity_manager", "@service_container"]
-
-    ##< User ##
+    ### Twig Extension (enable intl for DateTime) ###
+    twig.extension.intl:
+        class: Twig\Extensions\IntlExtension
+        tags:
+            - { name: twig.extension }

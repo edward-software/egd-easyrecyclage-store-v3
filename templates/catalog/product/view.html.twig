@@ -128,7 +128,11 @@
                                 <div class="form-group row">
                                     <label class="col-md-4 col-form-label">{{ 'Catalog.Product.IsEnabled.IsEnabled'| trans({}, "messages", app.request.locale) }}</label>
                                     <label class="col-form-label col-md-8">
-                                        {% if product.IsEnabled == 1 %}{{ 'Catalog.Product.IsEnabled.Yes'| trans({}, "messages", app.request.locale) }}{% else %}{{ 'Catalog.Product.IsEnabled.No'| trans({}, "messages", app.request.locale) }}{% endif %}
+                                        {% if product.IsEnabled == 1 %}
+                                            {{ 'Catalog.Product.IsEnabled.Yes'| trans({}, "messages", app.request.locale) }}
+                                        {% else %}
+                                            {{ 'Catalog.Product.IsEnabled.No'| trans({}, "messages", app.request.locale) }}
+                                        {% endif %}
                                     </label>
                                 </div>
                             </div>
@@ -159,7 +163,6 @@
                                                     {% for picture in product.pilotPictures %}
                                                         <div class="card card-sec">
                                                             <div class="card-header">
-                                                                {#<div class="float-left"> {{ 'Catalog.Product.PilotPicture'| trans({}, "messages", app.request.locale) }}</div>#}
                                                                 <div class="dropdown float-right">
                                                                     <button class="p-0 btn btn-sm btn-light dropdown-toggle btn-sm"
                                                                             type="button" id="{{ picture.id }}"

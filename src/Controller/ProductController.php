@@ -373,12 +373,12 @@ class ProductController extends AbstractController
         $form2->handleRequest($request);
 
         if ($form1->isSubmitted() && $form1->isValid() && $form2->isSubmitted() && $form2->isValid()) {
+            
+            //dd($form1, $form2);
 
             $em = $this->getDoctrine()->getManager();
-
             $product = $form1->getData();
-
-
+            
             $product->setRentalUnitPrice($numberManager->normalize($product->getRentalUnitPrice()));
             $product->setSetUpPrice($numberManager->normalize($product->getSetUpPrice()));
             $product->setTransportUnitPrice($numberManager->normalize($product->getTransportUnitPrice()));

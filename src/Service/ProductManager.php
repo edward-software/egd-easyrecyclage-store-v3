@@ -325,7 +325,7 @@ class ProductManager
 
         $queryBuilder->select(['p'])
             ->where('p.deleted IS NULL')
-            ->andWhere('p.is_enabled = 1')
+            ->andWhere('p.isEnabled = 1')
             ->orderBy('p.position');
 
         return $queryBuilder->getQuery()->getResult();

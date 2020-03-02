@@ -517,9 +517,9 @@ class QuoteRequest
     }
 
     /**
-     * @return bool|null
+     * @return mixed
      */
-    public function getIsMultisite() : ?bool
+    public function getIsMultisite()
     {
         return $this->isMultisite;
     }

@@ -7,6 +7,7 @@ use App\Entity\CustomArea;
 use App\Service\CustomAreaManager;
 use Exception;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class PaprecCustomizableAreaExtension extends AbstractExtension
@@ -22,12 +23,12 @@ class PaprecCustomizableAreaExtension extends AbstractExtension
 
     
     /**
-     * @return array|\Twig_Function[]
+     * @return array|TwigFilter[]
      */
     public function getFunctions()
     {
         return [
-            new TwigFunction('paprec_customizable_area', [$this, 'customizableArea']),
+            new TwigFilter('paprec_customizable_area', [$this, 'customizableArea']),
         ];
     }
 

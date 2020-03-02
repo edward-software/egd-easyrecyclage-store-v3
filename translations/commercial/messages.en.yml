@@ -55,7 +55,7 @@ Commercial:
     Number:             Offer Number
   QuoteStatusList:
     CREATED:    Created
-    PENDING:    Peding
+    PENDING:    Pending
     PROCESSING: Processing
     CLOSED:     Closed
   StaffList:

@@ -6,8 +6,9 @@ namespace App\Form;
 use App\Entity\Product;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -31,11 +32,11 @@ class ProductType extends AbstractType
                 ],
                 'expanded' => true,
             ])
-            ->add('setUpPrice', TextType::class)
-            ->add('rentalUnitPrice', TextType::class)
-            ->add('transportUnitPrice', TextType::class)
-            ->add('treatmentUnitPrice', TextType::class)
-            ->add('traceabilityUnitPrice', TextType::class)
+            ->add('setUpPrice', IntegerType::class)
+            ->add('rentalUnitPrice', IntegerType::class)
+            ->add('transportUnitPrice', IntegerType::class)
+            ->add('treatmentUnitPrice', IntegerType::class)
+            ->add('traceabilityUnitPrice', IntegerType::class)
             ->add('position')
         ;
     }

@@ -8,6 +8,7 @@ use App\Service\ProductManager;
 use Exception;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class ProductLabelTranslationExtension extends AbstractExtension
 {

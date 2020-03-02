@@ -7,12 +7,14 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Csrf\TokenStorage\TokenStorageInterface;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class AccessExtension extends AbstractExtension
 {
 
     private $authorizationChecker;
+    
     private $tokenStorage;
     
     
@@ -30,12 +32,12 @@ class AccessExtension extends AbstractExtension
     
     
     /**
-     * @return array|TwigFunction[]
+     * @return array|TwigFilter[]
      */
     public function getFunctions()
     {
         return [
-            new TwigFunction('paprec_has_access', [$this, 'hasAccess']),
+            new TwigFilter('paprec_has_access', [$this, 'hasAccess']),
         ];
     }
     
