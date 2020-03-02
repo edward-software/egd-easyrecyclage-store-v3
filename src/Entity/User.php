@@ -5,8 +5,8 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\PersistentCollection;
 use Exception;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -173,7 +173,6 @@ class User implements UserInterface
     {
         $this->dateCreation = new DateTime();
         $this->quoteRequests = new ArrayCollection();
-        $this->postalCodes = new PersistentCollection;
     }
     
     /**
@@ -433,17 +432,17 @@ class User implements UserInterface
     }
     
     /**
-     * @return PersistentCollection
+     * @return Collection
      */
-    public function getPostalCodes(): PersistentCollection
+    public function getPostalCodes(): Collection
     {
         return $this->postalCodes;
     }
     
     /**
-     * @param ArrayCollection $postalCodes
+     * @param Collection $postalCodes
      */
-    public function setPostalCodes(ArrayCollection $postalCodes): void
+    public function setPostalCodes(Collection $postalCodes): void
     {
         $this->postalCodes = $postalCodes;
     }

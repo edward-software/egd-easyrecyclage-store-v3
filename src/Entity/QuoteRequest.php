@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Exception;
@@ -291,7 +292,7 @@ class QuoteRequest
     public function __construct()
     {
         $this->dateCreation = new DateTime();
-        $this->quoteRequestLines = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->quoteRequestLines = new ArrayCollection();
         $this->overallDiscount = 0;
     }
 

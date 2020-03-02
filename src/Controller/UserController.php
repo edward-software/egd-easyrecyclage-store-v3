@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 
 class UserController extends AbstractController
@@ -262,10 +263,10 @@ class UserController extends AbstractController
      *
      * @param Request $request
      *
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|Response
-     * @throws \Exception
+     * @return RedirectResponse|Response
+     * @throws Exception
      */
-    public function addAction(Request $request)
+    public function addAction(Request $request, UserPasswordEncoderInterface $passwordEncoder)
     {
         /** @var User $user */
         $user = new User();
@@ -291,6 +292,10 @@ class UserController extends AbstractController
 
             $user = $form->getData();
             $user->setDateCreation(new DateTime);
+            $user->setPassword($passwordEncoder->encodePassword(
+                $user,
+                $user->getPassword()
+            ));
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($user);

@@ -9,7 +9,7 @@ framework:
         cookie_samesite: lax
 
     php_errors:
-        log: true
+        log: false
 
     templating:
         engines: ['twig', 'php']
