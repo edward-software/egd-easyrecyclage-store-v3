@@ -158,8 +158,6 @@ class PostalCode
     
     
     /**
-     * PostalCode constructor.
-     *
      * @throws Exception
      */
     public function __construct()
@@ -170,8 +168,6 @@ class PostalCode
 
     
     /**
-     * Get id.
-     *
      * @return int
      */
     public function getId(): int
@@ -180,8 +176,6 @@ class PostalCode
     }
 
     /**
-     * Set dateCreation.
-     *
      * @param DateTime $dateCreation
      *
      * @return PostalCode
@@ -194,8 +188,6 @@ class PostalCode
     }
 
     /**
-     * Get dateCreation.
-     *
      * @return DateTime
      */
     public function getDateCreation(): DateTime
@@ -204,8 +196,6 @@ class PostalCode
     }
 
     /**
-     * Set dateUpdate.
-     *
      * @param DateTime|null $dateUpdate
      *
      * @return PostalCode
@@ -218,8 +208,6 @@ class PostalCode
     }
 
     /**
-     * Get dateUpdate.
-     *
      * @return DateTime|null
      */
     public function getDateUpdate(): ?DateTime
@@ -228,8 +216,6 @@ class PostalCode
     }
 
     /**
-     * Set deleted.
-     *
      * @param DateTime|null $deleted
      *
      * @return PostalCode
@@ -242,8 +228,6 @@ class PostalCode
     }
 
     /**
-     * Get deleted.
-     *
      * @return DateTime|null
      */
     public function getDeleted(): ?DateTime
@@ -252,8 +236,6 @@ class PostalCode
     }
 
     /**
-     * Set code.
-     *
      * @param string $code
      *
      * @return PostalCode
@@ -264,20 +246,16 @@ class PostalCode
 
         return $this;
     }
-
+    
     /**
-     * Get code.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getCode(): string
+    public function getCode(): ?string
     {
         return $this->code;
     }
 
     /**
-     * Set transportRate.
-     *
      * @param int $transportRate
      *
      * @return PostalCode
@@ -288,20 +266,16 @@ class PostalCode
 
         return $this;
     }
-
+    
     /**
-     * Get transportRate.
-     *
-     * @return int
+     * @return int|null
      */
-    public function getTransportRate(): int
+    public function getTransportRate(): ?int
     {
         return $this->transportRate;
     }
 
     /**
-     * Set treatmentRate.
-     *
      * @param int $treatmentRate
      *
      * @return PostalCode
@@ -312,20 +286,16 @@ class PostalCode
 
         return $this;
     }
-
+    
     /**
-     * Get treatmentRate.
-     *
-     * @return int
+     * @return int|null
      */
-    public function getTreatmentRate(): int
+    public function getTreatmentRate(): ?int
     {
         return $this->treatmentRate;
     }
 
     /**
-     * Set traceabilityRate.
-     *
      * @param int $traceabilityRate
      *
      * @return PostalCode
@@ -336,20 +306,16 @@ class PostalCode
 
         return $this;
     }
-
+    
     /**
-     * Get traceabilityRate.
-     *
-     * @return int
+     * @return int|null
      */
-    public function getTraceabilityRate(): int
+    public function getTraceabilityRate(): ?int
     {
         return $this->traceabilityRate;
     }
 
     /**
-     * Set userCreation.
-     *
      * @param User $userCreation
      *
      * @return PostalCode
@@ -362,8 +328,6 @@ class PostalCode
     }
 
     /**
-     * Get userCreation.
-     *
      * @return User
      */
     public function getUserCreation(): User
@@ -372,8 +336,6 @@ class PostalCode
     }
 
     /**
-     * Set userUpdate.
-     *
      * @param User|null $userUpdate
      *
      * @return PostalCode
@@ -386,8 +348,6 @@ class PostalCode
     }
 
     /**
-     * Get userUpdate.
-     *
      * @return User|null
      */
     public function getUserUpdate(): ?User
@@ -396,8 +356,6 @@ class PostalCode
     }
 
     /**
-     * Set userInCharge.
-     *
      * @param User|null $userInCharge
      *
      * @return PostalCode
@@ -410,8 +368,6 @@ class PostalCode
     }
 
     /**
-     * Get userInCharge.
-     *
      * @return User|null
      */
     public function getUserInCharge(): ?User
@@ -420,8 +376,6 @@ class PostalCode
     }
 
     /**
-     * Set region.
-     *
      * @param Region|null $region
      *
      * @return PostalCode
@@ -434,8 +388,6 @@ class PostalCode
     }
 
     /**
-     * Get region.
-     *
      * @return Region|null
      */
     public function getRegion() : ?Region
@@ -444,8 +396,6 @@ class PostalCode
     }
 
     /**
-     * Set city.
-     *
      * @param string $city
      *
      * @return PostalCode
@@ -456,23 +406,19 @@ class PostalCode
 
         return $this;
     }
-
+    
     /**
-     * Get city.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getCity() : string
+    public function getCity() : ?string
     {
         return $this->city;
     }
-
+    
     /**
-     * Set zone.
+     * @param $zone
      *
-     * @param string $zone
-     *
-     * @return PostalCode
+     * @return $this
      */
     public function setZone($zone) : self
     {
@@ -480,20 +426,16 @@ class PostalCode
 
         return $this;
     }
-
+    
     /**
-     * Get zone.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getZone() : string
+    public function getZone() : ?string
     {
         return $this->zone;
     }
 
     /**
-     * Add quoteRequest.
-     *
      * @param QuoteRequest $quoteRequest
      *
      * @return PostalCode
@@ -506,8 +448,6 @@ class PostalCode
     }
 
     /**
-     * Remove quoteRequest.
-     *
      * @param QuoteRequest $quoteRequest
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
@@ -518,8 +458,6 @@ class PostalCode
     }
 
     /**
-     * Get quoteRequests.
-     *
      * @return Collection
      */
     public function getQuoteRequests() : Collection
@@ -528,8 +466,6 @@ class PostalCode
     }
 
     /**
-     * Set setUpRate.
-     *
      * @param int $setUpRate
      *
      * @return PostalCode
@@ -540,20 +476,16 @@ class PostalCode
 
         return $this;
     }
-
+    
     /**
-     * Get setUpRate.
-     *
-     * @return int
+     * @return int|null
      */
-    public function getSetUpRate() : int
+    public function getSetUpRate() : ?int
     {
         return $this->setUpRate;
     }
 
     /**
-     * Set rentalRate.
-     *
      * @param int $rentalRate
      *
      * @return PostalCode
@@ -564,13 +496,11 @@ class PostalCode
 
         return $this;
     }
-
+    
     /**
-     * Get rentalRate.
-     *
-     * @return int
+     * @return int|null
      */
-    public function getRentalRate() : int
+    public function getRentalRate() : ?int
     {
         return $this->rentalRate;
     }

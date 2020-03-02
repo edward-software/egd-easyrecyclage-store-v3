@@ -226,7 +226,7 @@ class PostalCodeController extends AbstractController
     public function viewAction(Request $request, PostalCode $postalCode, PostalCodeManager $postalCodeManager)
     {
         $postalCodeManager->isDeleted($postalCode, true);
-
+        
         return $this->render('catalog/postalCode/view.html.twig', [
             'postalCode' => $postalCode
         ]);
@@ -245,13 +245,15 @@ class PostalCodeController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-
+    
+        /** @var PostalCode $postalCode */
         $postalCode = new PostalCode();
         
         $form = $this->createForm(PostalCodeType::class, $postalCode);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            
             $postalCode = $form->getData();
             $postalCode->setSetUpRate($numberManager->normalize15($postalCode->getSetUpRate()));
             $postalCode->setRentalRate($numberManager->normalize15($postalCode->getRentalRate()));

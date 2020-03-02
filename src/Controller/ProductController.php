@@ -38,6 +38,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ProductController extends AbstractController
 {
@@ -62,7 +63,12 @@ class ProductController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function loadListAction(Request $request, DataTable $dataTable, PaginatorInterface $paginator)
+    public function loadListAction(
+        Request $request,
+        DataTable $dataTable,
+        PaginatorInterface $paginator,
+        TranslatorInterface $translator
+    )
     {
         $return = [];
 
@@ -126,7 +132,7 @@ class ProductController extends AbstractController
         $tmp = [];
         foreach ($dt['data'] as $data) {
             $line = $data;
-            $line['isEnabled'] = $data['isEnabled'] ? $this->get('translator')->trans('General.1') : $this->get('translator')->trans('General.0');
+            $line['isEnabled'] = $data['isEnabled'] ? $translator->trans('General.1') : $translator->trans('General.0');
             $tmp[] = $line;
         }
     
@@ -153,11 +159,15 @@ class ProductController extends AbstractController
      * @return mixed
      * @throws PSException
      */
-    public function exportAction(Request $request, ProductManager $productManager, NumberManager $numberManager, Spreadsheet $spreadsheet)
+    public function exportAction(
+        Request $request,
+        ProductManager $productManager,
+        NumberManager $numberManager,
+        Spreadsheet $spreadsheet,
+        TranslatorInterface $translator
+    )
     {
         $language = $request->getLocale();
-
-        $translator = $this->container->get('translator');
 
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
@@ -360,7 +370,10 @@ class ProductController extends AbstractController
             $languages[$language] = $language;
         }
 
+        /** @var Product $product */
         $product = new Product();
+        
+        /** @var ProductLabel $productLabel */
         $productLabel = new ProductLabel();
 
         $form1 = $this->createForm(ProductType::class, $product);
@@ -371,11 +384,11 @@ class ProductController extends AbstractController
 
         $form1->handleRequest($request);
         $form2->handleRequest($request);
-
+ 
         if ($form1->isSubmitted() && $form1->isValid() && $form2->isSubmitted() && $form2->isValid()) {
+    
+            //dd($form1);
             
-            //dd($form1, $form2);
-
             $em = $this->getDoctrine()->getManager();
             $product = $form1->getData();
             

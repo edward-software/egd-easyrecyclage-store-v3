@@ -98,31 +98,31 @@
                                 <div class="form-group row">
                                     <label class="col-md-4 col-form-label">{{ 'Catalog.Product.SetUpPrice'| trans({}, "messages", app.request.locale) }}</label>
                                     <label class="col-form-label col-md-8">
-                                        {{ product.setUpPrice|formatAmount('CHF', app.request.locale) }}
+                                        {{ product.setUpPrice|formatAmount(app.request.locale, 'CHF') }}
                                     </label>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-md-4 col-form-label">{{ 'Catalog.Product.RentalUnitPrice'| trans({}, "messages", app.request.locale) }}</label>
                                     <label class="col-form-label col-md-8">
-                                        {{ product.rentalUnitPrice|formatAmount('CHF', app.request.locale) }}
+                                        {{ product.rentalUnitPrice|formatAmount(app.request.locale, 'CHF') }}
                                     </label>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-md-4 col-form-label">{{ 'Catalog.Product.TransportUnitPrice'| trans({}, "messages", app.request.locale) }}</label>
                                     <label class="col-form-label col-md-8">
-                                        {{ product.transportUnitPrice|formatAmount('CHF', app.request.locale) }}
+                                        {{ product.transportUnitPrice|formatAmount(app.request.locale, 'CHF') }}
                                     </label>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-md-4 col-form-label">{{ 'Catalog.Product.TreatmentUnitPrice'| trans({}, "messages", app.request.locale) }}</label>
                                     <label class="col-form-label col-md-8">
-                                        {{ product.treatmentUnitPrice|formatAmount('CHF', app.request.locale) }}
+                                        {{ product.treatmentUnitPrice|formatAmount(app.request.locale, 'CHF') }}
                                     </label>
                                 </div>
                                 <div class="form-group row">
                                     <label class="col-md-4 col-form-label">{{ 'Catalog.Product.TraceabilityUnitPrice'| trans({}, "messages", app.request.locale) }}</label>
                                     <label class="col-form-label col-md-8">
-                                        {{ product.traceabilityUnitPrice|formatAmount('CHF', app.request.locale) }}
+                                        {{ product.traceabilityUnitPrice|formatAmount(app.request.locale, 'CHF') }}
                                     </label>
                                 </div>
                                 <div class="form-group row">

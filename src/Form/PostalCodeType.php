@@ -10,6 +10,7 @@ use App\Repository\RegionRepository;
 use App\Repository\UserRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -32,19 +33,19 @@ class PostalCodeType extends AbstractType
             ->add('zone', TextType::class, [
                 'required' => true,
             ])
-            ->add('setUpRate', TextType::class, [
+            ->add('setUpRate', IntegerType::class, [
                 'required' => true,
             ])
-            ->add('rentalRate', TextType::class, [
+            ->add('rentalRate', IntegerType::class, [
                 'required' => true,
             ])
-            ->add('transportRate', TextType::class, [
+            ->add('transportRate', IntegerType::class, [
                 'required' => true,
             ])
-            ->add('treatmentRate', TextType::class, [
+            ->add('treatmentRate', IntegerType::class, [
                 'required' => true,
             ])
-            ->add('traceabilityRate', TextType::class, [
+            ->add('traceabilityRate', IntegerType::class, [
                 'required' => true,
             ])
             ->add('region', EntityType::class, [
@@ -74,7 +75,7 @@ class PostalCodeType extends AbstractType
                     return $ur->createQueryBuilder('u')
                         ->where('u.deleted IS NULL')
                         ->andWhere('u.roles LIKE \'%ROLE_COMMERCIAL%\'')
-                        ->orderBy('u.first_name');
+                        ->orderBy('u.firstName');
                 },
             ])
         ;

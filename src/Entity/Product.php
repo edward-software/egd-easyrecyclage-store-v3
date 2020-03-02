@@ -89,7 +89,7 @@ class Product
     private $isEnabled;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="set_up_price", type="integer")
      * @Assert\NotBlank()
@@ -102,7 +102,7 @@ class Product
     private $setUpPrice;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="rental_unit_price", type="integer", nullable=true)
      * @Assert\NotBlank()
@@ -115,7 +115,7 @@ class Product
     private $rentalUnitPrice;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="transport_unit_price", type="integer", nullable=true)
      * @Assert\NotBlank()
@@ -128,7 +128,7 @@ class Product
     private $transportUnitPrice;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="treatment_unit_price", type="integer", nullable=true)
      * @Assert\NotBlank()
@@ -141,7 +141,7 @@ class Product
     private $treatmentUnitPrice;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="traceability_unit_price", type="integer", nullable=true)
      * @Assert\NotBlank()
@@ -508,9 +508,9 @@ class Product
     }
 
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getRentalUnitPrice() : ?int
+    public function getRentalUnitPrice(): ?float
     {
         return $this->rentalUnitPrice;
     }
@@ -520,7 +520,7 @@ class Product
      *
      * @return Product
      */
-    public function setTransportUnitPrice($transportUnitPrice = null) : self
+    public function setTransportUnitPrice($transportUnitPrice = null): self
     {
         $this->transportUnitPrice = $transportUnitPrice;
 
@@ -528,9 +528,9 @@ class Product
     }
 
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getTransportUnitPrice() : ?int
+    public function getTransportUnitPrice(): ?float
     {
         return $this->transportUnitPrice;
     }
@@ -540,7 +540,7 @@ class Product
      *
      * @return Product
      */
-    public function setTreatmentUnitPrice($treatmentUnitPrice = null) : self
+    public function setTreatmentUnitPrice($treatmentUnitPrice = null): self
     {
         $this->treatmentUnitPrice = $treatmentUnitPrice;
 
@@ -548,9 +548,9 @@ class Product
     }
 
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getTreatmentUnitPrice() : ?int
+    public function getTreatmentUnitPrice(): ?float
     {
         return $this->treatmentUnitPrice;
     }
@@ -560,7 +560,7 @@ class Product
      *
      * @return Product
      */
-    public function setTraceabilityUnitPrice($traceabilityUnitPrice = null) : self
+    public function setTraceabilityUnitPrice($traceabilityUnitPrice = null): self
     {
         $this->traceabilityUnitPrice = $traceabilityUnitPrice;
 
@@ -568,9 +568,9 @@ class Product
     }
 
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getTraceabilityUnitPrice() : ?int
+    public function getTraceabilityUnitPrice(): ?float
     {
         return $this->traceabilityUnitPrice;
     }
@@ -580,7 +580,7 @@ class Product
      *
      * @return Product
      */
-    public function setPosition($position) : self
+    public function setPosition($position): self
     {
         $this->position = $position;
 
@@ -590,7 +590,7 @@ class Product
     /**
      * @return int|null
      */
-    public function getPosition() : ?int
+    public function getPosition(): ?int
     {
         return $this->position;
     }
@@ -601,7 +601,7 @@ class Product
      *
      * @return Product
      */
-    public function setFolderNumber($folderNumber) : self
+    public function setFolderNumber($folderNumber): self
     {
         $this->folderNumber = $folderNumber;
 
@@ -611,7 +611,7 @@ class Product
     /**
      * @return string|null
      */
-    public function getFolderNumber() : ?string
+    public function getFolderNumber(): ?string
     {
         return $this->folderNumber;
     }
@@ -621,7 +621,7 @@ class Product
      *
      * @return Product
      */
-    public function setSetUpPrice($setUpPrice) : self
+    public function setSetUpPrice($setUpPrice): self
     {
         $this->setUpPrice = $setUpPrice;
 
@@ -629,9 +629,9 @@ class Product
     }
     
     /**
-     * @return int|null
+     * @return float|null
      */
-    public function getSetUpPrice() : ?int
+    public function getSetUpPrice(): ?float
     {
         return $this->setUpPrice;
     }
