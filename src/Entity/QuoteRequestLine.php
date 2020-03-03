@@ -54,70 +54,70 @@ class QuoteRequestLine
     private $productName;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="set_up_price", type="integer", nullable=true)
      */
     private $setUpPrice;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="rental_unit_price", type="integer", nullable=true)
      */
     private $rentalUnitPrice;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="transport_unit_price", type="integer", nullable=true)
      */
     private $transportUnitPrice;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="treatment_unit_price", type="integer", nullable=true)
      */
     private $treatmentUnitPrice;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="traceability_unit_price", type="integer", nullable=true)
      */
     private $traceabilityUnitPrice;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="set_up_rate", type="bigint")
      */
     private $setUpRate;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="rental_rate", type="bigint")
      */
     private $rentalRate;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="transport_rate", type="bigint", nullable=true)
      */
     private $transportRate;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="treatment_rate", type="bigint", nullable=true)
      */
     private $treatmentRate;
     
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="traceability_rate", type="bigint", nullable=true)
      */
@@ -131,7 +131,7 @@ class QuoteRequestLine
     private $accessPrice;
 
     /**
-     * @var int
+     * @var float
      *
      * @ORM\Column(name="total_amount", type="integer")
      */
@@ -172,24 +172,20 @@ class QuoteRequestLine
     {
         $this->dateCreation = new DateTime();
     }
-
-
+    
+    
     /**
-     * Get id.
-     *
      * @return int
      */
     public function getId(): int
     {
         return $this->id;
     }
-
+    
     /**
-     * Set dateCreation.
+     * @param $dateCreation
      *
-     * @param DateTime $dateCreation
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
     public function setDateCreation($dateCreation): self
     {
@@ -197,445 +193,371 @@ class QuoteRequestLine
 
         return $this;
     }
-
+    
     /**
-     * Get dateCreation.
-     *
      * @return DateTime
      */
-    public function getDateCreation() : DateTime
+    public function getDateCreation(): DateTime
     {
         return $this->dateCreation;
     }
-
+    
     /**
-     * Set dateUpdate.
+     * @param null $dateUpdate
      *
-     * @param DateTime|null $dateUpdate
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setDateUpdate($dateUpdate = null) : self
+    public function setDateUpdate($dateUpdate = null): self
     {
         $this->dateUpdate = $dateUpdate;
 
         return $this;
     }
-
+    
     /**
-     * Get dateUpdate.
-     *
      * @return DateTime|null
      */
-    public function getDateUpdate() : ?DateTime
+    public function getDateUpdate(): ?DateTime
     {
         return $this->dateUpdate;
     }
-
+    
     /**
-     * Set deleted.
+     * @param null $deleted
      *
-     * @param DateTime|null $deleted
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setDeleted($deleted = null) : self
+    public function setDeleted($deleted = null): self
     {
         $this->deleted = $deleted;
 
         return $this;
     }
-
+    
     /**
-     * Get deleted.
-     *
      * @return DateTime|null
      */
-    public function getDeleted() : ?DateTime
+    public function getDeleted(): ?DateTime
     {
         return $this->deleted;
     }
-
+    
     /**
-     * Set productName.
+     * @param $productName
      *
-     * @param string $productName
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setProductName($productName) : self
+    public function setProductName($productName): self
     {
         $this->productName = $productName;
 
         return $this;
     }
-
+    
     /**
-     * Get productName.
-     *
      * @return string
      */
-    public function getProductName() : string
+    public function getProductName(): string
     {
         return $this->productName;
     }
-
+    
     /**
-     * Set totalAmount.
+     * @param $totalAmount
      *
-     * @param int $totalAmount
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setTotalAmount($totalAmount) : self
+    public function setTotalAmount($totalAmount): self
     {
         $this->totalAmount = $totalAmount;
 
         return $this;
     }
-
+    
     /**
-     * Get totalAmount.
-     *
-     * @return int
+     * @return float
      */
-    public function getTotalAmount() : int
+    public function getTotalAmount(): float
     {
-        return $this->totalAmount;
+        return (float)$this->totalAmount;
     }
-
+    
     /**
-     * Set quantity.
+     * @param $quantity
      *
-     * @param int $quantity
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setQuantity($quantity) : self
+    public function setQuantity($quantity): self
     {
         $this->quantity = $quantity;
 
         return $this;
     }
-
+    
     /**
-     * Get quantity.
-     *
-     * @return int
+     * @return int|null
      */
-    public function getQuantity() : int
+    public function getQuantity(): ?int
     {
         return $this->quantity;
     }
-
+    
     /**
-     * Set product.
-     *
      * @param Product $product
      *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setProduct(Product $product) : self
+    public function setProduct(Product $product): self
     {
         $this->product = $product;
 
         return $this;
     }
-
+    
     /**
-     * Get product.
-     *
-     * @return Product
+     * @return Product|null
      */
-    public function getProduct() : Product
+    public function getProduct(): ?Product
     {
         return $this->product;
     }
-
+    
     /**
-     * Set quoteRequest.
-     *
      * @param QuoteRequest $quoteRequest
      *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setQuoteRequest(QuoteRequest $quoteRequest) : self
+    public function setQuoteRequest(QuoteRequest $quoteRequest): self
     {
         $this->quoteRequest = $quoteRequest;
 
         return $this;
     }
-
+    
     /**
-     * Get quoteRequest.
-     *
      * @return QuoteRequest
      */
-    public function getQuoteRequest() : QuoteRequest
+    public function getQuoteRequest(): QuoteRequest
     {
         return $this->quoteRequest;
     }
-
+    
     /**
-     * Set rentalUnitPrice.
+     * @param null $rentalUnitPrice
      *
-     * @param int|null $rentalUnitPrice
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setRentalUnitPrice($rentalUnitPrice = null) : self
+    public function setRentalUnitPrice($rentalUnitPrice = null): self
     {
         $this->rentalUnitPrice = $rentalUnitPrice;
 
         return $this;
     }
-
+    
     /**
-     * Get rentalUnitPrice.
-     *
-     * @return int|null
+     * @return float|null
      */
-    public function getRentalUnitPrice() : ?int
+    public function getRentalUnitPrice(): ?float
     {
-        return $this->rentalUnitPrice;
+        return (float)$this->rentalUnitPrice;
     }
-
+    
     /**
-     * Set transportUnitPrice.
+     * @param null $transportUnitPrice
      *
-     * @param int|null $transportUnitPrice
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setTransportUnitPrice($transportUnitPrice = null) : self
+    public function setTransportUnitPrice($transportUnitPrice = null): self
     {
         $this->transportUnitPrice = $transportUnitPrice;
 
         return $this;
     }
-
+    
     /**
-     * Get transportUnitPrice.
-     *
-     * @return int|null
+     * @return float|null
      */
-    public function getTransportUnitPrice() : ?int
+    public function getTransportUnitPrice(): ?float
     {
-        return $this->transportUnitPrice;
+        return (float)$this->transportUnitPrice;
     }
-
+    
     /**
-     * Set treatmentUnitPrice.
+     * @param null $treatmentUnitPrice
      *
-     * @param int|null $treatmentUnitPrice
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setTreatmentUnitPrice($treatmentUnitPrice = null) : self
+    public function setTreatmentUnitPrice($treatmentUnitPrice = null): self
     {
         $this->treatmentUnitPrice = $treatmentUnitPrice;
 
         return $this;
     }
-
+    
     /**
-     * Get treatmentUnitPrice.
-     *
-     * @return int|null
+     * @return float|null
      */
-    public function getTreatmentUnitPrice() : ?int
+    public function getTreatmentUnitPrice(): ?float
     {
-        return $this->treatmentUnitPrice;
+        return (float)$this->treatmentUnitPrice;
     }
-
+    
     /**
-     * Set traceabilityUnitPrice.
+     * @param null $traceabilityUnitPrice
      *
-     * @param int|null $traceabilityUnitPrice
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setTraceabilityUnitPrice($traceabilityUnitPrice = null) : self
+    public function setTraceabilityUnitPrice($traceabilityUnitPrice = null): self
     {
         $this->traceabilityUnitPrice = $traceabilityUnitPrice;
 
         return $this;
     }
-
+    
     /**
-     * Get traceabilityUnitPrice.
-     *
-     * @return int|null
+     * @return float|null
      */
-    public function getTraceabilityUnitPrice() : ?int
+    public function getTraceabilityUnitPrice(): ?float
     {
-        return $this->traceabilityUnitPrice;
+        return (float)$this->traceabilityUnitPrice;
     }
-
+    
     /**
-     * Set transportRate.
+     * @param $transportRate
      *
-     * @param int $transportRate
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setTransportRate($transportRate) : self
+    public function setTransportRate($transportRate): self
     {
         $this->transportRate = $transportRate;
 
         return $this;
     }
-
+    
     /**
-     * Get transportRate.
-     *
-     * @return int
+     * @return float
      */
-    public function getTransportRate() : int
+    public function getTransportRate(): float
     {
-        return $this->transportRate;
+        return (float)$this->transportRate;
     }
-
+    
     /**
-     * Set treatmentRate.
+     * @param $treatmentRate
      *
-     * @param int $treatmentRate
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setTreatmentRate($treatmentRate) : self
+    public function setTreatmentRate($treatmentRate): self
     {
         $this->treatmentRate = $treatmentRate;
 
         return $this;
     }
-
+    
     /**
-     * Get treatmentRate.
-     *
-     * @return int
+     * @return float
      */
-    public function getTreatmentRate() : int
+    public function getTreatmentRate(): float
     {
-        return $this->treatmentRate;
+        return (float)$this->treatmentRate;
     }
-
+    
     /**
-     * Set traceabilityRate.
+     * @param $traceabilityRate
      *
-     * @param int $traceabilityRate
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setTraceabilityRate($traceabilityRate) : self
+    public function setTraceabilityRate($traceabilityRate): self
     {
         $this->traceabilityRate = $traceabilityRate;
 
         return $this;
     }
-
+    
     /**
-     * Get traceabilityRate.
-     *
-     * @return int
+     * @return float
      */
-    public function getTraceabilityRate() : int
+    public function getTraceabilityRate(): float
     {
-        return $this->traceabilityRate;
+        return (float)$this->traceabilityRate;
     }
-
+    
     /**
-     * Set setUpPrice.
+     * @param $setUpPrice
      *
-     * @param int $setUpPrice
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setSetUpPrice($setUpPrice) : self
+    public function setSetUpPrice($setUpPrice): self
     {
         $this->setUpPrice = $setUpPrice;
 
         return $this;
     }
-
+    
     /**
-     * Get setUpPrice.
-     *
-     * @return int
+     * @return float|null
      */
-    public function getSetUpPrice() : int
+    public function getSetUpPrice(): ?float
     {
-        return $this->setUpPrice;
+        return (float)$this->setUpPrice;
     }
-
+    
     /**
-     * Set setUpRate.
+     * @param $setUpRate
      *
-     * @param int $setUpRate
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setSetUpRate($setUpRate) : self
+    public function setSetUpRate($setUpRate): self
     {
         $this->setUpRate = $setUpRate;
 
         return $this;
     }
-
+    
     /**
-     * Get setUpRate.
-     *
-     * @return int
+     * @return float
      */
-    public function getSetUpRate() : int
+    public function getSetUpRate(): float
     {
-        return $this->setUpRate;
+        return (float)$this->setUpRate;
     }
-
+    
     /**
-     * Set rentalRate.
+     * @param $rentalRate
      *
-     * @param int $rentalRate
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setRentalRate($rentalRate) : self
+    public function setRentalRate($rentalRate): self
     {
         $this->rentalRate = $rentalRate;
 
         return $this;
     }
-
+    
     /**
-     * Get rentalRate.
-     *
-     * @return int
+     * @return float
      */
-    public function getRentalRate() : int
+    public function getRentalRate(): float
     {
-        return $this->rentalRate;
+        return (float)$this->rentalRate;
     }
-
+    
     /**
-     * Set accessPrice.
+     * @param $accessPrice
      *
-     * @param int $accessPrice
-     *
-     * @return QuoteRequestLine
+     * @return $this
      */
-    public function setAccessPrice($accessPrice) : self
+    public function setAccessPrice($accessPrice): self
     {
         $this->accessPrice = $accessPrice;
 
         return $this;
     }
-
+    
     /**
-     * Get accessPrice.
-     *
      * @return int
      */
-    public function getAccessPrice() : int
+    public function getAccessPrice(): int
     {
         return $this->accessPrice;
     }

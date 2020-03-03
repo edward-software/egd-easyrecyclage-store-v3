@@ -35,9 +35,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Mime\FileinfoMimeTypeGuesser;
-use Symfony\Component\Mime\MimeTypeGuesserInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Translation\Translator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class QuoteRequestController extends AbstractController
@@ -442,7 +440,8 @@ class QuoteRequestController extends AbstractController
         Request $request,
         QuoteRequest $quoteRequest,
         NumberManager $numberManager,
-        QuoteRequestManager $quoteRequestManager
+        QuoteRequestManager $quoteRequestManager,
+        ProductManager $productManager
     )
     {
         /** @var User $user */
@@ -489,13 +488,22 @@ class QuoteRequestController extends AbstractController
             $quoteRequest->setOverallDiscount($numberManager->normalize($quoteRequest->getOverallDiscount()));
             $quoteRequest->setAnnualBudget($numberManager->normalize($quoteRequest->getAnnualBudget()));
 
-            if ($quoteRequest->getQuoteRequestLines()) {
-                foreach ($quoteRequest->getQuoteRequestLines() as $line) {
-                    $quoteRequestManager->editLine($quoteRequest, $line, $user, false, false);
+            $quoteRequestLines = $quoteRequest->getQuoteRequestLines();
+            if ($quoteRequestLines) {
+                foreach ($quoteRequestLines as $quoteRequestLine) {
+                    $quoteRequestManager->editLine(
+                        $quoteRequest,
+                        $quoteRequestLine,
+                        $numberManager,
+                        $productManager,
+                        $user,
+                        false,
+                        false
+                    );
                 }
             }
+            
             $quoteRequest->setTotalAmount($quoteRequestManager->calculateTotal($quoteRequest));
-
             $quoteRequest->setDateUpdate(new DateTime());
             $quoteRequest->setUserUpdate($user);
 

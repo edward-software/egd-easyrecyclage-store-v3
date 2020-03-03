@@ -13,7 +13,6 @@ use NumberFormatter;
  */
 class NumberManager
 {
-    
     private $em;
     
     
