@@ -146,7 +146,7 @@ class QuoteRequestType extends AbstractType
                 },
             ])
         ;
-    
+        
         $builder
             ->get('postalCode')
             ->addModelTransformer($this->transformer)

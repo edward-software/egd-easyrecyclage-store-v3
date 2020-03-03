@@ -10,6 +10,7 @@ use App\Form\QuoteRequestLineAddType;
 use App\Form\QuoteRequestLineEditType;
 use App\Form\QuoteRequestType;
 use App\Service\NumberManager;
+use App\Service\ProductManager;
 use App\Service\QuoteRequestManager;
 use App\Tools\DataTable;
 use DateTime;
@@ -19,8 +20,10 @@ use Exception;
 use Knp\Component\Pager\PaginatorInterface;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Exception as PSException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Swift_Mailer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -32,8 +35,10 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Mime\FileinfoMimeTypeGuesser;
+use Symfony\Component\Mime\MimeTypeGuesserInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Translation\Translator;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class QuoteRequestController extends AbstractController
 {
@@ -59,7 +64,13 @@ class QuoteRequestController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function loadListAction(Request $request, NumberManager $numberManager, DataTable $dataTable, PaginatorInterface $paginator)
+    public function loadListAction(
+        Request $request,
+        NumberManager $numberManager,
+        DataTable $dataTable,
+        PaginatorInterface $paginator,
+        TranslatorInterface $translator
+    )
     {
         $return = [];
 
@@ -126,7 +137,7 @@ class QuoteRequestController extends AbstractController
         foreach ($dt['data'] as $data) {
             $line = $data;
             $line['totalAmount'] = $numberManager->formatAmount($data['totalAmount'], 'EUR', $request->getLocale());
-            $line['quoteStatus'] = $this->container->get('translator')->trans("Commercial.QuoteStatusList." . $data['quoteStatus']);
+            $line['quoteStatus'] = $translator->trans("Commercial.QuoteStatusList." . $data['quoteStatus']);
             $tmp[] = $line;
         }
     
@@ -153,13 +164,18 @@ class QuoteRequestController extends AbstractController
      * @param Spreadsheet   $spreadsheet
      *
      * @return mixed
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws PSException
      */
-    public function exportAction(Request $request, $dateStart, $dateEnd, $status, NumberManager $numberManager, Spreadsheet $spreadsheet)
+    public function exportAction(
+        Request $request,
+        $dateStart,
+        $dateEnd,
+        $status,
+        NumberManager $numberManager,
+        Spreadsheet $spreadsheet,
+        TranslatorInterface $translator
+    )
     {
-        /** @var Translator $translator */
-        $translator = $this->get('translator');
-        
         $em = $this->getDoctrine()->getManager();
 
         /** @var QueryBuilder $queryBuilder */
@@ -386,15 +402,14 @@ class QuoteRequestController extends AbstractController
             'staff' => $staff
         ]);
         
+        $form->handleRequest($request);
+        
         if ($form->isSubmitted() && $form->isValid()) {
             
             $quoteRequest = $form->getData();
-    
-            dd($quoteRequest);
             
             $quoteRequest->setOverallDiscount($numberManager->normalize($quoteRequest->getOverallDiscount()));
             $quoteRequest->setAnnualBudget($numberManager->normalize($quoteRequest->getAnnualBudget()));
-
             $quoteRequest->setUserCreation($user);
 
             $em = $this->getDoctrine()->getManager();
@@ -565,13 +580,22 @@ class QuoteRequestController extends AbstractController
      * @Route("/quoteRequest/{id}/addLine", name="paprec_commercial_quoteRequest_addLine")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
      *
-     * @param Request      $request
-     * @param QuoteRequest $quoteRequest
+     * @param Request             $request
+     * @param QuoteRequest        $quoteRequest
+     * @param QuoteRequestManager $quoteRequestManager
+     * @param NumberManager       $numberManager
+     * @param ProductManager      $productManager
      *
      * @return RedirectResponse|Response
      * @throws Exception
      */
-    public function addLineAction(Request $request, QuoteRequest $quoteRequest)
+    public function addLineAction(
+        Request $request,
+        QuoteRequest $quoteRequest,
+        QuoteRequestManager $quoteRequestManager,
+        NumberManager $numberManager,
+        ProductManager $productManager
+    )
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -586,10 +610,8 @@ class QuoteRequestController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
-
             $quoteRequestLine = $form->getData();
-            $quoteRequestManager->addLine($quoteRequest, $quoteRequestLine, $user);
+            $quoteRequestManager->addLine($quoteRequest, $quoteRequestLine, $numberManager, $productManager, $user);
 
             return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
                 'id' => $quoteRequest->getId()
@@ -609,14 +631,24 @@ class QuoteRequestController extends AbstractController
      * @ParamConverter("quoteRequest", options={"id" = "id"})
      * @ParamConverter("quoteRequestLine", options={"id" = "quoteLineId"})
      *
-     * @param Request          $request
-     * @param QuoteRequest     $quoteRequest
-     * @param QuoteRequestLine $quoteRequestLine
+     * @param Request             $request
+     * @param QuoteRequest        $quoteRequest
+     * @param QuoteRequestLine    $quoteRequestLine
+     * @param QuoteRequestManager $quoteRequestManager
+     * @param NumberManager       $numberManager
+     * @param ProductManager      $productManager
      *
      * @return RedirectResponse|Response
      * @throws Exception
      */
-    public function editLineAction(Request $request, QuoteRequest $quoteRequest, QuoteRequestLine $quoteRequestLine)
+    public function editLineAction(
+        Request $request,
+        QuoteRequest $quoteRequest,
+        QuoteRequestLine $quoteRequestLine,
+        QuoteRequestManager $quoteRequestManager,
+        NumberManager $numberManager,
+        ProductManager $productManager
+    )
     {
         if ($quoteRequest->getDeleted() !== null) {
             throw new NotFoundHttpException();
@@ -633,8 +665,7 @@ class QuoteRequestController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
-            $quoteRequestManager->editLine($quoteRequest, $quoteRequestLine, $user);
+            $quoteRequestManager->editLine($quoteRequest, $quoteRequestLine, $numberManager, $productManager, $user);
 
             return $this->redirectToRoute('paprec_commercial_quoteRequest_view', [
                 'id' => $quoteRequest->getId()
@@ -649,6 +680,7 @@ class QuoteRequestController extends AbstractController
     }
     
     /**
+     *
      * @Route("/quoteRequest/{id}/removeLine/{quoteLineId}", name="paprec_commercial_quoteRequest_removeLine")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
      *
@@ -661,7 +693,12 @@ class QuoteRequestController extends AbstractController
      *
      * @return RedirectResponse
      */
-    public function removeLineAction(Request $request, QuoteRequest $quoteRequest, QuoteRequestLine $quoteRequestLine)
+    public function removeLineAction(
+        Request $request,
+        QuoteRequest $quoteRequest,
+        QuoteRequestLine $quoteRequestLine,
+        QuoteRequestManager $quoteRequestManager
+    )
     {
         if ($quoteRequest->getDeleted() !== null) {
             throw new NotFoundHttpException();
@@ -676,7 +713,6 @@ class QuoteRequestController extends AbstractController
         $em->remove($quoteRequestLine);
         $em->flush();
 
-        $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
         $total = $quoteRequestManager->calculateTotal($quoteRequest);
         $quoteRequest->setTotalAmount($total);
         
@@ -697,12 +733,17 @@ class QuoteRequestController extends AbstractController
      * @return RedirectResponse
      * @throws EntityNotFoundException
      */
-    public function sendGeneratedQuoteAction(QuoteRequest $quoteRequest, QuoteRequestManager $quoteRequestManager)
+    public function sendGeneratedQuoteAction(
+        QuoteRequest $quoteRequest,
+        QuoteRequestManager $quoteRequestManager,
+        Swift_Mailer $mailer,
+        ProductManager $productManager
+    )
     {
         $quoteRequestManager->isDeleted($quoteRequest, true);
 
         if ($quoteRequest->getPostalCode() && $quoteRequest->getPostalCode()->getRegion()) {
-            $sendQuote = $quoteRequestManager->sendGeneratedQuoteEmail($quoteRequest, $quoteRequest->getLocale());
+            $sendQuote = $quoteRequestManager->sendGeneratedQuoteEmail($quoteRequest, $mailer, $productManager, $quoteRequest->getLocale());
             if ($sendQuote) {
                 $this->get('session')->getFlashBag()->add('success', 'generatedQuoteSent');
             } else {
@@ -719,15 +760,23 @@ class QuoteRequestController extends AbstractController
      * @Route("/quoteRequest/{id}/downloadQuote", name="paprec_commercial_quote_request_download")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
-     * @param QuoteRequest $quoteRequest
+     * @param QuoteRequest             $quoteRequest
+     * @param QuoteRequestManager      $quoteRequestManager
+     * @param ProductManager           $productManager
      *
      * @return BinaryFileResponse
      * @throws Exception
      */
-    public function downloadAssociatedInvoiceAction(QuoteRequest $quoteRequest)
+    public function downloadAssociatedInvoiceAction(
+        QuoteRequest $quoteRequest,
+        QuoteRequestManager $quoteRequestManager,
+        ProductManager $productManager
+    )
     {
-        // On commence par pdf générés (seulement ceux générés dans le BO  pour éviter de supprimer un PDF en cours d'envoi pour un utilisateur
-        $pdfFolder = $this->container->getParameter('paprec_commercial.data_tmp_directory');
+        // On commence par pdf générés (seulement ceux générés dans le BO pour éviter de supprimer un PDF en cours d'envoi pour un utilisateur
+        $pdfFolder = $this->getParameter('app.data_tmp_directory');
+        
+        /** @var Finder $finder */
         $finder = new Finder();
 
         $finder->files()->in($pdfFolder);
@@ -735,33 +784,28 @@ class QuoteRequestController extends AbstractController
         if ($finder->hasResults()) {
             foreach ($finder as $file) {
                 $absoluteFilePath = $file->getRealPath();
-//                $fileNameWithExtension = $file->getRelativePathname();
                 if (file_exists($absoluteFilePath)) {
                     unlink($absoluteFilePath);
                 }
             }
         }
 
-        $quoteRequestManager = $this->get('paprec_commercial.quote_request_manager');
-        
         /** @var User $user */
         $user = $this->getUser();
         
-        $pdfTmpFolder = $pdfFolder . '/';
-
-        $file = $quoteRequestManager->generatePDF($quoteRequest, $user->getLang());
+        $file = $quoteRequestManager->generatePDF($quoteRequest, $productManager, $user->getLang());
         $filename = substr($file, strrpos($file, '/') + 1);
-
+        
         // This should return the file to the browser as response
-        $response = new BinaryFileResponse($pdfTmpFolder . $filename);
-
-        // To generate a file download, you need the mimetype of the file
-        $mimeTypeGuesser = new FileinfoMimeTypeGuesser();
+        $response = new BinaryFileResponse($pdfFolder . '/' . $filename);
+        
+        /** @var FileinfoMimeTypeGuesser $fileinfoMimeTypeGuesser */
+        $fileinfoMimeTypeGuesser = new FileinfoMimeTypeGuesser();
 
         // Set the mimetype with the guesser or manually
-        if ($mimeTypeGuesser->isSupported()) {
+        if ($fileinfoMimeTypeGuesser->isGuesserSupported()) {
             // Guess the mimetype of the file according to the extension of the file
-            $response->headers->set('Content-Type', $mimeTypeGuesser->guess($pdfTmpFolder . $filename));
+            $response->headers->set('Content-Type', $fileinfoMimeTypeGuesser->guessMimeType($pdfFolder . '/' . $filename));
         } else {
             // Set the mimetype of the file manually, in this case for a text file is text/plain
             $response->headers->set('Content-Type', 'application/pdf');

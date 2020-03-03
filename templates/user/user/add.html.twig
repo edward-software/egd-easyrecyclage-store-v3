@@ -146,14 +146,11 @@
                     </div>
                 </div>
             </div>
-
         </div>
+
         {{ form_rest(form) }}
 
     </form>
-    </div>
-
-
 
 {% endblock %}
 
@@ -161,18 +158,11 @@
 
     <script>
         $(function () {
-
             $('.user-user-save-button').on('click', function () {
-
-                $('#userUserForm').submit();
-
+                $('#userUserForm').submit()
             });
-
-
             $('.user-user-cancel-button').on('click', function () {
-
                 var url = "{{ path("paprec_user_user_index") }}";
-
                 Swal.fire({
                     title: "{{ 'General.Confirm'|trans }}",
                     text: "{{ 'General.Confirm-cancel'|trans }}",
@@ -184,9 +174,8 @@
                         $(location).attr('href', url);
                     }
                 });
-
-            });
-
+            })
         });
     </script>
+
 {% endblock %}

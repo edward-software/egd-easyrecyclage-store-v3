@@ -476,4 +476,12 @@ class User implements UserInterface
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->password = null;
     }
+    
+    /**
+     * @return string|null
+     */
+    public function __toString()
+    {
+        return (string)$this->getUsername();
+    }
 }

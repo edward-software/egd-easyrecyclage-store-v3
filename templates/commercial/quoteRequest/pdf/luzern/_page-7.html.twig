@@ -67,7 +67,7 @@
             </td>
             <td>
 
-                CHF {{((product.transportUnitPrice / 100 * quoteRequest.postalCode.transportRate)|formatAmount(null, app.request.locale, 'FORMAT15'))|formatAmount(null, app.request.locale, 'DEC2')|round|number_format(2, '.', ',')}}
+                CHF {{((product.transportUnitPrice / 100 * quoteRequest.postalCode.transportRate)|formatAmount(app.request.locale, null, 'FORMAT15'))|formatAmount(app.request.locale, null, 'DEC2')|round|number_format(2, '.', ',')}}
             </td>
         </tr>
         {% endfor %}
@@ -112,7 +112,7 @@
                 Pro Behälter
             </td>
             <td>
-                CHF {{((product.rentalUnitPrice / 100 * quoteRequest.postalCode.rentalRate)|formatAmount(null, app.request.locale, 'FORMAT15'))|formatAmount(null, app.request.locale, 'DEC2')|round|number_format(2, '.', ',')}}
+                CHF {{((product.rentalUnitPrice / 100 * quoteRequest.postalCode.rentalRate)|formatAmount(app.request.locale, null, 'FORMAT15'))|formatAmount(app.request.locale, null, 'DEC2')|round|number_format(2, '.', ',')}}
             </td>
         </tr>
         </tbody>

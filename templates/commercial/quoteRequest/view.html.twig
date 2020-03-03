@@ -295,15 +295,15 @@
                                         </td>
                                         <td>{{ quoteRequestLine.quantity }}</td>
                                         <td>{{ quoteRequestLine.setUpPrice|formatAmount('', app.request.locale) }}
-                                            * {{ quoteRequestLine.setUpRate|formatAmount(null, app.request.locale, 'FORMAT15')|number_format(2, '.', ' ') }}</td>
+                                            * {{ quoteRequestLine.setUpRate|formatAmount(app.request.locale, null, 'FORMAT15')|number_format(2, '.', ' ') }}</td>
                                         <td>{{ quoteRequestLine.rentalUnitPrice|formatAmount('', app.request.locale) }}
-                                            * {{ quoteRequestLine.rentalRate|formatAmount(null, app.request.locale, 'FORMAT15')|number_format(2, '.', ' ') }}</td>
+                                            * {{ quoteRequestLine.rentalRate|formatAmount(app.request.locale, null, 'FORMAT15')|number_format(2, '.', ' ') }}</td>
                                         <td>{{ quoteRequestLine.transportUnitPrice|formatAmount('', app.request.locale) }}
-                                            * {{ quoteRequestLine.transportRate|formatAmount(null, app.request.locale, 'FORMAT15')|number_format(2, '.', ' ') }}</td>
+                                            * {{ quoteRequestLine.transportRate|formatAmount(app.request.locale, null, 'FORMAT15')|number_format(2, '.', ' ') }}</td>
                                         <td>{{ quoteRequestLine.treatmentUnitPrice|formatAmount('', app.request.locale) }}
-                                            * {{ quoteRequestLine.treatmentRate|formatAmount(null, app.request.locale, 'FORMAT15')|number_format(2, '.', ' ') }}</td>
+                                            * {{ quoteRequestLine.treatmentRate|formatAmount(app.request.locale, null, 'FORMAT15')|number_format(2, '.', ' ') }}</td>
                                         <td>{{ quoteRequestLine.traceabilityUnitPrice|formatAmount('', app.request.locale) }}
-                                            * {{ quoteRequestLine.traceabilityRate|formatAmount(null, app.request.locale, 'FORMAT15')|number_format(2, '.', ' ') }}</td>
+                                            * {{ quoteRequestLine.traceabilityRate|formatAmount(app.request.locale, null, 'FORMAT15')|number_format(2, '.', ' ') }}</td>
                                         <td>{{ quoteRequestLine.accessPrice|formatAmount('', app.request.locale) }}</td>
                                         <td>{{ quoteRequestLine.totalAmount|formatAmount('', app.request.locale) }}</td>
                                         <td class="text-center">

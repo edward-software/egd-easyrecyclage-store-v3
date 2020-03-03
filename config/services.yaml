@@ -17,13 +17,15 @@ parameters:
         elevator: 10
         ground: 0
     paprec_quote_staff: ['19', '1019', '2029', '3039', '4049', '5059', '6069', '7079', '8089', '9099', '100109', '110119', '120129', '130139', '140149', '150+']
-    paprec_commercial.data_tmp_directory: "%kernel.project_dir%/data/tmp"
+    app.data_tmp_directory: "%kernel.project_dir%/data/tmp"
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $tmpFolder: '%app.data_tmp_directory%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

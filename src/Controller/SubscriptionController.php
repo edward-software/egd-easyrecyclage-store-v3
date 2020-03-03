@@ -451,16 +451,23 @@ class SubscriptionController extends AbstractController
      * @param                     $quoteId
      * @param                     $locale
      * @param QuoteRequestManager $quoteRequestManager
+     * @param ProductManager      $productManager
      *
      * @return Response
      * @throws Exception
      */
-    public function showContractPDF(Request $request, $quoteId, $locale, QuoteRequestManager $quoteRequestManager)
+    public function showContractPDF(
+        Request $request,
+        $quoteId,
+        $locale,
+        QuoteRequestManager $quoteRequestManager,
+        ProductManager $productManager
+    )
     {
         /** @var QuoteRequest $quoteRequest */
         $quoteRequest = $quoteRequestManager->get($quoteId);
         
-        $filename = $quoteRequestManager->generatePDF($quoteRequest, $locale);
+        $filename = $quoteRequestManager->generatePDF($quoteRequest, $productManager, $locale);
         
         return $this->render('commercial/quoteRequest/showPDF.html.twig', [
             'filename' => $filename,

@@ -103,7 +103,7 @@ class CustomArea
     /**
      * @var Picture[]
      *
-     * @ORM\OneToMany(targetEntity="Picture", mappedBy="custom_area", cascade={"all"})
+     * @ORM\OneToMany(targetEntity="Picture", mappedBy="customArea", cascade={"all"})
      */
     private $pictures;
     

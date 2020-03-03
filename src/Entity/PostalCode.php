@@ -152,7 +152,7 @@ class PostalCode
     /**
      * @var QuoteRequest[]
      *
-     * @ORM\OneToMany(targetEntity="QuoteRequest", mappedBy="postal_code")
+     * @ORM\OneToMany(targetEntity="QuoteRequest", mappedBy="postalCode")
      */
     private $quoteRequests;
     

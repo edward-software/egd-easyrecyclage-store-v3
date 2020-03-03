@@ -18,34 +18,41 @@ use Knp\Snappy\Pdf;
 use Swift_Attachment;
 use Swift_Mailer;
 use Swift_Message;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Templating\PhpEngine;
+use Symfony\Component\Templating\EngineInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class QuoteRequestManager
 {
-
     private $em;
+    private $phpEngine;
+    private $tmpFolder; // Defined on service.yaml
     
     /**
      * QuoteRequestManager constructor.
      *
      * @param EntityManagerInterface $em
+     * @param EngineInterface        $phpEngine
+     * @param string                 $tmpFolder
      */
-    public function __construct(EntityManagerInterface $em)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        EngineInterface $phpEngine,
+        string $tmpFolder
+    ) {
         $this->em = $em;
+        $this->phpEngine = $phpEngine;
+        $this->tmpFolder = $tmpFolder;
     }
     
     
     /**
-     * @param      $quoteRequest
-     * @param bool $throwException
+     * @param QuoteRequest $quoteRequest
+     * @param bool         $throwException
      *
      * @return QuoteRequest|null
      * @throws Exception
      */
-    public function get($quoteRequest, $throwException = true)
+    public function get(QuoteRequest $quoteRequest, $throwException = true)
     {
         $id = $quoteRequest;
         
@@ -231,16 +238,16 @@ class QuoteRequestManager
     {
         try {
             $product = $productManager->get($productId);
+    
+            /** @var QuoteRequestLine $quoteRequestLine */
             $quoteRequestLine = new QuoteRequestLine();
-
+    
             $quoteRequestLine->setProduct($product);
             $quoteRequestLine->setQuantity($qtty);
             $this->addLine($quoteRequest, $quoteRequestLine, $numberManager, $productManager, null, $doFlush);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode());
         }
-
-
     }
     
     /**
@@ -332,7 +339,6 @@ class QuoteRequestManager
      * @param QuoteRequest        $quoteRequest
      * @param Swift_Mailer        $mailer
      * @param TranslatorInterface $translator
-     * @param PhpEngine           $phpEngine
      * @param                     $locale
      *
      * @return bool
@@ -342,7 +348,6 @@ class QuoteRequestManager
         QuoteRequest $quoteRequest,
         Swift_Mailer $mailer,
         TranslatorInterface $translator,
-        PhpEngine $phpEngine,
         $locale
     )
     {
@@ -359,7 +364,7 @@ class QuoteRequestManager
                 ->setFrom($_ENV['MAILER_PAPREC_SENDER'])
                 ->setTo($rcptTo)
                 ->setBody(
-                    $phpEngine->render(
+                    $this->phpEngine->render(
                         'commercial/quoteRequest/emails/confirmQuoteEmail.html.twig', [
                             'quoteRequest' => $quoteRequest,
                             'locale' => $locale
@@ -383,10 +388,10 @@ class QuoteRequestManager
     }
     
     /**
-     * @param QuoteRequest $quoteRequest
-     * @param Swift_Mailer $mailer
-     * @param PhpEngine    $phpEngine
-     * @param              $locale
+     * @param QuoteRequest   $quoteRequest
+     * @param Swift_Mailer   $mailer
+     * @param ProductManager $productManager
+     * @param                $locale
      *
      * @return bool
      * @throws Exception
@@ -394,7 +399,6 @@ class QuoteRequestManager
     public function sendNewRequestEmail(
         QuoteRequest $quoteRequest,
         Swift_Mailer $mailer,
-        PhpEngine $phpEngine,
         ProductManager $productManager,
         $locale
     )
@@ -424,9 +428,9 @@ class QuoteRequestManager
             if ($rcptTo == null || $rcptTo == '') {
                 return false;
             }
-
+    
             $pdfFilename = date('Y-m-d') . '-Reisswolf-Devis-' . $quoteRequest->getNumber() . '.pdf';
-            $pdfFile = $this->generatePDF($quoteRequest, $phpEngine, $productManager, $locale);
+            $pdfFile = $this->generatePDF($quoteRequest, $productManager, $locale);
     
             if (!$pdfFile) {
                 return false;
@@ -436,7 +440,7 @@ class QuoteRequestManager
                 ->setFrom($_ENV['MAILER_PAPREC_SENDER'])
                 ->setTo($rcptTo)
                 ->setBody(
-                    $phpEngine->render(
+                    $this->phpEngine->render(
                         'commercial/quoteRequest/emails/newQuoteEmail.html.twig', [
                             'quoteRequest' => $quoteRequest,
                             'locale' => $locale
@@ -473,10 +477,10 @@ class QuoteRequestManager
     }
     
     /**
-     * @param QuoteRequest $quoteRequest
-     * @param Swift_Mailer $mailer
-     * @param PhpEngine    $phpEngine
-     * @param              $locale
+     * @param QuoteRequest   $quoteRequest
+     * @param Swift_Mailer   $mailer
+     * @param ProductManager $productManager
+     * @param                $locale
      *
      * @return bool
      * @throws Exception
@@ -484,23 +488,19 @@ class QuoteRequestManager
     public function sendGeneratedQuoteEmail(
         QuoteRequest $quoteRequest,
         Swift_Mailer $mailer,
-        PhpEngine $phpEngine,
+        ProductManager $productManager,
         $locale
     )
     {
         try {
-            
-            $from = $this->container->getParameter('paprec_email_sender');
-
             $rcptTo = $quoteRequest->getEmail();
 
             if ($rcptTo == null || $rcptTo == '') {
                 return false;
             }
-
+    
             $pdfFilename = date('Y-m-d') . '-Reisswolf-Devis-' . $quoteRequest->getNumber() . '.pdf';
-
-            $pdfFile = $this->generatePDF($quoteRequest, $locale);
+            $pdfFile = $this->generatePDF($quoteRequest, $productManager, $locale);
 
             if (!$pdfFile) {
                 return false;
@@ -510,7 +510,7 @@ class QuoteRequestManager
                 ->setFrom($_ENV['MAILER_PAPREC_SENDER'])
                 ->setTo($rcptTo)
                 ->setBody(
-                    $phpEngine->render(
+                    $this->phpEngine->render(
                         'commercial/quoteRequest/emails/generatedQuoteEmail.html.twig', [
                             'quoteRequest' => $quoteRequest,
                             'locale' => $locale
@@ -539,39 +539,40 @@ class QuoteRequestManager
     }
     
     /**
-     * @param QuoteRequest $quoteRequest
-     * @param              $locale
+     * @param QuoteRequest   $quoteRequest
+     * @param ProductManager $productManager
+     * @param                $locale
      *
      * @return bool|string
      * @throws Exception
      */
     public function generatePDF(
         QuoteRequest $quoteRequest,
-        PhpEngine $phpEngine,
         ProductManager $productManager,
         $locale
     )
     {
+        $pdfTmpFolder = $this->tmpFolder;
+//        dd($pdfTmpFolder);
+    
         try {
-            $pdfTmpFolder = $_ENV['TMP_FOLDER'];
-
             if (!is_dir($pdfTmpFolder)) {
                 mkdir($pdfTmpFolder, 0755, true);
             }
-
+        
             $filenameOffer = $pdfTmpFolder . '/' . md5(uniqid()) . '.pdf';
             $filename = $pdfTmpFolder . '/' . md5(uniqid()) . '.pdf';
-
+        
+            /** @var DateTime $today */
             $today = new DateTime();
-
-            $snappy = new Pdf($this->container->getParameter('wkhtmltopdf_path'));
+        
+            $snappy = new Pdf($_ENV['WKHTMLTOPDF_PATH']);
             $snappy->setOption('javascript-delay', 3000);
             $snappy->setOption('dpi', 72);
-//            $snappy->setOption('footer-html', $this->container->get('templating')->render('@PaprecCommercial/QuoteRequest/PDF/fr/_footer.html.twig'));
-
+            
             if ($quoteRequest->getPostalCode() && $quoteRequest->getPostalCode()->getRegion()) {
-                $templateDir = '/templates/commercial/quoteRequest/pdf/';
-                switch (strtolower($quoteRequest->getPostalCode()->getRegion())) {
+                $templateDir = 'commercial/quoteRequest/pdf/';
+                switch (strtolower($quoteRequest->getPostalCode()->getRegion()->getName())) {
                     case 'basel':
                         $templateDir .= 'basel';
                         break;
@@ -587,14 +588,14 @@ class QuoteRequestManager
                         break;
                 }
             }
-
+            
             if (!isset($templateDir) || !$templateDir || $templateDir === null) {
                 return false;
             }
-
+    
             // On génère la page d'offre
             $snappy->generateFromHtml([
-                $phpEngine->render(
+                $this->phpEngine->render(
                     $templateDir . '/printQuoteOffer.html.twig', [
                         'quoteRequest' => $quoteRequest,
                         'date' => $today,
@@ -602,12 +603,13 @@ class QuoteRequestManager
                     ]
                 )
             ], $filenameOffer);
-
+            
             $products = $productManager->getAvailableProducts();
 
             // On génère la page d'offre
+            
             $snappy->generateFromHtml([
-                $phpEngine->render(
+                $this->phpEngine->render(
                     $templateDir . '/printQuoteContract.html.twig', [
                         'quoteRequest' => $quoteRequest,
                         'date' => $today,
@@ -615,12 +617,12 @@ class QuoteRequestManager
                     ]
                 )
             ], $filename);
-            
+    
             // Concaténation des notices
             $pdfArray = [];
             $pdfArray[] = $filenameOffer;
             $pdfArray[] = $filename;
-            
+    
             if (count($pdfArray)) {
                 $merger = new Merger();
                 $merger->addIterator($pdfArray);

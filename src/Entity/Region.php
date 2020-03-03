@@ -284,11 +284,10 @@ class Region
     }
     
     /**
-     * // TODO maybe fix it later it will trigger an error
      * @return string
      */
     public function __toString(): string
     {
-        return $this->getName();
+        return (string)$this->getName();
     }
 }

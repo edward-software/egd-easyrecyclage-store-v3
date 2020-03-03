@@ -19,7 +19,6 @@ class FormatAmountExtension extends AbstractExtension
         $this->numberManager = $numberManager;
     }
     
-    
     /**
      * @return array|TwigFilter[]
      */

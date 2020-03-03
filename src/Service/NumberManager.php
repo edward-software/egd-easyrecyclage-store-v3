@@ -57,12 +57,12 @@ class NumberManager
     /**
      * Format simplement un nombre qui a été normalisé avec normalize15
      *
-     * @param $amount
-     * @param $locale
+     * @param        $amount
+     * @param string $locale
      *
-     * @return string
+     * @return false|string
      */
-    public function formatAmount15($amount, $locale)
+    public function formatAmount15($amount, string $locale)
     {
         $fmt = numfmt_create($locale, NumberFormatter::DECIMAL);
         $fmt->setAttribute(NumberFormatter::FRACTION_DIGITS, 15);
