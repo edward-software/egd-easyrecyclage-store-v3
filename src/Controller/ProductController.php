@@ -559,7 +559,7 @@ class ProductController extends AbstractController
             
             foreach ($products as $product) {
                 foreach ($product->getPictures() as $picture) {
-                    $this->removeFile($this->getParameter('paprec_catalog.product.picto_path') . '/' . $picture->getPath());
+                    $this->removeFile($this->getParameter('app.product.picto_path') . '/' . $picture->getPath());
                     $product->removePicture($picture);
                 }
 
@@ -825,9 +825,12 @@ class ProductController extends AbstractController
      */
     public function addPictureAction(Request $request, Product $product)
     {
+        /** @var Picture $picture */
         $picture = new Picture();
-        foreach ($this->getParameter('paprec_types_picture') as $type) {
-            $types[$type] = $type;
+        
+        $pictureTypes = $this->getParameter('paprec_types_picture');
+        foreach ($pictureTypes as $pictureType) {
+            $types[$pictureType] = $pictureType;
         }
 
         $form = $this->createForm(PictureProductType::class, $picture, [
@@ -837,15 +840,20 @@ class ProductController extends AbstractController
         $em = $this->getDoctrine()->getManager();
 
         $form->handleRequest($request);
+        
         if ($form->isValid()) {
+            
             $product->setDateUpdate(new DateTime());
             $picture = $form->getData();
 
             if ($picture->getPath() instanceof UploadedFile) {
-                $pic = $picture->getPath();
-                $pictoFileName = md5(uniqid()) . '.' . $pic->guessExtension();
-
-                $pic->move($this->getParameter('paprec_catalog.product.picto_path'), $pictoFileName);
+    
+                /** @var UploadedFile $uploadedFile */
+                $uploadedFile = $picture->getPath();
+                
+                $pictoFileName = md5(uniqid()) . '.' . $uploadedFile->guessExtension();
+    
+                $uploadedFile->move($this->getParameter('app.product.picto_path'), $pictoFileName);
 
                 $picture->setPath($pictoFileName);
                 $picture->setType($request->get('type'));
@@ -908,10 +916,10 @@ class ProductController extends AbstractController
                 $pic = $picture->getPath();
                 $pictoFileName = md5(uniqid()) . '.' . $pic->guessExtension();
 
-                $pic->move($this->getParameter('paprec_catalog.product.picto_path'), $pictoFileName);
+                $pic->move($this->getParameter('app.product.picto_path'), $pictoFileName);
 
                 $picture->setPath($pictoFileName);
-                $this->removeFile($this->getParameter('paprec_catalog.product.picto_path') . '/' . $oldPath);
+                $this->removeFile($this->getParameter('app.product.picto_path') . '/' . $oldPath);
                 
                 $em->flush();
             }
@@ -946,7 +954,7 @@ class ProductController extends AbstractController
         foreach ($pictures as $picture) {
             if ($picture->getId() == $pictureID) {
                 $product->setDateUpdate(new DateTime());
-                $this->removeFile($this->getParameter('paprec_catalog.product.picto_path') . '/' . $picture->getPath());
+                $this->removeFile($this->getParameter('app.product.picto_path') . '/' . $picture->getPath());
                 $em->remove($picture);
                 continue;
             }

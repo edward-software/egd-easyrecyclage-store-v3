@@ -7,6 +7,7 @@ use App\Entity\CustomArea;
 use App\Entity\Picture;
 use App\Form\CustomAreaType;
 use App\Form\PictureProductType;
+use App\Repository\CustomAreaRepository;
 use App\Service\CustomAreaManager;
 use App\Service\PictureManager;
 use App\Tools\DataTable;
@@ -26,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Class CustomAreaController
@@ -55,7 +57,12 @@ class CustomAreaController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function loadListAction(Request $request, DataTable $dataTable, PaginatorInterface $paginator)
+    public function loadListAction(
+        Request $request,
+        DataTable $dataTable,
+        PaginatorInterface $paginator,
+        TranslatorInterface $translator
+    )
     {
         $return = [];
         
@@ -71,24 +78,50 @@ class CustomAreaController extends AbstractController
         $cols['isDisplayed'] = ['label' => 'isDisplayed', 'id' => 'r.is_displayed', 'method' => ['getIsDisplayed']];
         $cols['language'] = ['label' => 'language', 'id' => 'r.language', 'method' => ['getLanguage']];
         
-        /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $this->getDoctrine()->getManager()->getRepository(CustomArea::class)->createQueryBuilder('r');
+        $em = $this->getDoctrine()->getManager();
         
+        /** @var CustomAreaRepository $cutomAreaRepository */
+        $cutomAreaRepository = $em->getRepository(CustomArea::class);
+        
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $cutomAreaRepository->createQueryBuilder('r');
         $queryBuilder
             ->select(['r'])
             ->where('r.deleted IS NULL');
         
         if (is_array($search) && isset($search['value']) && $search['value'] != '') {
             if (substr($search['value'], 0, 1) === '#') {
-                $queryBuilder->andWhere($queryBuilder->expr()->orx(
-                    $queryBuilder->expr()->eq('r.id', '?1')
-                ))->setParameter(1, substr($search['value'], 1));
+                $queryBuilder
+                    ->andWhere(
+                        $queryBuilder
+                            ->expr()
+                            ->orx(
+                                $queryBuilder
+                                    ->expr()
+                                    ->eq('r.id', '?1')
+                            )
+                    )
+                    ->setParameter(1, substr($search['value'], 1))
+                ;
             } else {
-                $queryBuilder->andWhere($queryBuilder->expr()->orx(
-                    $queryBuilder->expr()->like('r.code', '?1'),
-                    $queryBuilder->expr()->like('r.isDisplayed', '?1'),
-                    $queryBuilder->expr()->like('r.language', '?1')
-                ))->setParameter(1, '%' . $search['value'] . '%');
+                $queryBuilder
+                    ->andWhere(
+                        $queryBuilder
+                            ->expr()
+                            ->orx(
+                                $queryBuilder
+                                    ->expr()
+                                    ->like('r.code', '?1'),
+                                $queryBuilder
+                                    ->expr()
+                                    ->like('r.isDisplayed', '?1'),
+                                $queryBuilder
+                                    ->expr()
+                                    ->like('r.language', '?1')
+                            )
+                    )
+                    ->setParameter(1, '%' . $search['value'] . '%')
+                ;
             }
         }
     
@@ -99,7 +132,7 @@ class CustomAreaController extends AbstractController
         
         foreach ($dt['data'] as $data) {
             $line = $data;
-            $line['isDisplayed'] = $data['isDisplayed'] ? $this->get('translator')->trans('General.1') : $this->get('translator')->trans('General.0');
+            $line['isDisplayed'] = $data['isDisplayed'] ? $translator->trans('General.1') : $translator->trans('General.0');
             $tmp[] = $line;
         }
     

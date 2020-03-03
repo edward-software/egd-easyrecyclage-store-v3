@@ -5,19 +5,22 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
 
-    paprec_catalog.product.picto_path: "%kernel.root_dir%/../web/uploads/pictos"
     paprec_types_picture: ['PICTO', 'PICTURE', 'PILOTPICTURE']
     paprec_custom_area_types_picture: ['LEFT', 'RIGHT']
     paprec_languages: ['DE', 'FR', 'IT', 'EN']
     paprec_custom_area_codes: ['catalog_top']
-    paprec_quote_status: [CREATED, 'PENDING', 'PROCESSING', 'CLOSED']
+    paprec_quote_status: ['CREATED', 'PENDING', 'PROCESSING', 'CLOSED']
     paprec_quote_access: ['stairs', 'elevator', 'ground']
     paprec_quote_access_price:
         stairs: 20
         elevator: 10
         ground: 0
     paprec_quote_staff: ['19', '1019', '2029', '3039', '4049', '5059', '6069', '7079', '8089', '9099', '100109', '110119', '120129', '130139', '140149', '150+']
-    app.data_tmp_directory: "%kernel.project_dir%/data/tmp"
+
+    ### rework ###
+
+    app.data_tmp_directory: '%kernel.project_dir%/data/tmp'
+    app.product.picto_path: '%kernel.project_dir%/public/uploads/pictos'
 
 services:
     # default configuration for services in *this* file

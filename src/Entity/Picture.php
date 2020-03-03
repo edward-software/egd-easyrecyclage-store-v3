@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * Picture
@@ -23,7 +24,7 @@ class Picture
     private $id;
 
     /**
-     * @var string
+     * @var mixed
      *
      * @ORM\Column(name="path", type="string", length=255, nullable=true)
      */
@@ -69,13 +70,11 @@ class Picture
 
         return $this;
     }
-
+    
     /**
-     * Get path.
-     *
-     * @return string|null
+     * @return string|UploadedFile|null
      */
-    public function getPath(): ?string
+    public function getPath()
     {
         return $this->path;
     }
