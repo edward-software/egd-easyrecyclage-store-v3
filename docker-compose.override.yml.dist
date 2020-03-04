@@ -1,0 +1,12 @@
+version: '3.6'
+
+services:
+  php:
+    ports:
+      - ':80'
+  adminer:
+    ports:
+      - ':8080'
+  database:
+    ports:
+      - ':3306'
