@@ -42,6 +42,7 @@ start: docker-compose.override.yml
 	$(EXEC) $(CONSOLE) doctrine:database:create --if-not-exists
 	$(EXEC) $(CONSOLE) doctrine:schema:update --force
 	$(EXEC) $(CONSOLE) make:migration
+	$(EXEC) $(CONSOLE) hautelook:fixtures:load -q
 
 .PHONY: stop ## stop the project
 stop:
