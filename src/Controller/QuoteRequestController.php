@@ -154,14 +154,14 @@ class QuoteRequestController extends AbstractController
      * @Route("/quoteRequest/export/{status}/{dateStart}/{dateEnd}", defaults={"status"=null, "dateStart"=null, "dateEnd"=null}, name="paprec_commercial_quoteRequest_export")
      * @Security("has_role('ROLE_COMMERCIAL') or (has_role('ROLE_COMMERCIAL_DIVISION') and 'DI' in user.getDivisions())")
      *
-     * @param Request       $request
-     * @param               $dateStart
-     * @param               $dateEnd
-     * @param               $status
-     * @param NumberManager $numberManager
-     * @param Spreadsheet   $spreadsheet
+     * @param Request             $request
+     * @param                     $dateStart
+     * @param                     $dateEnd
+     * @param                     $status
+     * @param NumberManager       $numberManager
+     * @param TranslatorInterface $translator
      *
-     * @return mixed
+     * @return StreamedResponse
      * @throws PSException
      */
     public function exportAction(
@@ -170,7 +170,6 @@ class QuoteRequestController extends AbstractController
         $dateEnd,
         $status,
         NumberManager $numberManager,
-        Spreadsheet $spreadsheet,
         TranslatorInterface $translator
     )
     {
@@ -200,6 +199,9 @@ class QuoteRequestController extends AbstractController
         /** @var QuoteRequest[] $quoteRequests */
         $quoteRequests = $queryBuilder->getQuery()->getResult();
     
+        /** @var Spreadsheet $spreadsheet */
+        $spreadsheet = new Spreadsheet();
+        
         $spreadsheet
             ->getProperties()
             ->setCreator("Paprec Easy Recyclage")
@@ -311,29 +313,20 @@ class QuoteRequestController extends AbstractController
             $sheet->getColumnDimension($i)->setAutoSize(true);
         }
 
-        $writer = new Xlsx($spreadsheet);
-
         $fileName = 'ReisswolfShop-Extraction-Devis--' . date('Y-m-d') . '.xlsx';
     
-        // Create a Response
-        $response =  new StreamedResponse(
-            function () use ($writer, $fileName) {
-                $writer->save($fileName);
-            }
-        );
+        $streamedResponse = new StreamedResponse();
+        $streamedResponse->setCallback(function () use ($spreadsheet) {
+            $writer =  new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        });
     
-        // Adding headers
-        $dispositionHeader = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $fileName
-        );
-        
-        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Pragma', 'public');
-        $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
-
-        return $response;
+        $streamedResponse->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $streamedResponse->headers->set('Pragma', 'public');
+        $streamedResponse->headers->set('Cache-Control', 'maxage=1');
+        $streamedResponse->headers->set('Content-Disposition', 'attachment; filename=' . $fileName);
+    
+        return $streamedResponse->send();
     }
     
     /**

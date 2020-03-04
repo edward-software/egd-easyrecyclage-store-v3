@@ -151,19 +151,18 @@ class ProductController extends AbstractController
      * @Route("/product/export",  name="paprec_catalog_product_export")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
-     * @param Request        $request
-     * @param ProductManager $productManager
-     * @param NumberManager  $numberManager
-     * @param Spreadsheet    $spreadsheet
+     * @param Request             $request
+     * @param ProductManager      $productManager
+     * @param NumberManager       $numberManager
+     * @param TranslatorInterface $translator
      *
-     * @return mixed
+     * @return StreamedResponse
      * @throws PSException
      */
     public function exportAction(
         Request $request,
         ProductManager $productManager,
         NumberManager $numberManager,
-        Spreadsheet $spreadsheet,
         TranslatorInterface $translator
     )
     {
@@ -172,13 +171,20 @@ class ProductController extends AbstractController
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->getDoctrine()->getManager()->createQueryBuilder();
 
-        $queryBuilder->select(['p'])
+        $queryBuilder
+            ->select(['p'])
             ->from(Product::class, 'p')
             ->where('p.deleted IS NULL');
 
+        /** @var Product[] $products */
         $products = $queryBuilder->getQuery()->getResult();
     
-        $spreadsheet->getProperties()->setCreator("Reisswolf Shop")
+        /** @var Spreadsheet $spreadsheet */
+        $spreadsheet = new Spreadsheet();
+        
+        $spreadsheet
+            ->getProperties()
+            ->setCreator("Reisswolf Shop")
             ->setLastModifiedBy("Reisswolf Shop")
             ->setTitle("Reisswolf Shop - Products")
             ->setSubject("Extract");
@@ -271,29 +277,20 @@ class ProductController extends AbstractController
             $sheet->getColumnDimension($i)->setAutoSize(true);
         }
     
-        $writer = new Xlsx($spreadsheet);
-
         $fileName = 'ReisswolfShop-Extraction-Products-' . date('Y-m-d') . '.xlsx';
     
-        // Create a Response
-        $response =  new StreamedResponse(
-            function () use ($writer, $fileName) {
-                $writer->save($fileName);
-            }
-        );
+        $streamedResponse = new StreamedResponse();
+        $streamedResponse->setCallback(function () use ($spreadsheet) {
+            $writer =  new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        });
     
-        // Adding headers
-        $dispositionHeader = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $fileName
-        );
-        
-        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Pragma', 'public');
-        $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
-
-        return $response;
+        $streamedResponse->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $streamedResponse->headers->set('Pragma', 'public');
+        $streamedResponse->headers->set('Cache-Control', 'maxage=1');
+        $streamedResponse->headers->set('Content-Disposition', 'attachment; filename=' . $fileName);
+    
+        return $streamedResponse->send();
     }
     
     /**

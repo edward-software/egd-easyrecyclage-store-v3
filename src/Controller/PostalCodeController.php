@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use Knp\Component\Pager\PaginatorInterface;
+use PhpOffice\PhpSpreadsheet\Exception as PSException;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -129,11 +130,13 @@ class PostalCodeController extends AbstractController
      * @Route("/postalCode/export", name="paprec_catalog_postalCode_export")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
-     * @param Request $request
+     * @param Request       $request
+     * @param NumberManager $numberManager
      *
-     * @return mixed
+     * @return StreamedResponse
+     * @throws PSException
      */
-    public function exportAction(Request $request, Spreadsheet $spreadsheet, NumberManager $numberManager)
+    public function exportAction(Request $request, NumberManager $numberManager)
     {
         $em = $this->getDoctrine()->getManager();
         
@@ -143,18 +146,25 @@ class PostalCodeController extends AbstractController
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $postalCodeRepository->createQueryBuilder('pC');
 
-        $queryBuilder->select(['pC'])
+        $queryBuilder
+            ->select(['pC'])
             ->where('pC.deleted IS NULL');
 
         /** @var PostalCode[] $postalCodes */
         $postalCodes = $queryBuilder->getQuery()->getResult();
     
-        $spreadsheet->getProperties()->setCreator("Reisswolf Shop")
+        /** @var Spreadsheet $spreadsheet */
+        $spreadsheet = new Spreadsheet();
+        
+        $spreadsheet
+            ->getProperties()
+            ->setCreator("Reisswolf Shop")
             ->setLastModifiedBy("Reisswolf Shop")
             ->setTitle("Reisswolf Shop - Postal codes")
             ->setSubject("Extract");
     
-        $spreadsheet->setActiveSheetIndex(0)
+        $spreadsheet
+            ->setActiveSheetIndex(0)
             ->setCellValue('A1', 'ID')
             ->setCellValue('B1', 'Code')
             ->setCellValue('C1', 'Commune')
@@ -167,13 +177,16 @@ class PostalCodeController extends AbstractController
             ->setCellValue('J1', 'Salesman in charge')
             ->setCellValue('K1', 'Region');
     
-        $spreadsheet->getActiveSheet()->setTitle('Postal codes');
-        $spreadsheet->setActiveSheetIndex(0);
+        $spreadsheet
+            ->getActiveSheet()
+            ->setTitle('Postal codes');
+        $spreadsheet
+            ->setActiveSheetIndex(0);
 
         $i = 2;
         foreach ($postalCodes as $postalCode) {
-    
-            $spreadsheet->setActiveSheetIndex(0)
+            $spreadsheet
+                ->setActiveSheetIndex(0)
                 ->setCellValue('A' . $i, $postalCode->getId())
                 ->setCellValue('B' . $i, $postalCode->getCode())
                 ->setCellValue('C' . $i, $postalCode->getCity())
@@ -188,29 +201,20 @@ class PostalCodeController extends AbstractController
             $i++;
         }
     
-        $writer = new Xlsx($spreadsheet);
-    
         $fileName = 'ReisswolfShop-Extract-Postal-Codes-' . date('Y-m-d') . '.xlsx';
     
-        // Create a Response
-        $response =  new StreamedResponse(
-            function () use ($writer, $fileName) {
-                $writer->save($fileName);
-            }
-        );
-        
-        // Adding headers
-        $dispositionHeader = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $fileName
-        );
-        
-        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Pragma', 'public');
-        $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
-        
-        return $response;
+        $streamedResponse = new StreamedResponse();
+        $streamedResponse->setCallback(function () use ($spreadsheet) {
+            $writer =  new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        });
+    
+        $streamedResponse->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $streamedResponse->headers->set('Pragma', 'public');
+        $streamedResponse->headers->set('Cache-Control', 'maxage=1');
+        $streamedResponse->headers->set('Content-Disposition', 'attachment; filename=' . $fileName);
+    
+        return $streamedResponse->send();
     }
     
     /**
@@ -290,7 +294,12 @@ class PostalCodeController extends AbstractController
      * @return RedirectResponse|Response
      * @throws EntityNotFoundException
      */
-    public function editAction(Request $request, PostalCode $postalCode, NumberManager $numberManager, PostalCodeManager $postalCodeManager)
+    public function editAction(
+        Request $request,
+        PostalCode $postalCode,
+        NumberManager $numberManager,
+        PostalCodeManager $postalCodeManager
+    )
     {
         /** @var User $user */
         $user = $this->getUser();

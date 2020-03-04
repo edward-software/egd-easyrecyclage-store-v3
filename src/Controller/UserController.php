@@ -131,12 +131,11 @@ class UserController extends AbstractController
      *
      * @param Request     $request
      * @param Translator  $translator
-     * @param Spreadsheet $spreadsheet
      *
      * @return mixed
      * @throws PSException
      */
-    public function exportAction(Request $request, Translator $translator, Spreadsheet $spreadsheet)
+    public function exportAction(Request $request, Translator $translator)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -151,6 +150,9 @@ class UserController extends AbstractController
         /** @var User[] $users */
         $users = $queryBuilder->getQuery()->getResult();
     
+        /** @var Spreadsheet $spreadsheet */
+        $spreadsheet = new Spreadsheet();
+        
         $spreadsheet
             ->getProperties()
             ->setCreator("Reisswolf Shop")
@@ -212,29 +214,20 @@ class UserController extends AbstractController
             }
         }
     
-        $writer = new Xlsx($spreadsheet);
-    
         $fileName = 'ReisswolfShop-Extract-Users-' . date('Y-m-d') . '.xlsx';
     
-        // Create a Response
-        $response =  new StreamedResponse(
-            function () use ($writer, $fileName) {
-                $writer->save($fileName);
-            }
-        );
-
-        // Adding headers
-        $dispositionHeader = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $fileName
-        );
-        
-        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Pragma', 'public');
-        $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
-
-        return $response;
+        $streamedResponse = new StreamedResponse();
+        $streamedResponse->setCallback(function () use ($spreadsheet) {
+            $writer =  new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        });
+    
+        $streamedResponse->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $streamedResponse->headers->set('Pragma', 'public');
+        $streamedResponse->headers->set('Cache-Control', 'maxage=1');
+        $streamedResponse->headers->set('Content-Disposition', 'attachment; filename=' . $fileName);
+    
+        return $streamedResponse->send();
     }
     
     /**

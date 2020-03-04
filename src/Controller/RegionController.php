@@ -127,12 +127,11 @@ class RegionController extends AbstractController
      *
      * @param Request     $request
      * @param UserManager $userManager
-     * @param Spreadsheet $spreadsheet
      *
      * @return StreamedResponse
      * @throws PSException
      */
-    public function exportAction(Request $request, UserManager $userManager, Spreadsheet $spreadsheet)
+    public function exportAction(Request $request, UserManager $userManager)
     {
         $em = $this->getDoctrine()->getManager();
         
@@ -149,6 +148,9 @@ class RegionController extends AbstractController
         /** @var Region[] $regions */
         $regions = $queryBuilder->getQuery()->getResult();
     
+        /** @var Spreadsheet $spreadsheet */
+        $spreadsheet = new Spreadsheet();
+        
         $spreadsheet
             ->getProperties()
             ->setCreator("Reisswolf Shop")
@@ -233,29 +235,20 @@ class RegionController extends AbstractController
             $sheet->getColumnDimension($i)->setAutoSize(true);
         }
         
-        $writer = new Xlsx($spreadsheet);
-
         $fileName = 'ReisswolfShop-Extract-Regions-' . date('Y-m-d') . '.xlsx';
     
-        // Create a Response
-        $response =  new StreamedResponse(
-            function () use ($writer, $fileName) {
-                $writer->save($fileName);
-            }
-        );
-
-        // Adding headers
-        $dispositionHeader = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $fileName
-        );
-        
-        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Pragma', 'public');
-        $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
-
-        return $response;
+        $streamedResponse = new StreamedResponse();
+        $streamedResponse->setCallback(function () use ($spreadsheet) {
+            $writer =  new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        });
+    
+        $streamedResponse->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $streamedResponse->headers->set('Pragma', 'public');
+        $streamedResponse->headers->set('Cache-Control', 'maxage=1');
+        $streamedResponse->headers->set('Content-Disposition', 'attachment; filename=' . $fileName);
+    
+        return $streamedResponse->send();
     }
     
     /**
