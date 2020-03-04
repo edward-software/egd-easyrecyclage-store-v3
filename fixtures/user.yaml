@@ -2,42 +2,42 @@ App\Entity\User:
 
   # password: admin
   etienne:
-    __construct:  false
-    username:     'ecrespi'
-    email:        'etienne.crespi@eggers-digital.com'
-    enabled:      1
-    password:     '\$argon2id\$v=19$m=65536,t=4,p=1\$l9TbdXLLaSib0tbM1lL3VA\$p/jKBk6g9t/LHhDSmHWf2owcj+it2v7ZUUrp6TYQPz4'
-    roles:        '[ROLE_ADMIN]'
-    dateCreation: "<dateTime('now')>"
-    companyName:  'EGGERS Conseil'
-    lastName:     'CRESPI'
-    firstName:    'Etienne'
-    lang:         'FR'
+    __construct: false
+    username (unique): ecrespi
+    email: etienne.crespi@eggers-digital.com
+    enabled: true
+    password: \$argon2id\$v=19\$m=65536,t=4,p=1\$2b15n0pJKnryKG9nY1Kcrw\$uIArhjDQ5wR5O044UvxErxiap1WbOTwzuw1MpiPKhJw
+    roles: [ROLE_ADMIN]
+    dateCreation: <dateTime('now')>
+    companyName: EGGERS Conseil
+    lastName: CRESPI
+    firstName: Etienne
+    lang: FR
 
   # password: admin
   admin:
-    __construct:  false
-    username:     'admin'
-    email:        "<email()>"
-    enabled:      1
-    password:     '\$argon2id\$v=19$m=65536,t=4,p=1\$l9TbdXLLaSib0tbM1lL3VA\$p/jKBk6g9t/LHhDSmHWf2owcj+it2v7ZUUrp6TYQPz4'
-    roles:        '[ROLE_ADMIN]'
-    dateCreation: "<dateTime('now')>"
-    companyName:  '<company()>'
-    lastName:     "<lastName()>"
-    firstName:    "<firstName()>"
-    lang:         'FR'
+    __construct: false
+    username (unique): admin
+    email: <email()>
+    enabled: true
+    password: \$argon2id\$v=19\$m=65536,t=4,p=1\$2b15n0pJKnryKG9nY1Kcrw\$uIArhjDQ5wR5O044UvxErxiap1WbOTwzuw1MpiPKhJw
+    roles: [ROLE_ADMIN]
+    dateCreation: <dateTime('now')>
+    companyName: <company()>
+    lastName: <lastName()>
+    firstName: <firstName()>
+    lang: FR
 
   # password: commercial
   commercial:
-    __construct:    false
-      username:     'commercial'
-      email:        "<email()>"
-      enabled:      1
-      password:     '\$argon2id\$v=19\$m=65536,t=4,p=1\$l9TbdXLLaSib0tbM1lL3VA\$p/jKBk6g9t/LHhDSmHWf2owcj+it2v7ZUUrp6TYQPz4'
-      roles:        '[ROLE_COMMERCIAL]'
-      dateCreation: "<dateTime('now')>"
-      companyName:  '<company()>'
-      lastName:     "<lastName()>"
-      firstName:    "<firstName()>"
-      lang:         'FR'
+    __construct: false
+    username (unique): commercial
+    email: <email()>
+    enabled: true
+    password: \$argon2id\$v=19\$m=65536,t=4,p=1\$HnbXt328emnHeUiyCwMh0Q\$Pg3Hs6n9XaRL1qeQsFp+vJRo1ySMIVfw4NrCyl2UN7U
+    roles: [ROLE_COMMERCIAL]
+    dateCreation: <dateTime('now')>
+    companyName: <company()>
+    lastName: <lastName()>
+    firstName: <firstName()>
+    lang: FR
