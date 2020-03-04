@@ -25,10 +25,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UserController extends AbstractController
 {
@@ -129,13 +129,13 @@ class UserController extends AbstractController
      * @Route("/export", name="paprec_user_user_export")
      * @Security("has_role('ROLE_COMMERCIAL')")
      *
-     * @param Request     $request
-     * @param Translator  $translator
+     * @param Request             $request
+     * @param TranslatorInterface $translator
      *
-     * @return mixed
+     * @return StreamedResponse
      * @throws PSException
      */
-    public function exportAction(Request $request, Translator $translator)
+    public function exportAction(Request $request, TranslatorInterface $translator)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -360,12 +360,13 @@ class UserController extends AbstractController
      * @Route("/editMyProfile", name="paprec_user_user_editMyProfile")
      * @Security("has_role('ROLE_USER')")
      *
-     * @param Request $request
+     * @param Request                      $request
+     * @param UserPasswordEncoderInterface $passwordEncoder
      *
      * @return RedirectResponse|Response
      * @throws Exception
      */
-    public function editMyProfileAction(Request $request)
+    public function editMyProfileAction(Request $request, UserPasswordEncoderInterface $passwordEncoder)
     {
         /** @var User $user */
         $user = $this->getUser();
@@ -382,15 +383,17 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $user = $form->getData();
+            $user->setPassword($passwordEncoder->encodePassword(
+                $user,
+                $user->getPassword()
+            ));
             $user->setDateUpdate(new DateTime);
-
             $em = $this->getDoctrine()->getManager();
+            
             $em->flush();
 
             return $this->redirectToRoute('paprec_home_dashboard');
-
         }
 
         return $this->render('user/user/editMyProfile.html.twig', [
