@@ -32,12 +32,12 @@ class AccessExtension extends AbstractExtension
     
     
     /**
-     * @return array|TwigFunction[]
+     * @return array|TwigFilter[]
      */
     public function getFunctions()
     {
         return [
-            new TwigFunction('paprec_has_access', [$this, 'hasAccess']),
+            new TwigFilter('paprec_has_access', [$this, 'hasAccess']),
         ];
     }
     
