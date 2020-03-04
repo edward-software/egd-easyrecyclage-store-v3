@@ -42,7 +42,6 @@ start: docker-compose.override.yml
 	$(EXEC) $(CONSOLE) doctrine:database:create --if-not-exists
 	$(EXEC) $(CONSOLE) doctrine:schema:update --force
 	$(EXEC) $(CONSOLE) make:migration
-	$(EXEC) $(CONSOLE) hautelook:fixtures:load -q
 
 .PHONY: stop ## stop the project
 stop:
@@ -51,15 +50,6 @@ stop:
 .PHONY: exec ## Run bash in the php container
 exec:
 	$(EXEC) /bin/bash
-
-.PHONY: test ## Start an analyze of the code and return a checkup
-test:
-	$(EXEC) vendor/bin/phpcs --ignore=*/Migrations/* src
-	$(EXEC) vendor/bin/phpstan analyse src -c config/phpstan/phpstan.neon -l 6
-
-.PHONY: testF ## Start an analyze of the code and return a checkup
-testF:
-	$(EXEC) vendor/bin/phpcbf src
 
 ##
 ## Shortcuts outside container
