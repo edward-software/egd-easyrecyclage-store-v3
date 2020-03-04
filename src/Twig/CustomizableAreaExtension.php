@@ -7,34 +7,40 @@ use App\Entity\CustomArea;
 use App\Service\CustomAreaManager;
 use Exception;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 use Twig\TwigFunction;
 
-class PaprecCustomizableAreaExtension extends AbstractExtension
+class CustomizableAreaExtension extends AbstractExtension
 {
 
     private $customAreaManager;
-
     
+    
+    /**
+     * PaprecCustomizableAreaExtension constructor.
+     *
+     * @param CustomAreaManager $customAreaManager
+     */
     public function __construct(CustomAreaManager $customAreaManager)
     {
         $this->customAreaManager = $customAreaManager;
     }
-
+    
     
     /**
-     * @return array|TwigFilter[]
+     * @return array|TwigFunction[]
      */
     public function getFunctions()
     {
         return [
-            new TwigFilter('paprec_customizable_area', [$this, 'customizableArea']),
+            new TwigFunction('customizable_area', [$this, 'customizableArea']),
         ];
     }
-
+    
     /**
      * @param $code
-     * @return array|object[]|CustomArea[]
+     * @param $locale
+     *
+     * @return CustomArea|object|null
      * @throws Exception
      */
     public function customizableArea($code, $locale)
@@ -57,6 +63,6 @@ class PaprecCustomizableAreaExtension extends AbstractExtension
      */
     public function getName()
     {
-        return 'paprec_customizable_area';
+        return 'customizable_area';
     }
 }
