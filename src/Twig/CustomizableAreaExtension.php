@@ -10,7 +10,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
-class PaprecCustomizableAreaExtension extends AbstractExtension
+class CustomizableAreaExtension extends AbstractExtension
 {
 
     private $customAreaManager;
@@ -20,15 +20,15 @@ class PaprecCustomizableAreaExtension extends AbstractExtension
     {
         $this->customAreaManager = $customAreaManager;
     }
-
+    
     
     /**
-     * @return array|TwigFilter[]
+     * @return array|TwigFunction[]
      */
     public function getFunctions()
     {
         return [
-            new TwigFilter('paprec_customizable_area', [$this, 'customizableArea']),
+            new TwigFunction('customizable_area', [$this, 'customizableArea']),
         ];
     }
 
@@ -57,6 +57,6 @@ class PaprecCustomizableAreaExtension extends AbstractExtension
      */
     public function getName()
     {
-        return 'paprec_customizable_area';
+        return 'customizable_area';
     }
 }
