@@ -43,6 +43,7 @@
         "twig/twig": "^2.9"
     },
     "require-dev": {
+        "hautelook/alice-bundle": "^2.7",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.0",
         "symfony/phpunit-bridge": "^5.0",
