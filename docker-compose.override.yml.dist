@@ -10,3 +10,6 @@ services:
   database:
     ports:
       - ':3306'
+  node:
+    ports:
+      - ':8081'

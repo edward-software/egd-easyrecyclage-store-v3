@@ -3,19 +3,16 @@
 
 CONSOLE=bin/console
 DC=docker-compose
+DB=docker build
+DR=docker run
 HAS_DOCKER:=$(shell command -v $(DC) 2> /dev/null)
 
 ifdef HAS_DOCKER
-	ifdef PHP_ENV
-		EXECROOT=$(DC) exec -e PHP_ENV=$(PHP_ENV) php
-		EXEC=$(DC) exec -e PHP_ENV=$(PHP_ENV) php
-	else
-		EXECROOT=$(DC) exec php
-		EXEC=$(DC) exec php
-	endif
+	EXEC_PHP=$(DC) exec php
+	EXEC_NODE=$(DC) exec node
 else
-	EXECROOT=
-	EXEC=
+	EXEC_PHP=
+	EXEC_NODE=
 endif
 
 .DEFAULT_GOAL := help
@@ -38,11 +35,13 @@ start: docker-compose.override.yml
 	$(DC) pull || true
 	$(DC) build
 	$(DC) up -d
-	$(EXEC) composer install
-	$(EXEC) $(CONSOLE) doctrine:database:create --if-not-exists
-	$(EXEC) $(CONSOLE) doctrine:schema:update --force
-	$(EXEC) $(CONSOLE) make:migration
-	$(EXEC) $(CONSOLE) hautelook:fixtures:load -q
+	$(EXEC_PHP) composer install
+	$(EXEC_PHP) $(CONSOLE) doctrine:database:create --if-not-exists
+	$(EXEC_PHP) $(CONSOLE) doctrine:schema:update --force
+	$(EXEC_PHP) $(CONSOLE) make:migration
+	$(EXEC_PHP) $(CONSOLE) hautelook:fixtures:load -q
+	$(EXEC_PHP) $(CONSOLE) ckeditor:install
+	$(DC) run --rm --no-deps node bash -ci 'yarn install && yarn run encore dev'
 
 .PHONY: stop ## stop the project
 stop:
@@ -50,7 +49,14 @@ stop:
 
 .PHONY: exec ## Run bash in the php container
 exec:
-	$(EXEC) /bin/bash
+	$(EXEC_PHP) /bin/bash
+
+.PHONY: build ## Rebuild
+build:
+	$(DC) pull || true
+	$(DC) build
+	$(DC) up -d
+	$(DC) run --rm --no-deps node bash -ci 'yarn install && yarn run encore dev'
 
 ##
 ## Shortcuts outside container
@@ -65,18 +71,18 @@ buildb:
 
 .PHONY: entity ## Call make:entity
 entity:
-	$(EXEC) $(CONSOLE) make:entity
+	$(EXEC_PHP) $(CONSOLE) make:entity
 
 .PHONY: controller ## Call make:controller
 controller:
-	$(EXEC) $(CONSOLE) make:controller
+	$(EXEC_PHP) $(CONSOLE) make:controller
 
 .PHONY: form ## Call make:form
 form:
-	$(EXEC) $(CONSOLE) make:form
+	$(EXEC_PHP) $(CONSOLE) make:form
 
 ##
-## Dependencies Files
+## Dependencies & environment Files
 ##---------------------------------------------------------------------------
 
 docker-compose.override.yml: docker-compose.override.yml.dist

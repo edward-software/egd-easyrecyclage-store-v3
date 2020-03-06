@@ -1,18 +1,23 @@
 version: '3.6'
 services:
   php:
-    image: 'chialab/php-dev:7.4-apache'
+    image: chialab/php-dev:7.4-apache
     volumes:
-      - '.:/var/www/html'
-      - './docker/config/apache2/000-default.conf:/etc/apache2/sites-available/000-default.conf'
+      - .:/var/www/html
+      - ./docker/config/apache2/000-default.conf:/etc/apache2/sites-available/000-default.conf
     depends_on:
       - database
   database:
-    image: 'mariadb'
+    image: mariadb
     environment:
       - MYSQL_ROOT_PASSWORD=root
   adminer:
-    image: 'adminer'
+    image: adminer
     environment:
       - ADMINER_DEFAULT_SERVER=database
       - ADMINER_DESIGN=brade
+  node:
+    image: "node:8"
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app
